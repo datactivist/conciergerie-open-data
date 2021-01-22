@@ -1,0 +1,25 @@
+{
+    "query_expansion": [
+        {
+            "cible_url": "https://trouver.datasud.fr/dataset/syncf2de19f-fr-120066022-jdd-58fa0f8a-fa62-4e33-a840-c4b701a19929",
+            "requetes": [
+                {
+                    "termes": "barrages",
+                    "succes": false
+                },
+                {
+                    "termes": "concession",
+                    "succes": false
+                },
+                {
+                    "termes": "hydro",
+                    "succes": false
+                },
+                {
+                    "termes":"lac artificiel",
+                    "succes": false
+                }
+            ]
+        }
+    ]
+}
