@@ -7,7 +7,7 @@
 #### Pitch
 > *"être capable de faire un petit déploiement local"*
 
-#### Echéance : vendredi 5 janvier 2021.
+#### Echéance : vendredi 5 février 2021.
 
 #### Tâches
 - [ ] trouver une image Docker à adapter (doc Rasa ?) => @Sylvain
