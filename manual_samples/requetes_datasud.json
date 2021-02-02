@@ -1,0 +1,544 @@
+{
+    "query_expansion": [
+        {
+            "cible_url": "https://trouver.datasud.fr/dataset/syncf2de19f-fr-120066022-jdd-58fa0f8a-fa62-4e33-a840-c4b701a19929",
+            "requetes": [
+                {
+                    "termes": "barrages",
+                    "succes": false
+                },
+                {
+                    "termes": "concession",
+                    "succes": false
+                },
+                {
+                    "termes": "hydro",
+                    "succes": false
+                },
+                {
+                    "termes":"lac artificiel",
+                    "succes": false
+                },
+                {
+                    "termes":"hydroélectricité",
+                    "succes":false
+                },
+                {
+                    "termes":"aménagement hydroélectrique",
+                    "succes":true
+                },
+                {
+                    "termes":"production électrique",
+                    "succes":false
+                },
+                {
+                    "termes":"centrales hydroélectriques",
+                    "succes":true
+                },
+                {
+                    "termes":"centrales hydrauliques",
+                    "succes":false
+                },
+                {
+                    "termes":"barrages hydroélectriques",
+                    "succes":false
+                }
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/syncc2605d7-fr-120066022-jdd-b25fcad6-acdd-4dd2-9551-95565e0c9097",
+            "requetes": [
+                {
+                    "termes":"qualité de l'eau",
+                    "succes":true
+                },
+                {
+                    "termes":"pollution de l'eau",
+                    "succes":true
+                },
+                {
+                    "termes":"station de contrôle de la qualité de l'eau",
+                    "succes":true
+                },
+                {
+                    "termes":"état nappes phréatiques",
+                    "succes":false
+                },
+                {
+                    "termes":"contrôle de la qualité de l'eau",
+                    "succes":true
+                },
+                {
+                    "termes":"surveillance de la qualité de l'eau",
+                    "succes":true
+                },
+                {
+                    "termes":"données de l'eau",
+                    "succes":true,
+                    "match":1629
+                },
+                {
+                    "termes":"test de la qualité de l'eau",
+                    "succes":true,
+                    "match":985
+                },
+                {
+                    "termes":"eau potable",
+                    "succes":false,
+                    "match":11
+                },
+                {
+                    "termes":"surveillance sécheresse",
+                    "succes":false,
+                    "match":0
+                }
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/syncb206a56-fr-120066022-jdd-9730163a-adee-49ea-9cd3-17a97b04c406",
+            "requetes": [
+                {
+                    "termes":"patrimoine mondial",
+                    "succes":true,
+                    "match":2
+                },
+                {
+                    "termes":"sites classés unesco",
+                    "succes":true,
+                    "match":32
+                },
+                {
+                    "termes":"héritage culturel",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"monuments remarquables",
+                    "succes":false,
+                    "match":2
+                },
+                {
+                    "termes":"sites naturels remarquables",
+                    "succes":true,
+                    "match":89
+                },
+                {
+                    "termes":"unesco",
+                    "succes":true,
+                    "match":5
+                },
+                {
+                    "termes":"sites historiques protégés",
+                    "succes":true,
+                    "match":50
+                },
+                {
+                    "termes":"biens culturels",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"protection du patrimoine",
+                    "succes":true,
+                    "match":298
+                },
+                {
+                    "termes":"lieux remarquables en paca",
+                    "succes":false,
+                    "match":40
+                }
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/synca27b161-fr-120066022-jdd-afc3a755-4597-4d3b-a258-8bf03b7bae8b",
+            "requetes": [
+                {
+                    "termes":"énergie photovoltaïque",
+                    "succes":true,
+                    "match":10
+                },
+                {
+                    "termes":"parc photovoltaïque",
+                    "succes":true,
+                    "match":2
+                },
+                {
+                    "termes":"panneaux solaires",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"énergie solaire",
+                    "succes":false,
+                    "match":11
+                },
+                {
+                    "termes":"carte des installations photovoltaïques",
+                    "succes":false,
+                    "match":8
+                },
+                {
+                    "termes":"production d'énergies renouvelables",
+                    "succes":false,
+                    "match":112
+                },
+                {
+                    "termes":"production d'énergie solaire",
+                    "succes":false,
+                    "match":84
+                },
+                {
+                    "termes":"fermes solaires",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"production d'électricité solaire",
+                    "succes":false,
+                    "match":83
+                },
+                {
+                    "termes":"production d'électricité photovoltaïque",
+                    "succes":false,
+                    "match":82
+                }
+                
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/sync49f8c2a-fr-120066022-jdd-fa70f4ff-9bc6-41a4-bc14-d93665d96d86",
+            "requetes": [
+                {
+                    "termes":"panneaux publicitaires",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"pub",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"affichage publicitaire",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"enseignes publicitaires",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"publicité",
+                    "succes":true,
+                    "match":2
+                },
+                {
+                    "termes":"autorisation publicité",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"campagne d'affichage",
+                    "succes":false,
+                    "match":4
+                },
+                {
+                    "termes":"publicité en ville",
+                    "succes":true,
+                    "match":147
+                },
+                {
+                    "termes":"affichage interdit",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"interdiction publicité",
+                    "succes":false,
+                    "match":0
+                }
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/sync8771fd6-fr-120066022-jdd-7c9f618a-634a-4262-87bc-a0e6f7976ce0",
+            "requetes": [
+                {
+                    "termes":"usines polluantes",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"site industriel",
+                    "succes":true,
+                    "match":36
+                },
+                {
+                    "termes":"risque industriel",
+                    "succes":false,
+                    "match":1
+                },
+                {
+                    "termes":"site seveso",
+                    "succes":false,
+                    "match":1
+                },
+                {
+                    "termes":"sites industriels sensibles",
+                    "succes":true,
+                    "match":8
+                },
+                {
+                    "termes":"site industriel nuisances sonores",
+                    "succes":true,
+                    "match":4
+                },
+                {
+                    "termes":"installations industrielles classées",
+                    "succes":true,
+                    "match":5
+                },
+                {
+                    "termes":"demande d'autorisation site industriel",
+                    "succes":true,
+                    "match":7
+                },
+                {
+                    "termes":"industrie impact environnemental",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"agriculture pollution",
+                    "succes":false,
+                    "match":0
+                }
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/sync799a957-fr-120066022-jdd-8717d0fc-af90-4034-b769-ef658603419e",
+            "requetes": [
+                {
+                    "termes":"inondations",
+                    "succes":true,
+                    "match":6
+                },
+                {
+                    "termes":"zones inondables",
+                    "succes":true,
+                    "match":5
+                },
+                {
+                    "termes":"construction risque d'inondation",
+                    "succes":true,
+                    "match":10
+                },
+                {
+                    "termes":"sites construits en zone inondable",
+                    "succes":true,
+                    "match":2
+                },
+                {
+                    "termes":"risques naturels",
+                    "succes":true,
+                    "match":6
+                },
+                {
+                    "termes":"terrain inondable",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"zones blanches inondation",
+                    "succes":true,
+                    "match":5
+                },
+                {
+                    "termes":"risque crues paca",
+                    "succes":true,
+                    "match":9
+                },
+                {
+                    "termes":"risque ruissellement terrain",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"débordements fleuves",
+                    "succes":false,
+                    "match":0
+                }
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/sync87d9511-fr-120066022-jdd-08a893d2-b677-4e91-bf65-40dafefcd33f",
+            "requetes": [
+                {
+                    "termes":"tremblements de terre",
+                    "succes":false,
+                    "match":4
+                },
+                {
+                    "termes":"risque sismique",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"construction terrain instable",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"sismicité paca",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"géorisque",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"plan séisme",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"séismes en paca",
+                    "succes":true,
+                    "match":465
+                },
+                {
+                    "termes":"risques d'effondrement de terrain",
+                    "succes":true,
+                    "match":131
+                },
+                {
+                    "termes":"risques de séisme",
+                    "succes":true,
+                    "match":9
+                },
+                {
+                    "termes":"risque géologique",
+                    "succes":false,
+                    "match":0
+                }
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/espaces-naturels-sensibles-ens-en-provence-alpes-cote-dazur",
+            "requetes": [
+                {
+                    "termes":"espaces naturels fragiles",
+                    "succes":true,
+                    "match":10
+                },
+                {
+                    "termes":"zones naturelles protégées",
+                    "succes":false,
+                    "match":20
+                },
+                {
+                    "termes":"périmètres sensibles",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"sensibilité écologique",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"espaces naturels à protéger",
+                    "succes":true,
+                    "match":11
+                },
+                {
+                    "termes":"zones humides sensibles",
+                    "succes":false,
+                    "match":2
+                },
+                {
+                    "termes":"protection de la nature",
+                    "succes":true,
+                    "match":27
+                },
+                {
+                    "termes":"habitats naturels menacés",
+                    "succes":true,
+                    "match":9
+                },
+                {
+                    "termes":"réserves de biodiversité",
+                    "succes":true,
+                    "match":15
+                },
+                {
+                    "termes":"protection de la faune et de la flore",
+                    "succes":false,
+                    "match":23
+                },
+                {
+                    "termes":"protection des paysages",
+                    "succes":true,
+                    "match":29
+                }
+            ]
+        },
+        {
+            "cible_url":"https://trouver.datasud.fr/dataset/syncfd0ae98-fr-120066022-jdd-fe76cc31-2587-4b1c-a2aa-58b367572d39",
+            "requetes": [
+                {
+                    "termes":"loi SRU",
+                    "succes":true,
+                    "match":6
+                },
+                {
+                    "termes":"obligation HLM",
+                    "succes":false,
+                    "match":0
+                },
+                {
+                    "termes":"construction logements sociaux",
+                    "succes":true,
+                    "match":21
+                },
+                {
+                    "termes":"logements sociaux",
+                    "succes":true,
+                    "match":1
+                },
+                {
+                    "termes":"logement social",
+                    "succes":true,
+                    "match":53
+                },
+                {
+                    "termes":"lutte contre le mal logement",
+                    "succes":false,
+                    "match":1
+                },
+                {
+                    "termes":"habitat social",
+                    "succes":false,
+                    "match":6
+                },
+                {
+                    "termes":"pénurie logements sociaux",
+                    "succes":true,
+                    "match":11
+                },
+                {
+                    "termes":"inégalités logement",
+                    "succes":false,
+                    "match":2
+                },
+                {
+                    "termes":"accès au logement social",
+                    "succes":true,
+                    "match":30
+                }
+            ]
+        }
+    ]
+}
