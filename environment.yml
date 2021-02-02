@@ -1,0 +1,4 @@
+name: conciergerie-open-data
+dependencies:
+  - python=3.8
+  - pip=20.2.4
