@@ -1,0 +1,70 @@
+version: "2.0"
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - slt
+    - salut
+    - bonjour
+    - bjr
+    - yo
+    - slt frere
+- intent: goodbye
+  examples: |
+    - ciao
+    - aurevoir
+    - adieu
+    - a+
+    - a plus
+    - a plus tard
+    - à plus tard
+- intent: affirm
+  examples: |
+    - oui
+    - ui
+    - oue
+    - bien sure
+    - ouai
+    - correcte
+- intent: deny
+  examples: |
+    - jamais
+    - nn
+    - pas vraiment
+- intent: mood_great
+  examples: |
+    - parfait
+    - bien
+    - super
+    - je me sens bien
+    - je vais super bien
+    - je me sens vraiment bien
+    - je suis en forme
+    - bien et toi
+    - super et toi ?
+- intent: mood_unhappy
+  examples: |
+    - ma journée a été horrible
+    - je ne vais pas bien
+    - je suis trise
+    - je ne me sens pas super
+    - moyen
+    - je ne me sens pas super bien
+    - je ne me sens pas bien
+    - je me sens pas bien
+    - I am disappointed
+    - je suis pas content
+    - pas content
+    - pas bien
+    - bof
+    - pas ouf
+- intent: bot_challenge
+  examples: |
+    - es tu un bot ?
+    - t'es un bot ?
+    - t un bot ?
+    - es tu un humain
+    - t'es un humain
+    - t un humain ?
+    - tu es humian?
+    - t'es un robot
