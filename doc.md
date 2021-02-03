@@ -79,4 +79,44 @@ Ligne de commande:
 
 ## Rasa X
 
-TODO
+Rasa X offre une interface graphique intuitif et une facilité de partage du chatbot.
+
+![1-Interactive_Chat](https://ibb.co/GMYQJ9V)
+
+L'onglet "Talk to your bot" permet d'avoir une conversation intéractive avec le chatbot (à la manière de rasa interactive)
+
+1. Conversation actuelle
+
+2. Conversation actuelle sous le format Story, avec possibilité de l'ajouter aux données d'entraînement ou de la supprimer.
+
+3. Entités Prédites
+
+4. Boite d'envoie de message
+
+Chaque décision peut être corrigé en cliquant dessus.
+
+![2-Conversatons_lists](https://ibb.co/gWF9HCk)
+
+L'onglet conversations contient toutes les conversations que le chatbot a eu avec vous ou avec d'autres utilisateurs.
+
+1. Liste des conversations
+
+2. Affichage de la conversations
+
+3. Action a faire pour la conversation actuelle
+
+![3-NLU_Predictions](https://ibb.co/0KBDjNc)
+
+L'onglet NLU Inbox contient toutes les prédictions d'intentions et d'entités que le NLU a fait.
+
+1. Liste des prédictions
+
+2. Actions a effectuer pour la prédiction actuelle.
+
+![4-Models](https://ibb.co/n81ry9N)
+
+L'onglet models contient toutes les itérations du modèle et permet de passer de l'une à l'autre.
+
+![5-Training_Data](https://ibb.co/MVnTKxx)
+
+Enfin, il y a la possibilité de modifier les différents fichiers composants le chatbot directement depuis l'interface ainsi que d'entraîner le modèle avec les nouvelles données.
