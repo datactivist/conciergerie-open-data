@@ -81,7 +81,7 @@ Ligne de commande:
 
 Rasa X offre une interface graphique intuitif et une facilité de partage du chatbot.
 
-![1-Interactive_Chat](https://ibb.co/GMYQJ9V)
+![1-Interactive_Chat](https://i.ibb.co/xg9qsYM/1-Interactive.png)
 
 L'onglet "Talk to your bot" permet d'avoir une conversation intéractive avec le chatbot (à la manière de rasa interactive)
 
@@ -95,7 +95,7 @@ L'onglet "Talk to your bot" permet d'avoir une conversation intéractive avec le
 
 Chaque décision peut être corrigé en cliquant dessus.
 
-![2-Conversatons_lists](https://ibb.co/gWF9HCk)
+![2-Conversatons_lists](https://i.ibb.co/4Sgt9xh/2-Conversation.png)
 
 L'onglet conversations contient toutes les conversations que le chatbot a eu avec vous ou avec d'autres utilisateurs.
 
@@ -105,7 +105,7 @@ L'onglet conversations contient toutes les conversations que le chatbot a eu ave
 
 3. Action a faire pour la conversation actuelle
 
-![3-NLU_Predictions](https://ibb.co/0KBDjNc)
+![3-NLU_Predictions](https://i.ibb.co/YXDR793/3-NLUPredictions.png)
 
 L'onglet NLU Inbox contient toutes les prédictions d'intentions et d'entités que le NLU a fait.
 
@@ -113,10 +113,10 @@ L'onglet NLU Inbox contient toutes les prédictions d'intentions et d'entités q
 
 2. Actions a effectuer pour la prédiction actuelle.
 
-![4-Models](https://ibb.co/n81ry9N)
+![4-Models](https://i.ibb.co/vvd1Wp6/4-Modeles.png)
 
 L'onglet models contient toutes les itérations du modèle et permet de passer de l'une à l'autre.
 
-![5-Training_Data](https://ibb.co/MVnTKxx)
+![5-Training_Data](https://i.ibb.co/VSVybcc/5-Training.png)
 
 Enfin, il y a la possibilité de modifier les différents fichiers composants le chatbot directement depuis l'interface ainsi que d'entraîner le modèle avec les nouvelles données.
