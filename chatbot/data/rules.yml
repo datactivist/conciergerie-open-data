@@ -2,7 +2,7 @@ version: "2.0"
 
 rules:
 
-- rule: Répondre aurevoir a chque fois que l'utilisateur dit aurevoir
+- rule: Répondre aurevoir a chaque fois que l'utilisateur dit aurevoir
   steps:
   - intent: goodbye
   - action: utter_goodbye
