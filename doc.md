@@ -9,13 +9,13 @@ __Installation Windows:__
 
 1. pip install --use-feature=2020-resolver rasa
 
-2. pip uninstall ujson / pip install ujson-1.35-cp37-cp37m-linux_x86_64.whl
+2. pip uninstall ujson
 
 3. conda install ujson==1.35
 
 4. pip install  --use-feature=2020-resolver rasa-x --extra-index-url
 
-Rasa x (en local) très peu stable
+Rasa x très peu stable  sur windows
 
 __Installation Linux:__
 
@@ -77,9 +77,16 @@ Ligne de commande:
 
     6. Ctrl+C: Quitte sans faire de modification
 
+6. rasa data validate: Vérifie qu'il n'y pas d'incohérences dans les données d'entraînements.
+
+7. rasa test core --stories test_stories.yml --out results: Teste le modèle sur les stories données en entrées
+
+8. rasa test nlu --nlu data/nlu.yml --cross-validation: Test le NLU avec une cross validation
+
 ## Rasa X
 
-Rasa X offre une interface graphique intuitif et une facilité de partage du chatbot.
+Rasa X permet de développer le chatbot avec des conversations réelles simplement.
+Il offre une interface graphique intuitif.
 
 ### Interactive Chat
 
@@ -130,3 +137,27 @@ L'onglet models contient toutes les itérations du modèle et permet de passer d
 ![5-Training_Data](https://i.ibb.co/VSVybcc/5-Training.png)
 
 Enfin, il y a la possibilité de modifier les différents fichiers composants le chatbot directement depuis l'interface ainsi que d'entraîner le modèle avec les nouvelles données.
+
+## Testé le modèle
+
+### Vérification de l'intégrité
+
+Il est conseillé de tester le modèle à chaque ajout de nouvelles fonctionnalités pour s'assurer qu'il est toujours capable de réaliser ses anciennes fonctions:
+- rasa data validate
+- rasa test core --stories test_stories.yml --out results
+
+Pensez à ajouter de nouvelles stories de test pour les nouvelles fonctions.
+
+### Comparaisons de modèles
+
+Lorsque vous ajoutez beaucoup de données, il est conseillé de comparer les performanes NLU du nouveau modèle avec l'ancien modèle pour s'assurer qu'il ne perd pas en performance (overfit/ajout d'ambiguité...):
+rasa test -m model nlu --nlu data/nlu.yml --cross-validation
+
+Vous pouvez comparer différentes configurations de pipeline:
+rasa test nlu --nlu data/nlu.yml --config config_1.yml config_2.yml
+
+De même pour différentes configurations de policies:
+
+1. Entrainer différents modèles: rasa train core -c config_1.yml config_2.yml --out comparison_models
+
+2. Tester les modèles: rasa test core -m comparison_models --stories stories_folder --out comparison_results --evaluate-model-directory
