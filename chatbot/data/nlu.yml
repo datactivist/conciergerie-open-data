@@ -26,7 +26,7 @@ nlu:
     - pas vraiment
     - non
     - je sais pas
-    - j'sais 
+    - j'sais pas
 - intent: chitchat/greet
   examples: |
     - hey

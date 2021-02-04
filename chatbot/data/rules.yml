@@ -2,7 +2,7 @@ version: "2.0"
 
 rules:
 
-- rule: Répondre aurevoir a chaque fois que l'utilisateur dit aurevoir
+- rule: Répondre au revoir a chaque fois que l'utilisateur dit au revoir
   steps:
   - intent: goodbye
   - action: utter_goodbye
@@ -12,7 +12,7 @@ rules:
   - intent: faq
   - action: utter_faq
 
-- rule: Répondre aux discutions de tout les jours
+- rule: Répondre aux discussions de tous les jours
   steps:
   - intent: chitchat
   - action: utter_chitchat
