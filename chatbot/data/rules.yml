@@ -2,12 +2,17 @@ version: "2.0"
 
 rules:
 
-- rule: Say goodbye anytime the user says goodbye
+- rule: Répondre aurevoir a chque fois que l'utilisateur dit aurevoir
   steps:
   - intent: goodbye
   - action: utter_goodbye
 
-- rule: Say 'I am a bot' anytime the user challenges
+- rule: Répondre aux questions
   steps:
-  - intent: bot_challenge
-  - action: utter_iamabot
+  - intent: faq
+  - action: utter_faq
+
+- rule: Répondre aux discutions de tout les jours
+  steps:
+  - intent: chitchat
+  - action: utter_chitchat

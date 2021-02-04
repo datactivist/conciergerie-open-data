@@ -1,14 +1,5 @@
 version: "2.0"
 nlu:
-- intent: greet
-  examples: |
-    - hey
-    - slt
-    - salut
-    - bonjour
-    - bjr
-    - yo
-    - slt frere
 - intent: goodbye
   examples: |
     - ciao
@@ -25,41 +16,58 @@ nlu:
     - oue
     - bien sure
     - ouai
+    - ok
     - correcte
+    - oui merci
 - intent: deny
   examples: |
     - jamais
     - nn
     - pas vraiment
-- intent: mood_great
+    - non
+    - je sais pas
+    - j'sais 
+- intent: chitchat/greet
   examples: |
-    - parfait
-    - bien
-    - super
-    - je me sens bien
-    - je vais super bien
-    - je me sens vraiment bien
-    - je suis en forme
-    - bien et toi
-    - super et toi ?
-- intent: mood_unhappy
+    - hey
+    - slt
+    - salut
+    - bonjour
+    - bjr
+    - yo
+    - slt frere
+    - Slt
+- intent: chitchat/ask_weather
   examples: |
-    - ma journée a été horrible
-    - je ne vais pas bien
-    - je suis trise
-    - je ne me sens pas super
-    - moyen
-    - je ne me sens pas super bien
-    - je ne me sens pas bien
-    - je me sens pas bien
-    - I am disappointed
-    - je suis pas content
-    - pas content
-    - pas bien
-    - bof
-    - pas ouf
-- intent: bot_challenge
+    - Comment est le temps aujourd'hui ?
+    - quel temps il fait ?
+    - Il fait combien dehors ?
+    - il fait beau aujourd'hui ?
+- intent: chitchat/ask_mood
   examples: |
+    - slt comment tu vas ?
+    - comment ca va ?
+    - ca va ?
+    - tu vas bien ?
+    - salut comment ca va ?
+- intent: faq/ask_skills
+  examples: |
+    - tu sais faire quoi ?
+    - Comment tu peux m'aider ?
+    - aide moi
+    - tu peux m'aider ?
+    - j'ai besoin d'aide
+    - qu'est-ce que tu sais faire ?
+    - tu sers a quoi ?
+- intent: faq/ask_identity
+  examples: |
+    - Tu t'appels comment ?
+    - Comment tu t'appelles ?
+    - C'est quoi ton nom ?
+    - qui es tu
+    - t'es qui
+    - t ki
+    - t'es un robot ?
     - es tu un bot ?
     - t'es un bot ?
     - t un bot ?
@@ -67,4 +75,6 @@ nlu:
     - t'es un humain
     - t un humain ?
     - tu es humian?
-    - t'es un robot
+    - qui t'as crée ?
+    - d'ou tu viens ?
+    - tu viens d'ou ?
