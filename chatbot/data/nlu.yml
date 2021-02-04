@@ -4,6 +4,7 @@ nlu:
   examples: |
     - ciao
     - aurevoir
+    - au rvoir
     - adieu
     - a+
     - a plus
@@ -27,6 +28,7 @@ nlu:
     - non
     - je sais pas
     - j'sais pas
+    - bof
 - intent: chitchat/greet
   examples: |
     - hey
@@ -35,11 +37,17 @@ nlu:
     - bonjour
     - bjr
     - yo
-    - slt frere
     - Slt
 - intent: chitchat/ask_weather
   examples: |
     - Comment est le temps aujourd'hui ?
+    - il pleut dehors
+    - il fait pas beau demain
+    - combien il fait ?
+    - il fait chaud aujourd'hui ?
+    - il fait chaud ajd ?
+    - tu sais quel temps il fait demain ?
+    - il fait froid demain ?
     - quel temps il fait ?
     - Il fait combien dehors ?
     - il fait beau aujourd'hui ?
@@ -47,6 +55,8 @@ nlu:
   examples: |
     - slt comment tu vas ?
     - comment ca va ?
+    - sa va ?
+    - comment tu te sens ?
     - ca va ?
     - tu vas bien ?
     - salut comment ca va ?
@@ -58,6 +68,9 @@ nlu:
     - tu peux m'aider ?
     - j'ai besoin d'aide
     - qu'est-ce que tu sais faire ?
+    - qu est ce tu sais faire ?
+    - tu c fair quoi ?
+    - tu peux faire quoi ?
     - tu sers a quoi ?
 - intent: faq/ask_identity
   examples: |

@@ -14,8 +14,8 @@ entities: []
 slots: {}
 responses:
   utter_chitchat/greet:
-  - text: "Salut, je peux t'aider ?\n
-          Voila ce que je sais faire:\n
+  - text: "Bonjour, puis-je t'aider ?\n
+          Voilà ce que je sais faire:\n
             - Je ne sers pas a grand chose pour le moment"
   utter_chitchat/ask_weather:
   - text: Désolé, je ne suis pas capable de connaître le temps qu'il fait.
@@ -24,10 +24,10 @@ responses:
   utter_goodbye:
   - text: A plus!
   utter_faq/ask_identity:
-  - text: Je suis un robot fonctionnant avec Rasa. J'ai été crée par Datactivist.
+  - text: Je suis un robot fonctionnant avec Rasa. J'ai été créé par Datactivist.
   utter_faq/ask_skills:
-  - text: "Voila comment je peux t'aider:\n
-            - Je ne sers pas a grand chose pour le moment"
+  - text: "Voilà comment je peux t'aider:\n
+            - Je ne sers pas à grand chose pour le moment."
 
 actions: []
 forms: {}
