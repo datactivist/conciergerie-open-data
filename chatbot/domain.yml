@@ -28,7 +28,8 @@ responses:
   utter_faq/ask_skills:
   - text: "Voilà comment je peux t'aider:\n
             - Je ne sers pas à grand chose pour le moment."
-
+  utter_default:
+  - text: Désolé, je n'ai pas bien compris. Peux tu reformuler ?
 actions: []
 forms: {}
 e2e_actions: []

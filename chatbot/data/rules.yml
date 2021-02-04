@@ -16,3 +16,8 @@ rules:
   steps:
   - intent: chitchat
   - action: utter_chitchat
+
+- rule: Demander à l'utilisateur de reformuler si le NLU n'est pas confiant
+  steps:
+  - intent: nlu_fallback
+  - action: utter_default
