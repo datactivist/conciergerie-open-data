@@ -13,6 +13,10 @@ intents:
 entities: []
 slots: {}
 responses:
+  utter_chitchat: #Evite un warning
+  - text: ""
+  utter_faq: #Evite un warning
+  - text: ""
   utter_chitchat/greet:
   - text: "Bonjour, puis-je t'aider ?\n
           Voilà ce que je sais faire:\n
