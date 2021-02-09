@@ -1,0 +1,26 @@
+CREATE TABLE feedback_search_augmentation (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,	
+    "keywords_augmentation" VARCHAR(255),
+    "keywords_chosen" VARCHAR(255)
+    );
+
+CREATE TABLE feedback_results (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,	
+	"results" TEXT,
+    "feedback_results" VARCHAR(255)
+    );
+
+CREATE TABLE feedback_user_search (
+
+    "conversation_id" VARCHAR(255) NOT NULL, 
+	"keywords_user" VARCHAR(255),
+    "search_feedback_id" INTEGER,
+    "results_feedback_id" INTEGER,
+    FOREIGN KEY ("conversation_id")
+        REFERENCES conversation ("sender_id"),
+    FOREIGN KEY ("search_feedback_id")
+        REFERENCES feedback_search_augmentation ("id"),
+    FOREIGN KEY ("results_feedback_id")
+        REFERENCES feedback_results ("id"),
+    PRIMARY KEY ("conversation_id", "keywords_user")   
+);

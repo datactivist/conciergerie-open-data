@@ -5,18 +5,39 @@ session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: true
 intents:
-- goodbye
-- affirm
-- deny
-- chitchat
-- faq
+- goodbye:
+    use_entities: true
+- affirm:
+    use_entities: true
+- deny:
+    use_entities: true
+- chitchat:
+    use_entities: true
+- faq:
+    use_entities: true
+- nlu_fallback:
+    use_entities: true
+- request_search:
+    use_entities: true
+- inform:
+    use_entities: true
 entities: []
-slots: {}
+slots:
+  keywords:
+    type: rasa.shared.core.slots.TextSlot
+    initial_value: null
+    auto_fill: false
+    influence_conversation: false
 responses:
+  utter_faq:
+  - text: ''
+  utter_chitchat:
+  - text: ''
   utter_chitchat/greet:
-  - text: "Bonjour, puis-je t'aider ?\n
-          Voilà ce que je sais faire:\n
-            - Je ne sers pas a grand chose pour le moment"
+  - text: |-
+      Bonjour, puis-je t'aider ?
+       Voilà ce que je sais faire:
+       - Je peux t'aider à faire une recherche dans la base de données.
   utter_chitchat/ask_weather:
   - text: Désolé, je ne suis pas capable de connaître le temps qu'il fait.
   utter_chitchat/ask_mood:
@@ -26,10 +47,29 @@ responses:
   utter_faq/ask_identity:
   - text: Je suis un robot fonctionnant avec Rasa. J'ai été créé par Datactivist.
   utter_faq/ask_skills:
-  - text: "Voilà comment je peux t'aider:\n
-            - Je ne sers pas à grand chose pour le moment."
+  - text: |-
+      Voilà comment je peux t'aider:
+       - Je peux t'aider à faire une recherche dans la base de données.
+  utter_ask_keywords:
+  - text: Quels mots-clés souhaites-tu utiliser pour ta recherche ?
+  utter_submit_search_form:
+  - text: C'est noté!
+  utter_confirm_search_form:
+  - text: 'Tu souhaites bien faire une recherche avec les mots-clés: {keywords} ?'
+  utter_send_search_form:
+  - text: Très bien, je lance la recherche!
+  utter_dont_send_search_form:
+  - text: D'accord, je ne lance pas la recherche.
+  utter_anything_else:
+  - text: Besoin d'autre chose ?
   utter_default:
   - text: Désolé, je n'ai pas bien compris. Peux-tu reformuler ?
-actions: []
-forms: {}
+actions:
+- action_reset_keywords_slot
+- action_search_database
+forms:
+  search_form:
+    keywords:
+    - intent: inform | nlu_fallback | affirm | deny
+      type: from_text
 e2e_actions: []

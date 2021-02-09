@@ -41,6 +41,7 @@ nlu:
     - bjr
     - yo
     - Slt
+    - coucou
 - intent: chitchat/ask_weather
   examples: |
     - Comment est le temps aujourd'hui ?
@@ -54,6 +55,7 @@ nlu:
     - quel temps il fait ?
     - Il fait combien dehors ?
     - il fait beau aujourd'hui ?
+    - il fait beau la semaine prochaine ?
 - intent: chitchat/ask_mood
   examples: |
     - slt comment tu vas ?
@@ -94,3 +96,25 @@ nlu:
     - qui t'as crée ?
     - d'ou tu viens ?
     - tu viens d'ou ?
+    - t'es humain ?
+    - t'es uqi ?
+- intent: nlu_fallback
+  examples: |
+    - fjaifeza
+    - fzahfzaefeza
+- intent: request_search
+  examples: |
+    - j'aimerai chercher quelquechose
+    - je cherche un truc
+    - aide moi a trouver quelquechose
+    - j'aimerai faire une recherche
+    - aide moi a faire une recherche
+- intent: inform
+  examples: |
+    - noms de rues aix-en-provence  
+    - qualité de l'air marseille
+    - qualité de l'eau bordeaux
+    - grande surface toulouse
+    - magasins des bouches du rhones
+    - population des bouches du rhones
+    - magasins a lille

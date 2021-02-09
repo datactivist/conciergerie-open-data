@@ -1,0 +1,82 @@
+#### This file contains tests to evaluate that your bot behaves as expected.
+#### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
+
+#Stories Récupérés avec rasa x
+stories:
+- story: Lance une recherche, chemin basique
+  steps:
+  - intent: request_search
+    user: |-
+      rechercher
+  - action: search_form
+  - active_loop: search_form
+  - slot_was_set:
+    - requested_slot: keywords
+  - intent: inform
+    user: |-
+      barrages de marseille
+  - action: search_form
+  - slot_was_set:
+    - keywords: barrages de marseille
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: utter_submit_search_form
+  - action: utter_confirm_search_form
+  - intent: affirm
+    user: |-
+      oui
+  - action: utter_send_search_form
+  - action: action_reset_keywords_slot
+  - slot_was_set:
+    - keywords: null
+
+- story: Demande un recherche, entre de mauvais mots clés, modifie la recherce, lance la recherche
+  steps:
+  - intent: request_search
+    user: |-
+      je veux faire une recherche
+  - action: search_form
+  - active_loop: search_form
+  - slot_was_set:
+    - requested_slot: keywords
+  - intent: nlu_fallback
+    user: |-
+      afezhfuezafhzafeza
+  - action: search_form
+  - slot_was_set:
+    - keywords: afezhfuezafhzafeza
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: utter_submit_search_form
+  - action: utter_confirm_search_form
+  - intent: deny
+    user: |-
+      non
+  - action: action_reset_keywords_slot
+  - slot_was_set:
+    - keywords: null
+  - action: utter_dont_send_search_form
+  - action: search_form
+  - active_loop: search_form
+  - slot_was_set:
+    - requested_slot: keywords
+  - intent: inform
+    user: |-
+      panneaux signalisation
+  - action: search_form
+  - slot_was_set:
+    - keywords: panneaux signalisation
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: utter_submit_search_form
+  - action: utter_confirm_search_form
+  - intent: affirm
+    user: |-
+      oui
+  - action: utter_send_search_form
+  - action: action_reset_keywords_slot
+  - slot_was_set:
+    - keywords: null

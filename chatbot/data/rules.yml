@@ -21,3 +21,18 @@ rules:
   steps:
   - intent: nlu_fallback
   - action: utter_default
+
+- rule: activation du formulaire de recherche
+  steps:
+  - intent: request_search
+  - action: search_form
+  - active_loop: search_form
+
+- rule: désactivation du formulaire
+  condition:
+  - active_loop: search_form
+  steps:
+  - action: search_form
+  - active_loop: null
+  - action: utter_submit_search_form
+  - action: utter_confirm_search_form
