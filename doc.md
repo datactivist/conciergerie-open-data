@@ -13,13 +13,17 @@ __Installation Windows:__
 
 3. conda install ujson==1.35
 
-4. pip install  --use-feature=2020-resolver rasa-x --extra-index-url
+4. pip install  --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
 
 Rasa x très peu stable  sur windows
 
 __Installation Linux:__
 
-TODO
+1. sudo apt-get install gcc
+
+2. pip install --use-feature=2020-resolver rasa
+
+3. pip install  --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
 
 ## Répartition des fichiers
 
