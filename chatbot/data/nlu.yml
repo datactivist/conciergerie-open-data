@@ -118,3 +118,20 @@ nlu:
     - magasins des bouches du rhones
     - population des bouches du rhones
     - magasins a lille
+- intent: feedback
+  examples: |
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 1 4
+    - 1 8 6
+    - 1 2 3
+    - 0
+    - 1 7
+    - 1 3 2
+    - 4 3 
+    - 5 9
+    - 1 2
+    - 1 9

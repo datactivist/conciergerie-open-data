@@ -28,11 +28,24 @@ rules:
   - action: search_form
   - active_loop: search_form
 
-- rule: désactivation du formulaire
+- rule: désactivation du formulaire de recherche
   condition:
   - active_loop: search_form
   steps:
   - action: search_form
   - active_loop: null
+  - action: action_set_keywords_feedback_slot
   - action: utter_submit_search_form
-  - action: utter_confirm_search_form
+  - action: action_utter_confirm_search
+
+- rule: désactivation du formulaire de feedback results
+  condition:
+  - active_loop: feedback_results_form
+  steps:
+  - action: feedback_results_form
+  - active_loop: null
+  - action: action_set_results_feedback_slot
+  - action: action_send_results_feedback_to_database
+  - action: action_reset_keywords_slot
+  - action: action_reset_results_slot
+  - action: utter_submit_feedback_form
