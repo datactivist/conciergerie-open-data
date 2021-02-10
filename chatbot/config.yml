@@ -21,13 +21,17 @@ pipeline:
      epochs: 100
      retrieval_intent: chitchat
    - name: FallbackClassifier
-     threshold: 0.3
+     threshold: 0.7
      ambiguity_threshold: 0.1
 
 
 policies:
-   - name: MemoizationPolicy
+  - name: MemoizationPolicy
    #- name: TEDPolicy
     # max_history: 5
     # epochs: 100
-   - name: RulePolicy
+  - name: RulePolicy
+    core_fallback_threshold: 0.7
+    core_fallback_action_name: "action_default_fallback"
+    enable_fallback_prediction: True
+

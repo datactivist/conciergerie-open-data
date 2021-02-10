@@ -17,6 +17,8 @@ nlu:
     - oue
     - bien sure
     - ouai
+    - d'accord
+    - parfait
     - ok
     - correcte
     - oui merci
@@ -35,6 +37,7 @@ nlu:
     - slt
     - salut
     - bonjour
+    - bien le bonjour
     - bjr
     - yo
     - Slt
