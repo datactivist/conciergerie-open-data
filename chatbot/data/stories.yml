@@ -6,7 +6,7 @@ stories:
   - action: utter_submit_search_form
   - action: action_utter_confirm_search
   - intent: deny
-  - action: action_reset_keywords_slot
+  - action: action_reset_all_slots
   - action: utter_dont_send_search_form
   - action: search_form
   - active_loop: search_form
@@ -38,8 +38,7 @@ stories:
   - action: action_search_database
   - action: utter_feedback_proposition
   - intent: deny
-  - action: action_reset_keywords_slot
-  - action: action_reset_results_slot
+  - action: action_reset_all_slots
   - action: utter_no_problem_anything_else
   - intent: deny
   - action: utter_goodbye
@@ -55,8 +54,7 @@ stories:
   - action: action_search_database
   - action: utter_feedback_proposition
   - intent: deny
-  - action: action_reset_keywords_slot
-  - action: action_reset_results_slot
+  - action: action_reset_all_slots
   - action: utter_no_problem_anything_else
   - intent: affirm
   - action: utter_faq/ask_skills

@@ -23,9 +23,7 @@ intents:
     use_entities: true
 - feedback:
     use_entities: true
-
 entities: []
-    
 slots:
   keywords:
     type: rasa.shared.core.slots.TextSlot
@@ -52,17 +50,13 @@ slots:
     initial_value: null
     auto_fill: false
     influence_conversation: false
-  
 responses:
   utter_faq:
   - text: ''
   utter_chitchat:
   - text: ''
   utter_chitchat/greet:
-  - text: |-
-      Bonjour, puis-je t'aider ?
-       Voilà ce que je sais faire:
-       - Je peux t'aider à faire une recherche dans la base de données.
+  - text: Bonjour !
   utter_chitchat/ask_weather:
   - text: Désolé, je ne suis pas capable de connaître le temps qu'il fait.
   utter_chitchat/ask_mood:
@@ -98,8 +92,7 @@ responses:
   utter_default:
   - text: Désolé, je n'ai pas bien compris. Peux-tu reformuler ?
 actions:
-- action_reset_keywords_slot
-- action_reset_results_slot
+- action_reset_all_slots
 - action_search_database
 - action_keywords_augmentation
 - action_ask_keywords_feedback
@@ -112,7 +105,7 @@ actions:
 forms:
   search_form:
     keywords:
-    - intent: inform | nlu_fallback | affirm | deny
+    - intent: inform | nlu_fallback | affirm | deny | feedback | request_search
       type: from_text
     keywords_feedback:
     - intent: feedback

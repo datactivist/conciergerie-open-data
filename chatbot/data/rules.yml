@@ -25,6 +25,7 @@ rules:
 - rule: activation du formulaire de recherche
   steps:
   - intent: request_search
+  - action: action_reset_all_slots
   - action: search_form
   - active_loop: search_form
 
@@ -46,6 +47,5 @@ rules:
   - active_loop: null
   - action: action_set_results_feedback_slot
   - action: action_send_results_feedback_to_database
-  - action: action_reset_keywords_slot
-  - action: action_reset_results_slot
+  - action: action_reset_all_slots
   - action: utter_submit_feedback_form

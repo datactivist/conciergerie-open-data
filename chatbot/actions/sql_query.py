@@ -1,7 +1,7 @@
 import sqlite3
 
 
-# Parameter: Database pointer and sql command
+# Parameter: Database pointer, sql command, and the data used for the command
 # Function: Run the sql command
 def run_sql_command(cursor, sql_command, data):
 
@@ -32,7 +32,7 @@ def run_sql_command(cursor, sql_command, data):
 
 # Parameter: search_data = (conversation_id, keywords_user)
 # Function: Add a new search entry in the database
-def add_new_search_query(search_data):
+def add_new_search_query(search_data, flag_activate_sql_query_commit):
     database = "rasa.db"
 
     conversation_id = search_data[0]
@@ -60,8 +60,10 @@ def add_new_search_query(search_data):
                 cursor, sqlite_insert_feedback_query, (conversation_id, keywords_user)
             )
 
-        sqliteConnection.commit()
+        if flag_activate_sql_query_commit:
+            sqliteConnection.commit()
         cursor.close()
+        sqliteConnection.close()
 
     except sqlite3.Error as error:
         print("-ADD_NEW_SEARCH_QUERY-\nError while connecting to sqlite", error, "\n")
@@ -69,8 +71,10 @@ def add_new_search_query(search_data):
 
 # Parameter: search_data = (conversation_id, keywords_user)
 #            feedback_augmentation_results = (keywords_augmentation, keywords_chosen)
-# Function: Add the feedback in the database
-def add_feedback_augmentation(search_data, feedback_augmentation_data):
+# Function: Add the feedback of the keywords in the database
+def add_feedback_augmentation(
+    search_data, feedback_augmentation_data, flag_activate_sql_query_commit
+):
 
     database = "rasa.db"
 
@@ -111,8 +115,10 @@ def add_feedback_augmentation(search_data, feedback_augmentation_data):
 
         run_sql_command(cursor, sqlite_link_feedback_query, None)
 
-        sqliteConnection.commit()
+        if flag_activate_sql_query_commit:
+            sqliteConnection.commit()
         cursor.close()
+        sqliteConnection.close()
 
     except sqlite3.Error as error:
         print(
@@ -122,8 +128,10 @@ def add_feedback_augmentation(search_data, feedback_augmentation_data):
 
 # Parameter: search_data = (conversation_id, keywords_user)
 #            feedback_results_data = (results, feedback_results)
-# Function: Add the feedback in the database
-def add_feedback_results(search_data, feedback_results_data):
+# Function: Add the feedback of the results in the database
+def add_feedback_results(
+    search_data, feedback_results_data, flag_activate_sql_query_commit
+):
 
     database = "rasa.db"
 
@@ -164,17 +172,10 @@ def add_feedback_results(search_data, feedback_results_data):
 
         run_sql_command(cursor, sqlite_link_feedback_query, None)
 
-        sqliteConnection.commit()
+        if flag_activate_sql_query_commit:
+            sqliteConnection.commit()
         cursor.close()
+        sqliteConnection.close()
 
     except sqlite3.Error as error:
         print("-ADD_FEEDBACK_RESULTS-\nError while connecting to sqlite", error, "\n")
-
-
-# sqliteconnect = sqlite3.connect("../rasa.db")
-# cursor = sqliteconnect.cursor()
-# run_sql_command(
-#    cursor,
-#    'SELECT results_feedback_id FROM feedback_user_search where conversation_id = "ad48ad0849f04ca7a26aa1fdb2d273e0" and keywords_user = "barrages"; ',
-#    None,
-# )
