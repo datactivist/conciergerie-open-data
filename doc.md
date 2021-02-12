@@ -23,7 +23,7 @@ __Installation Linux:__
 
 2. pip install --use-feature=2020-resolver rasa
 
-3. pip install  --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
+3. pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
 
 ## Répartition des fichiers
 

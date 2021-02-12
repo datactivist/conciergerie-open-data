@@ -35,7 +35,6 @@ rules:
   steps:
   - action: search_form
   - active_loop: null
-  - action: action_set_keywords_feedback_slot
   - action: utter_submit_search_form
   - action: action_utter_confirm_search
 
@@ -45,7 +44,6 @@ rules:
   steps:
   - action: feedback_results_form
   - active_loop: null
-  - action: action_set_results_feedback_slot
   - action: action_send_results_feedback_to_database
   - action: action_reset_all_slots
   - action: utter_submit_feedback_form

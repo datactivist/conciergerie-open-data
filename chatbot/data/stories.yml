@@ -20,6 +20,7 @@ stories:
   - action: action_send_keywords_feedback_to_database
   - action: utter_send_search_form
   - action: action_search_database
+  - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition
   - intent: affirm
   - action: utter_thanks_you
@@ -36,6 +37,7 @@ stories:
   - action: action_send_keywords_feedback_to_database
   - action: utter_send_search_form
   - action: action_search_database
+  - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition
   - intent: deny
   - action: action_reset_all_slots
@@ -52,6 +54,7 @@ stories:
   - action: action_send_keywords_feedback_to_database
   - action: utter_send_search_form
   - action: action_search_database
+  - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition
   - intent: deny
   - action: action_reset_all_slots
@@ -61,7 +64,6 @@ stories:
 
 - story: Feedback Form follow-up - need more help
   steps:
-  - action: action_set_results_feedback_slot
   - action: action_send_results_feedback_to_database
   - action: utter_submit_feedback_form
   - intent: affirm
@@ -69,7 +71,6 @@ stories:
 
 - story: Feedback Form follow-up - doesn't need more help
   steps:
-  - action: action_set_results_feedback_slot
   - action: action_send_results_feedback_to_database
   - action: utter_submit_feedback_form
   - intent: deny

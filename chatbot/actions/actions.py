@@ -14,8 +14,8 @@ import requests
 import codecs
 from actions import sql_query
 
-flag_activate_api_call = False
-flag_activate_sql_query_commit = False
+flag_activate_api_call = True
+flag_activate_sql_query_commit = True
 
 ## Entrée: Mots clés de la recherche
 ## Sortie: URL pour appeler l'api
@@ -77,78 +77,10 @@ class ResetKeywordsSlot(Action):
             SlotSet("keywords", None),
             SlotSet("keywords_augmentation", None),
             SlotSet("keywords_feedback", None),
-            SlotSet("results", None),
+            SlotSet("results_title", None),
+            SlotSet("results_url", None),
             SlotSet("results_feedback", None),
         ]
-
-
-# Entrée: Keywords proposed to the user, and number written by the user
-# Sorite: Save the keywords chosen by the user in the slot "keywords_feedback"
-class SetKeywordsFeedback(Action):
-    def name(self):
-        return "action_set_keywords_feedback_slot"
-
-    def run(
-        self,
-        dispatcher: CollectingDispatcher,
-        tracker: Tracker,
-        domain: Dict[Text, Any],
-    ) -> List[Dict[Text, Any]]:
-
-        keywords_augmented = tracker.get_slot("keywords_augmentation")
-        keywords_feedback = tracker.get_slot("keywords_feedback")
-
-        final = ""
-        list_augmentation = keywords_augmented.split("|")
-        initialiaze = False
-        for feedback in keywords_feedback.split(" "):
-            if feedback.isdigit():
-                feedback = int(feedback)
-                if feedback == 0:
-                    return [SlotSet("keywords_feedback", "")]
-                elif feedback - 1 >= 0 and feedback - 1 < len(list_augmentation):
-                    final += list_augmentation[feedback - 1] + "|"
-                    initialiaze = True
-
-        if initialiaze:
-            return [SlotSet("keywords_feedback", final[0 : len(final) - 1])]
-        else:
-            return [SlotSet("keywords_feedback", "")]
-
-
-# Entrée: Results found by the model, and number written by the user
-# Sorite: Save the results chosen by the user in the slot "results_feedback"
-class SetResultsFeedback(Action):
-    def name(self):
-        return "action_set_results_feedback_slot"
-
-    def run(
-        self,
-        dispatcher: CollectingDispatcher,
-        tracker: Tracker,
-        domain: Dict[Text, Any],
-    ) -> List[Dict[Text, Any]]:
-
-        results = tracker.get_slot("results")
-        results_feedback = tracker.get_slot("results_feedback")
-
-        final = ""
-        initialiaze = False
-        if len(results) > 0:
-            list_results = results.split("|")
-            for feedback in results_feedback.split(" "):
-                if feedback.isdigit():
-                    feedback = int(feedback)
-                    if feedback == 0:
-                        return [SlotSet("results_feedback", "")]
-                    elif feedback - 1 >= 0 and feedback - 1 < len(list_results):
-                        final += list_results[feedback - 1] + "|"
-                        initialiaze = True
-
-        if initialiaze:
-            return [SlotSet("results_feedback", final[0 : len(final) - 1])]
-        else:
-            return [SlotSet("results_feedback", "")]
 
 
 # Ask the user to confirm the keywords used for the search
@@ -163,15 +95,19 @@ class UtterConfirmSearch(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
-        keywords = tracker.get_slot("keywords")
-        keywords_feedback = tracker.get_slot("keywords_feedback")
+        keywords = tracker.get_slot("keywords").split(" ")
+        keywords_aug = tracker.get_slot("keywords_augmentation").split("|")
+        keywords_feedback = tracker.get_slot("keywords_feedback").split(" ")
 
         message = "Tu souhaites bien faire une recherche avec ces mots-clés ?\n"
-        for keyword in keywords.split(" "):
+
+        for keyword in keywords:
             message += keyword + " "
 
-        for keyword in keywords_feedback.split("|"):
-            message += keyword + " "
+        if "0" not in keywords_feedback:
+            for i in range(len(keywords_aug)):
+                if str(i + 1) in keywords_feedback:
+                    message += keywords_aug[i] + " "
 
         dispatcher.utter_message(text=message)
 
@@ -224,28 +160,41 @@ class SearchKeywordsInDatabase(Action):
                     text="Voici les résultats que j'ai pu trouver:\n_"
                 )
 
-                results_slot = ""
+                results_title_slot = ""
+                results_url_slot = ""
                 for i, result in enumerate(results[0:5]):
                     message = ""
                     # message += result["thumbnail"] + "\n"
                     message += str(i + 1) + " - "
                     message += result["title"] + "\n"
                     message += catalog_url + result["name"] + "\n_"
-                    results_slot += result["title"] + "|"
+                    results_title_slot += result["title"] + "|"
+                    results_url_slot += result["name"] + "|"
                     dispatcher.utter_message(text=message)
 
-                return [SlotSet("results", results_slot[0 : len(results_slot) - 1])]
+                return [
+                    SlotSet(
+                        "results_title",
+                        results_title_slot[0 : len(results_title_slot) - 1],
+                    ),
+                    SlotSet(
+                        "results_url", results_url_slot[0 : len(results_url_slot) - 1]
+                    ),
+                ]
             else:
                 dispatcher.utter_message(
                     text="Désolé, je n'ai trouvé aucun résultat pour ta recherche."
                 )
-                return [SlotSet("results", "")]
+                return [SlotSet("results_title", None), SlotSet("results_url", None)]
         else:
             dispatcher.utter_message(text="API CALL DEACTIVATED")
-            return [SlotSet("results", "API CALL DEACTIVATED")]
+            return [
+                SlotSet("results_title", "TITRE1|TITRE2|TITRE3"),
+                SlotSet("results_url", "URL1|URL2|URL3"),
+            ]
 
 
-# Send search information to database
+# Send search information to the database
 class SendSearchInfo(Action):
     def name(self):
         return "action_send_search_information_to_database"
@@ -258,12 +207,13 @@ class SendSearchInfo(Action):
     ) -> List[Dict[Text, Any]]:
 
         sql_query.add_new_search_query(
-            (tracker.sender_id, tracker.get_slot("keywords").replace(" ", "|")),
+            tracker.sender_id,
+            tracker.get_slot("keywords").replace(" ", "|"),
             flag_activate_sql_query_commit,
         )
 
 
-# Send keywords feedback to database
+# Send keywords proposed to the user to the database
 class SendKeywordsFeedback(Action):
     def name(self):
         return "action_send_keywords_feedback_to_database"
@@ -275,17 +225,52 @@ class SendKeywordsFeedback(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
-        sql_query.add_feedback_augmentation(
-            (tracker.sender_id, tracker.get_slot("keywords").replace(" ", "|")),
-            (
-                tracker.get_slot("keywords_augmentation"),
-                tracker.get_slot("keywords_feedback"),
-            ),
-            flag_activate_sql_query_commit,
-        )
+        conversation_id = tracker.sender_id
+        keywords_user = tracker.get_slot("keywords").replace(" ", "|")
+
+        keywords_proposed = tracker.get_slot("keywords_augmentation")
+        keywords_feedback = tracker.get_slot("keywords_feedback")
+
+        if keywords_proposed is not None:
+            keywords_proposed = keywords_proposed.split("|")
+            keywords_feedback = keywords_feedback.split(" ")
+            for i in range(len(keywords_proposed)):
+
+                if len(keywords_feedback) > 0:
+
+                    if "0" not in keywords_feedback:
+
+                        if str(i + 1) in keywords_feedback:
+                            feedback = 1
+                        else:
+                            feedback = -1
+
+                        sql_query.add_keyword_proposed(
+                            conversation_id,
+                            keywords_user,
+                            keywords_proposed[i],
+                            feedback,
+                            flag_activate_sql_query_commit,
+                        )
+                    else:
+                        sql_query.add_keyword_proposed(
+                            conversation_id,
+                            keywords_user,
+                            keywords_proposed[i],
+                            -1,
+                            flag_activate_sql_query_commit,
+                        )
+                else:
+                    sql_query.add_keyword_proposed(
+                        conversation_id,
+                        keywords_user,
+                        keywords_proposed[i],
+                        0,
+                        flag_activate_sql_query_commit,
+                    )
 
 
-# Search results feedback to database
+# Send Search results to the database
 class SendResultsFeedback(Action):
     def name(self):
         return "action_send_results_feedback_to_database"
@@ -297,11 +282,52 @@ class SendResultsFeedback(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
-        sql_query.add_feedback_results(
-            (tracker.sender_id, tracker.get_slot("keywords").replace(" ", "|")),
-            (
-                tracker.get_slot("results"),
-                tracker.get_slot("results_feedback"),
-            ),
-            flag_activate_sql_query_commit,
-        )
+        conversation_id = tracker.sender_id
+        keywords_user = tracker.get_slot("keywords").replace(" ", "|")
+
+        results_title_data = tracker.get_slot("results_title")
+        results_url_data = tracker.get_slot("results_url")
+
+        results_feedback = tracker.get_slot("results_feedback")
+        if results_feedback is not None:
+            results_feedback = results_feedback.split(" ")
+        else:
+            results_feedback = []
+
+        if results_title_data is not None:
+            results_title_data = results_title_data.split("|")
+            results_url_data = results_url_data.split("|")
+            for i in range(len(results_title_data)):
+
+                if len(results_feedback) > 0:
+
+                    if "0" not in results_feedback:
+
+                        if str(i + 1) in results_feedback:
+                            feedback = 1
+                        else:
+                            feedback = -1
+
+                        sql_query.add_result(
+                            conversation_id,
+                            keywords_user,
+                            (results_title_data[i], results_url_data[i]),
+                            feedback,
+                            flag_activate_sql_query_commit,
+                        )
+                    else:
+                        sql_query.add_result(
+                            conversation_id,
+                            keywords_user,
+                            (results_title_data[i], results_url_data[i]),
+                            -1,
+                            flag_activate_sql_query_commit,
+                        )
+                else:
+                    sql_query.add_result(
+                        conversation_id,
+                        keywords_user,
+                        (results_title_data[i], results_url_data[i]),
+                        0,
+                        flag_activate_sql_query_commit,
+                    )
