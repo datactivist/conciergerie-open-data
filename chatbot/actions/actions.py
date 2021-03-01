@@ -62,15 +62,11 @@ def get_request_keywords_url(keywords):
 # Find new keywords that might interest the user
 def keywords_expansion(keywords):
 
-    print(keywords)
-
     search_expand_url = "http://127.0.0.1:8000/query_expand"
 
     data = {"keywords": keywords, "max_width": 5, "max_datasud_keywords": 5}
 
     results = requests.post(search_expand_url, json=data).json()
-
-    print(results)
 
     keywords_expansion = ""
 
