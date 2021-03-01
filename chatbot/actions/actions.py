@@ -60,11 +60,32 @@ def get_request_keywords_url(keywords):
 
 
 # Find new keywords that might interest the user
-def keywords_augmentation(keywords):
+def keywords_expansion(keywords):
 
-    keywords_augmentation = "TO|DO|FUNCTION"
+    print(keywords)
 
-    return keywords_augmentation
+    search_expand_url = "http://127.0.0.1:8000/query_expand"
+
+    data = {"keywords": keywords, "max_width": 5, "max_datasud_keywords": 5}
+
+    results = requests.post(search_expand_url, json=data).json()
+
+    print(results)
+
+    keywords_expansion = ""
+
+    for og_key in results:
+        for sense in og_key["tree"]:
+            for similar_sense in sense["similar_senses"]:
+                keyword = similar_sense[0]["sense"]
+                if keyword not in keywords_expansion:
+                    keywords_expansion += "|" + keyword
+
+        for dtsud_keyword in og_key["datasud_keywords"]:
+            if dtsud_keyword not in keywords_expansion:
+                keywords_expansion += "|" + dtsud_keyword
+
+    return keywords_expansion[1:]
 
 
 # Reset all the slots
@@ -121,18 +142,18 @@ class AskForKeywordsFeedbackSlotAction(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
 
-        keywords_augmented = keywords_augmentation(tracker.get_slot("keywords"))
+        keywords_expanded = keywords_expansion(tracker.get_slot("keywords"))
 
         message = "Essayons d'améliorer ta recherche, peux-tu écrire les numéros des mots-clés qui te semblent pertinent ?\n"
 
         message += "0 - Aucun\n"
 
-        for i, keyword in enumerate(keywords_augmented.split("|")):
+        for i, keyword in enumerate(keywords_expanded.split("|")):
             message += str(i + 1) + " - " + keyword + "\n"
 
         dispatcher.utter_message(text=message)
 
-        return [SlotSet("keywords_augmentation", keywords_augmented)]
+        return [SlotSet("keywords_augmentation", keywords_expanded)]
 
 
 # Search DataSud API with keywords provided by the users and display results
