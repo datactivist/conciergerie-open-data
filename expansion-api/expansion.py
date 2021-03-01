@@ -1,254 +1,252 @@
-# wordnet
-from nltk.corpus import wordnet as wn
-import nltk
-
-from enum import Enum
-import json
+from __future__ import annotations
+from fastapi import FastAPI, Query, HTTPException
+from pydantic import BaseModel, Field
+from typing import List, Tuple, Optional
+import expansion
 import timeit
-from pymagnitude import *
+
+import os
+import json
 import numpy as np
 
 
-class ModelType(str, Enum):
-    word2vec = "word2vec"
-    wordnet = "wordnet"
-    fasttext = "fasttext"
-    bert = "bert"
+# Function to preload datasud vectors by saving them separately
+def preload_datasud_vectors(model, datasud_keywords):
+    if not os.path.isfile(
+        "datasud_keywords_vectors/"
+        + model.embeddings_type
+        + "/"
+        + model.embeddings_name
+        + ".npy"
+    ):
+        print("Saving datasud keywords vectors for", model.embeddings_name)
+        start = timeit.default_timer()
+        vectors = model.model.query(datasud_keywords)
+        np.save(
+            "datasud_keywords_vectors/"
+            + model.embeddings_type
+            + "/"
+            + model.embeddings_name
+            + ".npy",
+            vectors,
+        )
+        end = timeit.default_timer()
+        print("Vectors saved")
 
 
-class SimilarityType(str, Enum):
-    synonym = "synonym"
-    hyponym = "hyponym"
-    hypernym = "hypernym"
-    holonym = "holonym"
-    similar = "similar"
+# Function to preload embeddings by calling most_similar
+def preload_magnitude_embeddings(embeddings_type, embeddings_name, datasud_keywords):
+    model = expansion.MagnitudeModel(embeddings_type, embeddings_name)
+    model.most_similar("Chargement")
+    preload_datasud_vectors(model, datasud_keywords)
+    model = None
 
 
-# Class representing a Magnitude Model
-# Parameter: Type of the model and name of the embeddings
-class MagnitudeModel:
-    def __init__(self, model_type, model_name):
-        self.model_type = model_type
-        self.model_name = model_name
-        self.model = self.load_model()
+with open("datasud_keywords.json", encoding="utf-16") as json_file:
+    datasud_keywords = json.load(json_file,)["result"]
+"""
+# Looping on embeddings to preload them
+print("\nStarting Preloading of magnitude embeddings")
+start = timeit.default_timer()
+for embeddings_type in expansion.EmbeddingsType:
+    path = "embeddings/" + embeddings_type.value
+    for root, dirs, files in os.walk(path):
+        for filename in files:
+            if filename.endswith(".magnitude"):
+                preload_magnitude_embeddings(
+                    embeddings_type, filename, datasud_keywords
+                )
+end = timeit.default_timer()
+print("Preloading Done:", end - start, "\n")
+"""
 
-    # Load model using Magnitude
-    def load_model(self):
-        return Magnitude("embeddings/" + self.model_type + "/" + self.model_name)
+# Structure for search expand query
+class Search_Expand_Query(BaseModel):
+    keywords: str
+    embeddings_type: Optional[
+        expansion.EmbeddingsType
+    ] = expansion.EmbeddingsType.word2vec
+    embeddings_name: Optional[
+        str
+    ] = "frWac_non_lem_no_postag_no_phrase_200_cbow_cut0.magnitude"
+    max_depth: Optional[int] = Field(1, ge=0, le=3)
+    max_width: Optional[int] = Field(5, ge=0, le=50)
+    max_datasud_keywords: Optional[int] = Field(5, ge=0, le=50)
 
-    # Input: Two keywords of type string
-    # Output: Similarity between the two keywords
-    def similarity(self, keyword1, keyword2):
-        return self.model.similarity(keyword1, keyword2)
+    class Config:
+        schema_extra = {
+            "example": {
+                "keywords": "éolien",
+                "embeddings_type": "word2vec",
+                "embeddings_name": "frWac_non_lem_no_postag_no_phrase_200_cbow_cut0.magnitude",
+                "max_depth": 1,
+                "max_width": 5,
+                "max_datasud_keywords": 5,
+            }
+        }
 
-    # Input: Keyword: a keyword of type string
-    #       topn: number of neighbors to get
-    #       slider: slide the results (i.e topn=10 and slider = 2 -> [2-12])
-    def most_similar(self, keyword, topn=10, slider=0):
-        similar_words = {}
-        for sim_type in SimilarityType:
-            similar_words[sim_type] = []
 
-        most_similar = self.model.most_similar(keyword, topn=topn + slider)[slider:]
+# Structures for search expand query results
+class Cluster(BaseModel):
+    sense: str
+    similar_senses: Optional[List[Tuple[Cluster, expansion.SimilarityType]]]
+    sense_definition: Optional[str]
 
-        similar_words[SimilarityType.similar] = [
-            most_similar[i][0] for i in range(len(most_similar))
+
+Cluster.update_forward_refs()
+
+
+class ResponseFromSense(BaseModel):
+    original_keyword: str
+    tree: Optional[List[Cluster]]
+    datasud_keywords: Optional[List[str]]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "original_keyword": "éolien",
+                "tree": [
+                    {
+                        "sense": "éolien",
+                        "similar_senses": [
+                            [
+                                {
+                                    "sense": "éolienne",
+                                    "similar_senses": None,
+                                    "sense_definition": None,
+                                },
+                                "similar",
+                            ],
+                            [
+                                {
+                                    "sense": "éoliennes",
+                                    "similar_senses": None,
+                                    "sense_definition": None,
+                                },
+                                "similar",
+                            ],
+                            [
+                                {
+                                    "sense": "photovoltaïque",
+                                    "similar_senses": None,
+                                    "sense_definition": None,
+                                },
+                                "similar",
+                            ],
+                            [
+                                {
+                                    "sense": "éoliens",
+                                    "similar_senses": None,
+                                    "sense_definition": None,
+                                },
+                                "similar",
+                            ],
+                            [
+                                {
+                                    "sense": "mw",
+                                    "similar_senses": None,
+                                    "sense_definition": None,
+                                },
+                                "similar",
+                            ],
+                        ],
+                    },
+                ],
+                "datasud_keywords": [
+                    "éolienne",
+                    "photovoltaïque",
+                    "géothermie",
+                    "biomasse",
+                    "énergie",
+                ],
+            }
+        }
+
+
+app = FastAPI()
+
+
+@app.get("/help_embeddings/{embeddings_type}")
+async def get_embeddings_names(embeddings_type: expansion.EmbeddingsType):
+    """
+    ## Function
+    Return every variant embeddings available for the embeddings_type given in parameter
+
+    ## Parameter
+    ### Required
+    - **embeddings_type**: Type of the embeddings
+
+    ## Output
+    List of embeddings variant available
+    """
+    if embeddings_type != expansion.EmbeddingsType.wordnet:
+        path = "embeddings/" + embeddings_type.value
+        results = []
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                results.append(filename)
+            for filename in dirs:
+                results.append(filename)
+            return results
+    else:
+        return [
+            "This API uses the library NLTK, which uses the Open Multilingual Wordnet, which uses the wolf-1.0b4 embeddings, therefore you don't have to specify an embeddings name."
         ]
 
-        return similar_words
 
-    # Output: Datasud keywords as list of string and as list of vectors
-    def load_datasud_keywords(self):
-        with open("datasud_keywords.json", encoding="utf-16") as json_file:
-            db_keywords_strings = json.load(json_file,)["result"]
+@app.post("/query_expand", response_model=List[ResponseFromSense])
+async def manage_query_expand(query: Search_Expand_Query):
+    """
+    ## Function
+    Returns results of the search query expansion given in parameter:
 
-        db_keywords_vectors = np.load(
-            "datasud_keywords_vectors/"
-            + self.model_type
-            + "/"
-            + self.model_name
-            + ".npy"
+
+    ## Parameters
+    ### Required Parameters:
+    - **keywords**: String
+
+    ### Optional Parameters:
+    - **embeddings_type**: Type of the embeddings | default value: word2vec
+    - **embeddings_name**: Variant of the embeddings | default value: frWac_non_lem_no_postag_no_phrase_200_cbow_cut0.magnitude
+    - **max_depth**: Depth of the keyword search | default value: 1
+    - **max_width**: Width of the keyword search | default value: 5 # Ignored when using wordnet
+    - **max_datasud_keywords**: If >0, include the first <max> most similar words from the datasud database for each word | default value: 5
+
+    ## Output: 
+    list of expand results per keyword
+    - **expand result**:
+        - **original_keyword**: keyword at the root of the resulting tree
+        - **tree**: list of clusters
+            - **cluster**: 
+                - **sense**: sense at the center of the cluster
+                - **similar_words**: list of tuples of type (cluster, similarityType)
+                    - **similarityType**: relation between two clusters (similars | synonyms, hyponyms, hypernyms, holonyms when using wordnet)
+        - **datasud_keywords**: list of string
+    """
+
+    if query.embeddings_type == expansion.EmbeddingsType.bert:
+        raise HTTPException(
+            status_code=501, detail="Bert embeddings not implemented yet"
         )
-        return db_keywords_strings, db_keywords_vectors
 
-
-# Class representing a Wordnet Model
-class WordnetModel:
-    def __init__(self):
-        self.model_type = ModelType.wordnet
-        self.model_name = "wolf-b-04.xml"
-
-    # Input: Two keywords of type string, synset, or list of synset
-    # Output: Similiarity between the two keywords using path_similarity
-    def similarity(self, keyword1, keyword2):
-
-        if type(keyword1) == nltk.corpus.reader.wordnet.Synset:
-            keyword1 = [keyword1]
-        elif type(str):
-            keyword1 = wn.synsets(keyword1, lang="fra")
-
-        if type(keyword2) == nltk.corpus.reader.wordnet.Synset:
-            keyword2 = [keyword2]
-        elif type(str):
-            keyword2 = wn.synsets(keyword2, lang="fra")
-
-        sim = 0
-        for k1 in keyword1:
-            for k2 in keyword2:
-                new_sim = k1.path_similarity(k2)
-                if new_sim != None and sim < new_sim:
-                    sim = new_sim
-        return sim
-
-    # Input: Synset
-    # Output: List of synonyms, hyponyms, hypernyms and holonyms in a dictionnary
-    def most_similar(self, synset, topn, slider):
-
-        similar_words = {}
-        for sim_type in SimilarityType:
-            similar_words[sim_type] = []
-
-        if type(synset) == nltk.corpus.reader.wordnet.Synset:
-            for synonym in synset.lemma_names("fra"):
-                similar_words[SimilarityType.synonym].append(synonym)
-
-            for hyponym in synset.hyponyms():
-                similar_words[SimilarityType.hyponym].append(hyponym)
-
-            for hypernym in synset.hypernyms():
-                similar_words[SimilarityType.hypernym].append(hypernym)
-
-            for holonym in synset.member_holonyms():
-                similar_words[SimilarityType.holonym].append(holonym)
-
-        return similar_words
-
-    # Output: datasud keywords as a list of string
-    def load_datasud_keywords(self):
-        with open("datasud_keywords.json", encoding="utf-16") as json_file:
-            db_keywords = json.load(json_file,)["result"]
-        return db_keywords, db_keywords
-
-
-# A terme: return potentiellement des mots clés de plusieurs mots
-def split_user_entry(user_entry):
-    return user_entry.split(" ")
-
-
-# Return second value of a tuple (for sorting)
-def second_key_from_tuple(tuple):
-    return tuple[1]
-
-
-# Input: keyword: keyword of type string or synset
-#        dtsud_keywords: list of keywords of type string from the datasud database
-#        max_k: number of neighbors to find
-# Output: the max_k most similar datasud keywords
-def get_datasud_keywords(
-    model, keyword, dtsud_keywords_strings, dtsud_keywords_vectors, max_k
-):
-
-    start = timeit.default_timer()
-
-    data_sud = []
-
-    for i, dtsud_keyword_vector in enumerate(dtsud_keywords_vectors):
-
-        sim = model.similarity(keyword, dtsud_keyword_vector)
-
-        if sim != 1 and sim > 0.2:
-            data_sud.append((dtsud_keywords_strings[i], sim))
-
-    data_sud.sort(key=second_key_from_tuple, reverse=True)
-
-    return [data_sud[i][0] for i in range(min(max_k, len(data_sud)))]
-
-
-# Recursive function to build the data structure tree
-def get_cluster(model, keyword, width, depth, current_depth):
-
-    cluster = {}
-    cluster["sense"] = str(keyword)
-
-    if current_depth < depth:
-
-        cluster["similar_senses"] = []
-
-        # to avoid looping on most similar words
-        slider = 1 if current_depth > 0 else 0
-        similar_words = model.most_similar(keyword, width, slider)
-
-        for word in similar_words[SimilarityType.synonym]:
-            sub_cluster = {}
-            sub_cluster["sense"] = word
-            cluster["similar_senses"].append([sub_cluster, SimilarityType.synonym])
-
-        for word in similar_words[SimilarityType.similar]:
-            sub_cluster = get_cluster(model, word, width, depth, current_depth + 1)
-            cluster["similar_senses"].append([sub_cluster, SimilarityType.similar])
-
-    if current_depth + 1 < depth:
-
-        for sim_type in SimilarityType:
-            if (
-                sim_type != SimilarityType.synonym
-                and sim_type != SimilarityType.similar
-            ):
-                for sense in similar_words[sim_type]:
-                    sub_cluster = get_cluster(
-                        model, sense, width, depth, current_depth + 1
-                    )
-                    cluster["similar_senses"].append([sub_cluster, sim_type])
-
-    return cluster
-
-
-# Input: keywords: a string
-#        max_depth: maximum depth of keyword search
-#        max_width: maximum width of keyword search
-#        max_dtsud_keywords: number of datasud keywords to return
-# Output: Data structure with most similar keywords found
-def expand_keywords(model, keywords, max_depth, max_width, max_dtsud_keywords):
-
-    keywords = split_user_entry(keywords)
-
-    data = {}
-    data["data"] = []
-
-    if max_dtsud_keywords > 0:
-        db_keywords_strings, db_keywords_vectors = model.load_datasud_keywords()
-
-    for keyword in keywords:
-        if len(keyword) > 3:
-
-            keyword = keyword.lower()
-
-            # Generate list of sense for wordnet (just a list of size 1 if other models)
-            senses = (
-                wn.synsets(keyword, lang="fra")
-                if model.model_type == ModelType.wordnet
-                else [keyword]
+    if query.embeddings_type != expansion.EmbeddingsType.wordnet:
+        try:
+            model = expansion.MagnitudeModel(
+                query.embeddings_type, query.embeddings_name
             )
+        except:
+            raise HTTPException(
+                status_code=404,
+                detail="This embeddings_name doesn't exist for this embeddings_type. You can request the list of embeddings available for a particular embeddings type by requesting get(http/[...]/help_embeddings/{embeddings_type}",
+            )
+    else:
+        model = expansion.WordnetModel()
 
-            current_tree = []
-
-            current_search_result = {}
-            current_search_result["original_keyword"] = keyword
-
-            for sense in senses:
-
-                if max_dtsud_keywords > 0:
-                    current_search_result["datasud_keywords"] = get_datasud_keywords(
-                        model,
-                        sense,
-                        db_keywords_strings,
-                        db_keywords_vectors,
-                        max_dtsud_keywords,
-                    )
-
-                current_tree.append(get_cluster(model, sense, max_width, max_depth, 0))
-
-            current_search_result["tree"] = current_tree
-            data["data"].append(current_search_result)
-
+    data = expansion.expand_keywords(
+        model,
+        query.keywords,
+        query.max_depth,
+        query.max_width,
+        query.max_datasud_keywords,
+    )
     return data
