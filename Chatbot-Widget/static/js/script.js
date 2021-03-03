@@ -9,6 +9,8 @@ const action_name = "action_greet_user";
 const rasa_server_url = "http://localhost:5005/webhooks/rest/webhook";
 const sender_id = uuidv4();
 
+let quickRepliesData;
+
 // Bot pop-up intro
 document.addEventListener("DOMContentLoaded", () => {
   const elemsTap = document.querySelector(".tap-target");
@@ -66,6 +68,21 @@ function showBotTyping() {
   $(".botTyping").show();
   scrollToBottomOfResults();
 }
+
+
+/**
+ * Prepare user response on the chat screen
+ * @param {String} message user message
+ */
+function addMessageToUserInput(message) {
+  const text = $(".usrInput").val()
+  //$(user_response).appendTo(".chats").show("slow");
+  $(".usrInput").val(text.concat(" ").concat(message));
+  //scrollToBottomOfResults();
+  //showBotTyping();
+  //$(".suggestions").remove();
+}
+
 
 /**
  * Set user response on the chat screen
@@ -170,9 +187,8 @@ function showCardsCarousel(cardsToAdd) {
 /**
  * appends horizontally placed buttons carousel
  * on to the chat screen
- * @param {Array} quickRepliesData json array
  */
-function showQuickReplies(quickRepliesData) {
+function showQuickReplies() {
   let chips = "";
   for (let i = 0; i < quickRepliesData.length; i += 1) {
     const chip = `<div class="chip" data-payload='${quickRepliesData[i].payload}'>${quickRepliesData[i].title}</div>`;
@@ -323,11 +339,11 @@ function createCollapsible(collapsible_data) {
   let collapsible_list = "";
   for (let i = 0; i < collapsible_data.length; i += 1) {
     const collapsible_item = `<li><div class="collapsible-header">${collapsible_data[i].title}</div><div class="collapsible-body">
-<span>${collapsible_data[i].description}</span></div></li>`;
+<span>${"Plus d'information".link(collapsible_data[i].description)}</span></div></li>`;
 
     collapsible_list += collapsible_item;
   }
-  const collapsible_contents = `<ul class="collapsible">${collapsible_list}</ul>`;
+  const collapsible_contents = `<ul class="collapsible popout">${collapsible_list}</ul>`;
   $(collapsible_contents).appendTo(".chats");
 
   // initialize the collapsible
@@ -537,8 +553,8 @@ function setBotResponse(response) {
           const { payload } = response[i].custom;
           if (payload === "quickReplies") {
             // check if the custom payload type is "quickReplies"
-            const quickRepliesData = response[i].custom.data;
-            showQuickReplies(quickRepliesData);
+            quickRepliesData = response[i].custom.data;
+            showQuickReplies();
             return;
           }
 
@@ -773,7 +789,7 @@ $(".usrInput").on("keyup keypress", (e) => {
       return false;
     }
     // destroy the existing chart, if yu are not using charts, then comment the below lines
-    $(".collapsible").remove();
+    //$(".collapsible").remove();
     $(".dropDownMsg").remove();
     if (typeof chatChart !== "undefined") {
       chatChart.destroy();
@@ -856,14 +872,25 @@ $("#close").click(() => {
   scrollToBottomOfResults();
 });
 
+// Remove every element of the quickRepliesData with the value "value"
+function removeItemFromQuickReplies(value) {
+  var i = 0;
+  while (i < quickRepliesData.length) {
+    if (quickRepliesData[i].title === value) {
+      quickRepliesData.splice(i, 1);
+    } else {
+      ++i;
+    }
+  }
+}
+
 // on click of quickreplies, get the payload value and send it to rasa
 $(document).on("click", ".quickReplies .chip", function () {
   const text = this.innerText;
   const payload = this.getAttribute("data-payload");
   console.log("chip payload: ", this.getAttribute("data-payload"));
-  setUserResponse(text);
-  send(payload);
-
-  // delete the quickreplies
+  addMessageToUserInput(text);
+  removeItemFromQuickReplies(text)
   $(".quickReplies").remove();
+  showQuickReplies()
 });
