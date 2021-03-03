@@ -4,22 +4,30 @@
 # See this guide on how to implement these action:
 # https://rasa.com/docs/rasa/custom-actions
 
-from typing import Any, Text, Dict, List
-from rasa_sdk import Action, Tracker
-from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import SlotSet, EventType
+
 import sqlite3
 import json
 import requests
 import codecs
+from typing import Any, Text, Dict, List
+
 from actions import sql_query
+
+from rasa_sdk import Action, Tracker
+from rasa_sdk.executor import CollectingDispatcher
+from rasa_sdk.events import SlotSet, EventType
 
 flag_activate_api_call = True
 flag_activate_sql_query_commit = True
 
-## Entrée: Mots clés de la recherche
-## Sortie: URL pour appeler l'api
+
 def get_request_keywords_url(keywords):
+    """
+    Return URL to request Datasud API
+
+    Input: Keywords as string (separated by spaces)
+    Output: URL as string
+    """
 
     url = "https://trouver.datasud.fr/api/3/action/package_search?q="
     special_characters = [
@@ -59,8 +67,13 @@ def get_request_keywords_url(keywords):
     return url[0 : len(url) - 1]
 
 
-# Find new keywords that might interest the user
 def keywords_expansion(keywords):
+    """
+    Find new keywords that might interest the user by calling the expansion API
+
+    Input: Keywords as string (separated by spaces)
+    Output: Proposed Keywords as string (separated by |)
+    """
 
     search_expand_url = "http://127.0.0.1:8000/query_expand"
 
@@ -84,8 +97,11 @@ def keywords_expansion(keywords):
     return keywords_expansion[1:]
 
 
-# Reset all the slots
 class ResetKeywordsSlot(Action):
+    """
+    Reset all the slots of the rasa chatbot
+    """
+
     def name(self):
         return "action_reset_all_slots"
 
@@ -100,8 +116,40 @@ class ResetKeywordsSlot(Action):
         ]
 
 
-# Ask the user to confirm the keywords used for the search
+class AskForKeywordsFeedbackSlotAction(Action):
+    """
+    Ask the user to choose which keywords are useful to him during the search_form
+    """
+
+    def name(self) -> Text:
+        return "action_ask_keywords_feedback"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+
+        keywords_expanded = keywords_expansion(tracker.get_slot("keywords"))
+
+        data = []
+
+        for i, keyword in enumerate(keywords_expanded.split("|")):
+            data.append({"title": keyword, "payload": "k" + str(i)})
+
+        message = {"payload": "quickReplies", "data": data}
+
+        dispatcher.utter_message(
+            text="Essayons d'améliorer votre recherche, pouvez-vous sélectionner les mots-clés qui vous semblent pertinents ?",
+            json_message=message,
+        )
+
+        return [SlotSet("keywords_augmentation", keywords_expanded)]
+
+
 class UtterConfirmSearch(Action):
+    """
+    Ask the user to confirm the keywords he will use for the search
+    """
+
     def name(self):
         return "action_utter_confirm_search"
 
@@ -116,44 +164,23 @@ class UtterConfirmSearch(Action):
         keywords_aug = tracker.get_slot("keywords_augmentation").split("|")
         keywords_feedback = tracker.get_slot("keywords_feedback").split(" ")
 
-        message = "Tu souhaites bien faire une recherche avec ces mots-clés ?\n"
+        message = "Souhaitez-vous bien faire une recherche avec ces mots-clés ?\n"
 
         for keyword in keywords:
             message += keyword + " "
 
-        if "0" not in keywords_feedback:
-            for i in range(len(keywords_aug)):
-                if str(i + 1) in keywords_feedback:
-                    message += keywords_aug[i] + " "
+        for keyword in keywords_feedback:
+            if keyword in keywords_aug:
+                message += keyword + " "
 
         dispatcher.utter_message(text=message)
 
 
-# Ask the user to choose which keywords are useful to him during the search_form
-class AskForKeywordsFeedbackSlotAction(Action):
-    def name(self) -> Text:
-        return "action_ask_keywords_feedback"
-
-    def run(
-        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
-    ) -> List[EventType]:
-
-        keywords_expanded = keywords_expansion(tracker.get_slot("keywords"))
-
-        message = "Essayons d'améliorer ta recherche, peux-tu écrire les numéros des mots-clés qui te semblent pertinent ?\n"
-
-        message += "0 - Aucun\n"
-
-        for i, keyword in enumerate(keywords_expanded.split("|")):
-            message += str(i + 1) + " - " + keyword + "\n"
-
-        dispatcher.utter_message(text=message)
-
-        return [SlotSet("keywords_augmentation", keywords_expanded)]
-
-
-# Search DataSud API with keywords provided by the users and display results
 class SearchKeywordsInDatabase(Action):
+    """
+    Search DataSud API with keywords provided by the users and display results
+    """
+
     def name(self):
         return "action_search_database"
 
@@ -169,50 +196,51 @@ class SearchKeywordsInDatabase(Action):
         if flag_activate_api_call:
             request_url = get_request_keywords_url(keywords)
             data = requests.post(request_url).json()
-            results = data["result"]["results"]
-            catalog_url = "https://trouver.datasud.fr/dataset/"
-
-            if len(results) > 0:
-                dispatcher.utter_message(
-                    text="Voici les résultats que j'ai pu trouver:\n_"
-                )
-
-                results_title_slot = ""
-                results_url_slot = ""
-                for i, result in enumerate(results[0:5]):
-                    message = ""
-                    # message += result["thumbnail"] + "\n"
-                    message += str(i + 1) + " - "
-                    message += result["title"] + "\n"
-                    message += catalog_url + result["name"] + "\n_"
-                    results_title_slot += result["title"] + "|"
-                    results_url_slot += result["name"] + "|"
-                    dispatcher.utter_message(text=message)
-
-                return [
-                    SlotSet(
-                        "results_title",
-                        results_title_slot[0 : len(results_title_slot) - 1],
-                    ),
-                    SlotSet(
-                        "results_url", results_url_slot[0 : len(results_url_slot) - 1]
-                    ),
-                ]
-            else:
-                dispatcher.utter_message(
-                    text="Désolé, je n'ai trouvé aucun résultat pour ta recherche."
-                )
-                return [SlotSet("results_title", None), SlotSet("results_url", None)]
         else:
-            dispatcher.utter_message(text="API CALL DEACTIVATED")
+            with open("fake_api_results.json", encoding="utf-8") as f:
+                data = json.load(f)
+
+        results = data["result"]["results"]
+        catalog_url = "https://trouver.datasud.fr/dataset/"
+
+        if len(results) > 0:
+
+            data = []
+            results_title_slot = ""
+            results_url_slot = ""
+            for i, result in enumerate(results[0:5]):
+                data.append(
+                    {
+                        "title": str(i + 1) + " - " + result["title"],
+                        "description": catalog_url + result["name"],
+                    }
+                )
+                results_title_slot += result["title"] + "|"
+                results_url_slot += result["name"] + "|"
+
+            message = {"payload": "collapsible", "data": data}
+            dispatcher.utter_message(
+                text="Voici les résultats que j'ai pu trouver:", json_message=message,
+            )
+
             return [
-                SlotSet("results_title", "TITRE1|TITRE2|TITRE3"),
-                SlotSet("results_url", "URL1|URL2|URL3"),
+                SlotSet(
+                    "results_title", results_title_slot[: len(results_title_slot) - 1],
+                ),
+                SlotSet("results_url", results_url_slot[: len(results_url_slot) - 1]),
             ]
+        else:
+            dispatcher.utter_message(
+                text="Désolé, je n'ai trouvé aucun résultat pour ta recherche."
+            )
+            return [SlotSet("results_title", None), SlotSet("results_url", None)]
 
 
-# Send search information to the database
 class SendSearchInfo(Action):
+    """
+    Send search information to the database
+    """
+
     def name(self):
         return "action_send_search_information_to_database"
 
@@ -230,8 +258,11 @@ class SendSearchInfo(Action):
         )
 
 
-# Send keywords proposed to the user to the database
 class SendKeywordsFeedback(Action):
+    """
+    Send keywords proposed to the user to the database
+    """
+
     def name(self):
         return "action_send_keywords_feedback_to_database"
 
@@ -249,46 +280,31 @@ class SendKeywordsFeedback(Action):
         keywords_feedback = tracker.get_slot("keywords_feedback")
 
         if keywords_proposed is not None:
+
             keywords_proposed = keywords_proposed.split("|")
             keywords_feedback = keywords_feedback.split(" ")
-            for i in range(len(keywords_proposed)):
 
-                if len(keywords_feedback) > 0:
+            for keyword in keywords_proposed:
 
-                    if "0" not in keywords_feedback:
-
-                        if str(i + 1) in keywords_feedback:
-                            feedback = 1
-                        else:
-                            feedback = -1
-
-                        sql_query.add_keyword_proposed(
-                            conversation_id,
-                            keywords_user,
-                            keywords_proposed[i],
-                            feedback,
-                            flag_activate_sql_query_commit,
-                        )
-                    else:
-                        sql_query.add_keyword_proposed(
-                            conversation_id,
-                            keywords_user,
-                            keywords_proposed[i],
-                            -1,
-                            flag_activate_sql_query_commit,
-                        )
+                if keyword in keywords_feedback:
+                    feedback = 1
                 else:
-                    sql_query.add_keyword_proposed(
-                        conversation_id,
-                        keywords_user,
-                        keywords_proposed[i],
-                        0,
-                        flag_activate_sql_query_commit,
-                    )
+                    feedback = -1
+
+                sql_query.add_keyword_proposed(
+                    conversation_id,
+                    keywords_user,
+                    keyword,
+                    feedback,
+                    flag_activate_sql_query_commit,
+                )
 
 
-# Send Search results to the database
 class SendResultsFeedback(Action):
+    """
+    Send Search results feedback to the database
+    """
+
     def name(self):
         return "action_send_results_feedback_to_database"
 
