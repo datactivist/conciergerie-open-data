@@ -10,8 +10,14 @@ import json
 import numpy as np
 
 
-# Function to preload datasud vectors by saving them separately
 def preload_datasud_vectors(model, datasud_keywords):
+    """
+    Preload datasud vectors by saving them separately in "datasud_keywords_vectors/embedding_type/embedding_name.npy"
+
+    Input:  model: expansion.MagnitudeModel
+            datasud_keywords: Datasud keywords as list of string
+    """
+
     if not os.path.isfile(
         "datasud_keywords_vectors/"
         + model.embeddings_type
@@ -34,18 +40,25 @@ def preload_datasud_vectors(model, datasud_keywords):
         print("Vectors saved")
 
 
-# Function to preload embeddings by calling most_similar
 def preload_magnitude_embeddings(embeddings_type, embeddings_name, datasud_keywords):
+    """
+    Preload embeddings by calling MagnitudeModel.most_similar() and preload_datasud_vectors() on them
+
+    Input:  embedding_type: Type of the embedding
+            embedding_name: Name of the embedding
+            datasud_keywords: Datasud keywords as list of string
+    """
     model = expansion.MagnitudeModel(embeddings_type, embeddings_name)
     model.most_similar("Chargement")
     preload_datasud_vectors(model, datasud_keywords)
     model = None
 
 
+# Load datasud keywords as a list of string
 with open("datasud_keywords.json", encoding="utf-16") as json_file:
     datasud_keywords = json.load(json_file,)["result"]
-"""
-# Looping on embeddings to preload them
+
+# Looping on available .magnitude embeddings to preload them
 print("\nStarting Preloading of magnitude embeddings")
 start = timeit.default_timer()
 for embeddings_type in expansion.EmbeddingsType:
@@ -58,10 +71,13 @@ for embeddings_type in expansion.EmbeddingsType:
                 )
 end = timeit.default_timer()
 print("Preloading Done:", end - start, "\n")
-"""
 
-# Structure for search expand query
+
 class Search_Expand_Query(BaseModel):
+    """
+    Structure for the expand query
+    """
+
     keywords: str
     embeddings_type: Optional[
         expansion.EmbeddingsType
@@ -86,8 +102,11 @@ class Search_Expand_Query(BaseModel):
         }
 
 
-# Structures for search expand query results
 class Cluster(BaseModel):
+    """
+    Recursive class to build data tree
+    """
+
     sense: str
     similar_senses: Optional[List[Tuple[Cluster, expansion.SimilarityType]]]
     sense_definition: Optional[str]
@@ -97,6 +116,10 @@ Cluster.update_forward_refs()
 
 
 class ResponseFromSense(BaseModel):
+    """
+    Structure for expand query's results
+    """
+
     original_keyword: str
     tree: Optional[List[Cluster]]
     datasud_keywords: Optional[List[str]]
@@ -163,6 +186,7 @@ class ResponseFromSense(BaseModel):
         }
 
 
+# Launch API
 app = FastAPI()
 
 
