@@ -1,12 +1,12 @@
-# wordnet
+import json
+import timeit
+import numpy as np
+from enum import Enum
+
 from nltk.corpus import wordnet as wn
 import nltk
 
-from enum import Enum
-import json
-import timeit
 from pymagnitude import *
-import numpy as np
 
 
 class EmbeddingsType(str, Enum):
@@ -25,29 +25,46 @@ class SimilarityType(str, Enum):
     similar = "similar"
 
 
-# Class representing a Magnitude Model
-# Parameter: Type of the embeddings and name of the embeddings
 class MagnitudeModel:
+    """
+    Class representing a Magnitude Model
+    Input: Type of the embeddings and name of the embeddings
+    """
+
     def __init__(self, embeddings_type, embeddings_name):
         self.embeddings_type = embeddings_type
         self.embeddings_name = embeddings_name
         self.model = self.load_model()
 
-    # Load model using Magnitude
     def load_model(self):
+        """
+        load model using Magnitude
+        """
+
         return Magnitude(
             "embeddings/" + self.embeddings_type + "/" + self.embeddings_name
         )
 
-    # Input: Two keywords of type string
-    # Output: Similarity between the two keywords
     def similarity(self, keyword1, keyword2):
+        """
+        Compute and return similarity between two words
+
+        Input: Two words of type string
+        Output: Similarity between the two keywords
+        """
+
         return self.model.similarity(keyword1, keyword2)
 
-    # Input: Keyword: a keyword of type string
-    #       topn: number of neighbors to get
-    #       slider: slide the results (i.e topn=10 and slider = 2 -> [2-12])
     def most_similar(self, keyword, topn=10, slider=0):
+        """
+        Return the nearest neighbors of keyword
+
+        Input:  keyword: a word of type string
+                topn: number of neighbors to get (default: 10)
+                slider: slide the results (default: 0)  - (i.e topn=10 and slider = 2 -> [2-12]) to avoid looping when depth>1
+        Output: Return the topn closest words from keyword
+        """
+
         similar_words = {}
         for sim_type in SimilarityType:
             similar_words[sim_type] = []
@@ -60,8 +77,11 @@ class MagnitudeModel:
 
         return similar_words
 
-    # Output: Datasud keywords as list of string and as list of vectors
     def load_datasud_keywords(self):
+        """
+        Load and return the presaved vectors of Datasud Keywords
+        """
+
         with open("datasud_keywords.json", encoding="utf-16") as json_file:
             db_keywords_strings = json.load(json_file,)["result"]
 
@@ -75,15 +95,22 @@ class MagnitudeModel:
         return db_keywords_strings, db_keywords_vectors
 
 
-# Class representing a Wordnet Model
 class WordnetModel:
+    """
+    Class representing a WordNet model
+    """
+
     def __init__(self):
         self.embeddings_type = EmbeddingsType.wordnet
         self.embeddings_name = "wolf-b-04.xml"
 
-    # Input: Two keywords of type string, synset, or list of synset
-    # Output: Similiarity between the two keywords using path_similarity
     def similarity(self, keyword1, keyword2):
+        """
+        Compute and return similarity between two object
+
+        Input: Two keywords of type string, synset, or list of synset
+        Output: Similiarity between the two objets using path_similarity
+        """
 
         if type(keyword1) == nltk.corpus.reader.wordnet.Synset:
             keyword1 = [keyword1]
@@ -103,9 +130,13 @@ class WordnetModel:
                     sim = new_sim
         return sim
 
-    # Input: Synset
-    # Output: List of synonyms, hyponyms, hypernyms and holonyms in a dictionnary
     def most_similar(self, synset, topn, slider):
+        """
+        Return a dictionnary with the list of similar words and their similarityType
+
+        Input: Synset
+        Output: List of synonyms, hyponyms, hypernyms and holonyms in a dictionnary
+        """
 
         similar_words = {}
         for sim_type in SimilarityType:
@@ -126,30 +157,49 @@ class WordnetModel:
 
         return similar_words
 
-    # Output: datasud keywords as a list of string
     def load_datasud_keywords(self):
+        """
+        Load and return the datasud keywords as a list of string | Twice to keep same behavour as MagnitudeModel
+        """
+
         with open("datasud_keywords.json", encoding="utf-16") as json_file:
             db_keywords = json.load(json_file,)["result"]
         return db_keywords, db_keywords
 
 
-# A terme: return potentiellement des mots clés de plusieurs mots
 def split_user_entry(user_entry):
+    """
+    Split the user entry into keywords
+
+    Input: keywords as string
+    Output: keywords as list
+
+    Currently splitting them with space char
+    """
+
     return user_entry.split(" ")
 
 
-# Return second value of a tuple (for sorting)
 def second_key_from_tuple(tuple):
+    """
+    Return second value of a tuple, used for sorting array of dimension [n, 2] on the second value
+    """
+
     return tuple[1]
 
 
-# Input: keyword: keyword of type string or synset
-#        dtsud_keywords: list of keywords of type string from the datasud database
-#        max_k: number of neighbors to find
-# Output: the max_k most similar datasud keywords
 def get_datasud_keywords(
     model, keyword, dtsud_keywords_strings, dtsud_keywords_vectors, max_k
 ):
+
+    """
+    Return the closest datasud keywords from keyword
+
+    Input: keyword: keyword of type string or synset
+           dtsud_keywords: list of keywords of type string from the datasud database
+           max_k: number of neighbors to find
+    Output: the max_k most similar datasud keywords
+    """
 
     start = timeit.default_timer()
 
@@ -167,8 +217,17 @@ def get_datasud_keywords(
     return [data_sud[i][0] for i in range(min(max_k, len(data_sud)))]
 
 
-# Recursive function to build the data structure tree
 def get_cluster(model, keyword, width, depth, current_depth):
+
+    """
+    Recursive function to build the data structure tree
+
+    Input:  keyword: string or synset
+            width: width of each cluster #Ignore when using WordnetModel
+            depth: depth to achieve
+            current_depth: current depth
+    Output: A cluster
+    """
 
     cluster = {}
     cluster["sense"] = str(keyword)
@@ -208,12 +267,16 @@ def get_cluster(model, keyword, width, depth, current_depth):
     return cluster
 
 
-# Input: keywords: a string
-#        max_depth: maximum depth of keyword search
-#        max_width: maximum width of keyword search
-#        max_dtsud_keywords: number of datasud keywords to return
-# Output: Data structure with most similar keywords found
 def expand_keywords(model, keywords, max_depth, max_width, max_dtsud_keywords):
+    """
+    Return the most similar keywords from the initial keywords
+
+    Input:  keywords: a string
+            max_depth: maximum depth of keywords search
+            max_width: maximum width of keywords search
+            max_dtsud_keywords: number of datasud keywords to return
+    Output: Data structure with most similar keywords found
+    """
 
     keywords = split_user_entry(keywords)
 
