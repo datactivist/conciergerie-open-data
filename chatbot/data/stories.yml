@@ -64,6 +64,7 @@ stories:
 
 - story: Feedback Form follow-up - need more help
   steps:
+  - action: action_recap_feedback_to_user
   - action: action_send_results_feedback_to_database
   - action: utter_submit_feedback_form
   - intent: affirm
@@ -71,6 +72,7 @@ stories:
 
 - story: Feedback Form follow-up - doesn't need more help
   steps:
+  - action: action_recap_feedback_to_user
   - action: action_send_results_feedback_to_database
   - action: utter_submit_feedback_form
   - intent: deny

@@ -50,6 +50,11 @@ slots:
     initial_value: null
     auto_fill: false
     influence_conversation: false
+  results_description:
+    type: rasa.shared.core.slots.TextSlot
+    initial_value: null
+    auto_fill: false
+    influence_conversation: false
   results_feedback:
     type: rasa.shared.core.slots.TextSlot
     initial_value: null
@@ -71,11 +76,10 @@ responses:
   utter_faq/ask_identity:
   - text: Je suis un robot fonctionnant avec Rasa. J'ai été créé par Datactivist.
   utter_faq/ask_skills:
-  - text: |-
-      Voilà comment je peux t'aider:
-       - Je peux t'aider à faire une recherche dans la base de données.
+  - text: |
+      Je peux vous aider à faire une recherche dans la base de données.
   utter_ask_keywords:
-  - text: Quels mots-clés souhaites-tu utiliser pour ta recherche ?
+  - text: Quels mots-clés souhaitez-vous utiliser pour votre recherche ?
   utter_submit_search_form:
   - text: C'est noté!
   utter_send_search_form:
@@ -83,38 +87,38 @@ responses:
   utter_dont_send_search_form:
   - text: D'accord, je ne lance pas la recherche.
   utter_feedback_proposition:
-  - text: Serais-tu d'accord de prendre quelques secondes de ton temps pour m'aider à m'améliorer ?
+  - text: Seriez-vous d'accord de prendre quelques secondes de votre temps pour m'aider à m'améliorer ?
   utter_thanks_you:
-  - text: Je te remercie!
+  - text: Je vous remercie!
   utter_no_problem_anything_else:
-  - text: Pas de problème, est-ce que je peux encore t'aider ?
-  utter_ask_results_feedback:
-  - text: Parmis les jeux de données que j'ai pu trouver, peux-tu entrer le numéro de ceux qui t'ont été pertinent ? Si il n'y en avait aucun, tu peux entrer 0.
+  - text: Pas de problème, est-ce que je peux encore vous aider ?
   utter_submit_feedback_form:
-  - text: Merci beaucoup! Tu as besoin d'autre chose ?
+  - text: Avez-vous besoin d'autre chose ?
   utter_anything_else:
-  - text: Besoin d'autre chose ?
+  - text: Avez-vous besoin d'autre chose ?
   utter_default:
-  - text: Désolé, je n'ai pas bien compris. Peux-tu reformuler ?
+  - text: Je suis désolé, je n'ai pas bien compris. Pouvez-vous reformuler ?
 actions:
 - action_reset_all_slots
 - action_search_database
 - action_keywords_augmentation
 - action_ask_keywords_feedback
 - action_utter_confirm_search
-- action_send_search_information_to_database
 - action_send_keywords_feedback_to_database
+- action_send_search_information_to_database
+- action_ask_results_feedback
 - action_send_results_feedback_to_database
+- action_recap_feedback_to_user
 forms:
   search_form:
     keywords:
     - intent: inform | nlu_fallback | affirm | deny | feedback | request_search
       type: from_text
     keywords_feedback:
-    - intent: feedback
+    - intent: inform | nlu_fallback | affirm | deny | feedback | request_search
       type: from_text
   feedback_results_form:
     results_feedback:
-    - intent: feedback
+    - intent: inform | nlu_fallback | affirm | deny | feedback | request_search
       type: from_text
 e2e_actions: []

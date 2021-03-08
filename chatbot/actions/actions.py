@@ -17,7 +17,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
 
-flag_activate_api_call = True
+flag_activate_api_call = False
 flag_activate_sql_query_commit = True
 
 
@@ -81,20 +81,18 @@ def keywords_expansion(keywords):
 
     results = requests.post(search_expand_url, json=data).json()
 
-    keywords_expansion = ""
+    exp_terms = set([])
 
     for og_key in results:
-        for sense in og_key["tree"]:
-            for similar_sense in sense["similar_senses"]:
-                keyword = similar_sense[0]["sense"]
-                if keyword not in keywords_expansion:
-                    keywords_expansion += "|" + keyword
 
         for dtsud_keyword in og_key["datasud_keywords"]:
-            if dtsud_keyword not in keywords_expansion:
-                keywords_expansion += "|" + dtsud_keyword
+            exp_terms.add(dtsud_keyword)
 
-    return keywords_expansion[1:]
+        for sense in og_key["tree"]:
+            for similar_sense in sense["similar_senses"]:
+                exp_terms.add(similar_sense[0]["sense"])
+
+    return "|".join(exp_terms)
 
 
 class ResetKeywordsSlot(Action):
@@ -112,6 +110,7 @@ class ResetKeywordsSlot(Action):
             SlotSet("keywords_feedback", None),
             SlotSet("results_title", None),
             SlotSet("results_url", None),
+            SlotSet("results_description", None),
             SlotSet("results_feedback", None),
         ]
 
@@ -164,7 +163,7 @@ class UtterConfirmSearch(Action):
         keywords_aug = tracker.get_slot("keywords_augmentation").split("|")
         keywords_feedback = tracker.get_slot("keywords_feedback").split(" ")
 
-        message = "Souhaitez-vous bien faire une recherche avec ces mots-clés ?\n"
+        message = "Souhaitez-vous bien faire une recherche avec ces mots-clés ?<br>"
 
         for keyword in keywords:
             message += keyword + " "
@@ -208,15 +207,18 @@ class SearchKeywordsInDatabase(Action):
             data = []
             results_title_slot = ""
             results_url_slot = ""
+            results_description_slot = ""
             for i, result in enumerate(results[0:5]):
                 data.append(
                     {
                         "title": str(i + 1) + " - " + result["title"],
-                        "description": catalog_url + result["name"],
+                        "url": catalog_url + result["name"],
+                        "description": result["notes"],
                     }
                 )
                 results_title_slot += result["title"] + "|"
                 results_url_slot += result["name"] + "|"
+                results_description_slot += result["notes"] + "|"
 
             message = {"payload": "collapsible", "data": data}
             dispatcher.utter_message(
@@ -228,12 +230,20 @@ class SearchKeywordsInDatabase(Action):
                     "results_title", results_title_slot[: len(results_title_slot) - 1],
                 ),
                 SlotSet("results_url", results_url_slot[: len(results_url_slot) - 1]),
+                SlotSet(
+                    "results_description",
+                    results_description_slot[: len(results_description_slot) - 1],
+                ),
             ]
         else:
             dispatcher.utter_message(
-                text="Désolé, je n'ai trouvé aucun résultat pour ta recherche."
+                text="Je suis désolé, je n'ai trouvé aucun résultat pour votre recherche."
             )
-            return [SlotSet("results_title", None), SlotSet("results_url", None)]
+            return [
+                SlotSet("results_title", None),
+                SlotSet("results_url", None),
+                SlotSet("results_description", None),
+            ]
 
 
 class SendSearchInfo(Action):
@@ -300,8 +310,84 @@ class SendKeywordsFeedback(Action):
                 )
 
 
+class AskForResultsFeedbackSlotAction(Action):
+    """
+    Ask the user to choose which results were useful to him
+    """
+
+    def name(self) -> Text:
+        return "action_ask_results_feedback"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+
+        results_title = tracker.get_slot("results_title")
+
+        data = []
+
+        for i, title in enumerate(results_title.split("|")):
+            data.append({"title": title, "payload": "k" + str(i)})
+
+        message = {"payload": "resultfeedback", "data": data}
+
+        dispatcher.utter_message(
+            text="Pouvez-vous cocher les jeu de données qui vous ont été pertinents ?",
+            json_message=message,
+        )
+
+
+class RecapResultsFeedback(Action):
+    """
+    Feedback format example: 0 2 1
+    Summarize the feedback to the user
+    """
+
+    def name(self):
+        return "action_recap_feedback_to_user"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+
+        conversation_id = tracker.sender_id
+
+        results_title_data = tracker.get_slot("results_title")
+        results_feedback = tracker.get_slot("results_feedback")
+
+        if results_feedback is not None:
+            results_feedback = results_feedback.split(" ")
+        else:
+            results_feedback = []
+
+        recap_msg = ""
+        if results_title_data is not None:
+
+            recap_msg = "Merci beaucoup!<br>Voilà ce que vous avez choisi:<br>"
+
+            results_title_data = results_title_data.split("|")
+
+            for i in range(len(results_title_data)):
+
+                if len(results_feedback) > 0:
+
+                    if "0" not in results_feedback:
+
+                        if str(i + 1) in results_feedback:
+                            recap_msg += " - " + results_title_data[i] + "<br>"
+
+        if len(recap_msg) == 0:
+            recap_msg = "Vous n'avez choisi aucun jeu de données."
+
+        dispatcher.utter_message(text=recap_msg)
+
+
 class SendResultsFeedback(Action):
     """
+    Feedback format example: 0 3 4
     Send Search results feedback to the database
     """
 
@@ -364,3 +450,26 @@ class SendResultsFeedback(Action):
                         0,
                         flag_activate_sql_query_commit,
                     )
+
+
+# Actions triggered from rasa chatbot widget
+
+
+class ActionGreetUser(Action):
+    """
+    Greet the user at the start of a conversation
+    """
+
+    def name(self):
+        return "action_greet_user"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+
+        dispatcher.utter_message(
+            text="Bonjour, je peux peut-être vous aider, demandez moi ce que je sais faire."
+        )

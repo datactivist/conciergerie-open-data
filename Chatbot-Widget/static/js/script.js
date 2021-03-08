@@ -5,7 +5,6 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 
-const action_name = "action_greet_user";
 const rasa_server_url = "http://localhost:5005/webhooks/rest/webhook";
 const sender_id = uuidv4();
 
@@ -39,7 +38,7 @@ $(document).ready(() => {
   // $("#userInput").prop('disabled', true);
 
   // if you want the bot to start the conversation
-  // customActionTrigger();
+  customActionTrigger("action_greet_user");
 });
 
 /**
@@ -76,11 +75,13 @@ function showBotTyping() {
  */
 function addMessageToUserInput(message) {
   const text = $(".usrInput").val()
-  //$(user_response).appendTo(".chats").show("slow");
-  $(".usrInput").val(text.concat(" ").concat(message));
-  //scrollToBottomOfResults();
-  //showBotTyping();
-  //$(".suggestions").remove();
+  if (text != " Aucun ne m'intéresse") {
+    $(".usrInput").val(text.concat(" ").concat(message));
+  }
+  else {
+    console.log("modifying")
+    $(".usrInput").val(message);
+  }
 }
 
 
@@ -188,7 +189,21 @@ function showCardsCarousel(cardsToAdd) {
  * appends horizontally placed buttons carousel
  * on to the chat screen
  */
-function showQuickReplies() {
+function createQuickReplies() {
+
+  addMessageToUserInput("Aucun ne m'intéresse")
+  updateQuickReplies()
+
+}
+
+
+
+/**
+ * appends horizontally placed buttons carousel
+ * on to the chat screen
+ */
+function updateQuickReplies() {
+
   let chips = "";
   for (let i = 0; i < quickRepliesData.length; i += 1) {
     const chip = `<div class="chip" data-payload='${quickRepliesData[i].payload}'>${quickRepliesData[i].title}</div>`;
@@ -224,7 +239,30 @@ function showQuickReplies() {
     const walk = (x - startX) * 3; // scroll-fast
     slider.scrollLeft = scrollLeft - walk;
   });
+
 }
+
+
+
+
+/**
+ *  creates result feedback form
+ */
+function createResultFeedbackForm(result_feedback_data) {
+  // sample data format:
+  // var result_feedback_data=[{"title":"abc"},{"title":"pqr"}]
+  let checkbox_list = '<form onsubmit="getResultFeedbackForm()" class="form">';
+  for (let i = 0; i < result_feedback_data.length; i += 1) {
+    checkbox_list += `<p><label><input type="checkbox" name=${i} id=c${i} class="filled-in"><span for=c${i} style="line-height:1">${result_feedback_data[i].title}</span></label></p>`;
+  }
+  checkbox_list += '<input type="submit" value="Confirmer">'
+  checkbox_list += "</form>"
+  const checkboxList = checkbox_list
+  $(checkboxList).appendTo(".chats");
+  scrollToBottomOfResults();
+}
+
+
 
 /**
  * renders pdf attachment on to the chat screen
@@ -328,6 +366,82 @@ function getLocation() {
   }
 }
 
+
+
+/*
+ * Return the index of all occurences of "find" in the string "source"
+ * @param {string} source 
+ * @param {string} find 
+ * @returns 
+ */
+function indexes(source, find) {
+  if (!source) {
+    return [];
+  }
+  // if find is empty string return all indexes.
+  if (!find) {
+    // or shorter arrow function:
+    // return source.split('').map((_,i) => i);
+    return source.split('').map(function (_, i) { return i; });
+  }
+  var result = [];
+  for (i = 0; i < source.length; ++i) {
+    // If you want to search case insensitive use 
+    // if (source.substring(i, i + find.length).toLowerCase() == find) {
+    if (source.substring(i, i + find.length) == find) {
+      result.push(i);
+    }
+  }
+  return result;
+}
+
+
+/**
+ * Convert the script into HTML format supportet by the rasa chatbot widget
+ * @param {string} description | Obtained from a markdown string transformed into html through showdown
+ * @returns HTML string for rasa chatbot widget
+ */
+function get_embedded_content(description) {
+
+  var converter = new showdown.Converter();
+  description = converter.makeHtml(description);
+  description = description.replaceAll("<strong>", "<b>");
+  description = description.replaceAll("</strong>", "</b>");
+
+  index_list = indexes(description, "http");
+
+  embed = "";
+
+  for (let i = 0; i < description.length; i += 1) {
+
+    if ((index_list.indexOf(i) != -1) && (description.charAt(i - 1) != '"')) {
+
+      saved_i = i
+
+      embed += '<a href="';
+
+      while ((description.charAt(i) != " ") && (description.charAt(i) != "<")) {
+
+        embed += description.charAt(i);
+        i += 1
+
+      }
+
+      embed += '">' + description.substring(saved_i, i) + '</a>'
+
+    }
+
+    embed += description.charAt(i);
+
+
+  }
+
+  return embed
+
+}
+
+
+
 /**
  *  creates collapsible
  * for more info refer:https://materializecss.com/collapsible.html
@@ -335,11 +449,15 @@ function getLocation() {
  */
 function createCollapsible(collapsible_data) {
   // sample data format:
-  // var collapsible_data=[{"title":"abc","description":"xyz"},{"title":"pqr","description":"jkl"}]
+  // var collapsible_data=[{"title":"abc","description":"xyz", "url":"http"},{"title":"pqr","description":"jkl", "url":"http"}]
   let collapsible_list = "";
   for (let i = 0; i < collapsible_data.length; i += 1) {
+    let description = collapsible_data[i].description;
+    //description = get_embedded_content(description);
+    embed = get_embedded_content(description)
+    //console.log(embed);
     const collapsible_item = `<li><div class="collapsible-header">${collapsible_data[i].title}</div><div class="collapsible-body">
-<span>${"Plus d'information".link(collapsible_data[i].description)}</span></div></li>`;
+<span>${embed}${"Plus d'information - Accéder au jeu de données".link(collapsible_data[i].url)}</span></div></div></li>`;
 
     collapsible_list += collapsible_item;
   }
@@ -350,6 +468,12 @@ function createCollapsible(collapsible_data) {
   $(".collapsible").collapsible();
   scrollToBottomOfResults();
 }
+
+
+
+
+
+
 
 /**
  *  creates a div that will render the
@@ -503,7 +627,7 @@ function setBotResponse(response) {
     hideBotTyping();
     if (response.length < 1) {
       // if there is no response from Rasa, send  fallback message to the user
-      const fallbackMsg = "I am facing some issues, please try again later!!!";
+      const fallbackMsg = "Je rencontre quelques problèmes, merci de réessayer plus tard.";
 
       const BotResponse = `<img class="botAvatar" src="./static/img/sara_avatar.png"/><p class="botMsg">${fallbackMsg}</p><div class="clearfix"></div>`;
 
@@ -554,7 +678,7 @@ function setBotResponse(response) {
           if (payload === "quickReplies") {
             // check if the custom payload type is "quickReplies"
             quickRepliesData = response[i].custom.data;
-            showQuickReplies();
+            createQuickReplies();
             return;
           }
 
@@ -627,11 +751,18 @@ function setBotResponse(response) {
             return;
           }
 
-          // check of the custom payload type is "collapsible"
+          // check if the custom payload type is "collapsible"
           if (payload === "collapsible") {
             const { data } = response[i].custom;
             // pass the data variable to createCollapsible function
             createCollapsible(data);
+          }
+
+          // check if the custom payload type is "resultfeedback"
+          if (payload === "resultfeedback") {
+            const { data } = response[i].custom;
+            // pass the data variable to createFeedbackResultForm function
+            createResultFeedbackForm(data);
           }
         }
       }
@@ -640,38 +771,7 @@ function setBotResponse(response) {
   }, 500);
 }
 
-/**
- * sends an event to the bot,
- *  so that bot can start the conversation by greeting the user
- *
- * `Note: this method will only work in Rasa 1.x`
- */
-function actionTrigger() {
-  $.ajax({
-    url: `http://localhost:5005/conversations/${sender_id}/execute`,
-    type: "POST",
-    contentType: "application/json",
-    data: JSON.stringify({
-      name: action_name,
-      policy: "MappingPolicy",
-      confidence: "0.98",
-    }),
-    success(botResponse, status) {
-      console.log("Response from Rasa: ", botResponse, "\nStatus: ", status);
 
-      if (Object.hasOwnProperty.call(botResponse, "messages")) {
-        setBotResponse(botResponse.messages);
-      }
-      $("#userInput").prop("disabled", false);
-    },
-    error(xhr, textStatus) {
-      // if there is no response from rasa server
-      setBotResponse("");
-      console.log("Error from bot end: ", textStatus);
-      $("#userInput").prop("disabled", false);
-    },
-  });
-}
 
 /**
  * sends an event to the custom action server,
@@ -683,7 +783,7 @@ function actionTrigger() {
  * `Note: this method will only work in Rasa 2.x`
  */
 // eslint-disable-next-line no-unused-vars
-function customActionTrigger() {
+function customActionTrigger(action_name) {
   $.ajax({
     url: "http://localhost:5055/webhook/",
     type: "POST",
@@ -695,6 +795,7 @@ function customActionTrigger() {
       },
     }),
     success(botResponse, status) {
+
       console.log("Response from Rasa: ", botResponse, "\nStatus: ", status);
 
       if (Object.hasOwnProperty.call(botResponse, "responses")) {
@@ -710,6 +811,7 @@ function customActionTrigger() {
     },
   });
 }
+
 
 /**
  * sends the user message to the rasa server,
@@ -729,7 +831,7 @@ function send(message) {
         $("#userInput").prop("disabled", false);
 
         // if you want the bot to start the conversation after restart
-        // customActionTrigger();
+        customActionTrigger("action_greet_user");
         return;
       }
       setBotResponse(botResponse);
@@ -738,8 +840,8 @@ function send(message) {
       if (message.toLowerCase() === "/restart") {
         $("#userInput").prop("disabled", false);
         // if you want the bot to start the conversation after the restart action.
-        // actionTrigger();
-        // return;
+        customActionTrigger("action_greet_user");
+        return;
       }
 
       // if there is no response from rasa server, set error bot response
@@ -757,6 +859,7 @@ function restartConversation() {
   $("#userInput").prop("disabled", true);
   // destroy the existing chart
   $(".collapsible").remove();
+  $("form").remove();
 
   if (typeof chatChart !== "undefined") {
     chatChart.destroy();
@@ -884,13 +987,31 @@ function removeItemFromQuickReplies(value) {
   }
 }
 
-// on click of quickreplies, get the payload value and send it to rasa
+
+// Get the results from the feedback form and send it to the chatbot with the feedback format (i.e: 1 4 3)
+function getResultFeedbackForm() {
+  const formData = $("form").serializeArray()
+  $("form").remove();
+  feedback = ""
+  console.log(formData)
+  for (var pair of formData.entries()) {
+    feedback += pair[1].name.substring(0, 1) + " "
+  }
+  if (feedback.length == 0) {
+    feedback = "0"
+  }
+  console.log("Sending feedback:", feedback)
+  send(feedback)
+}
+
+// on click of quickreplies chips, get the payload value and send it to rasa
 $(document).on("click", ".quickReplies .chip", function () {
   const text = this.innerText;
   const payload = this.getAttribute("data-payload");
   console.log("chip payload: ", this.getAttribute("data-payload"));
   addMessageToUserInput(text);
-  removeItemFromQuickReplies(text)
+  removeItemFromQuickReplies(text);
   $(".quickReplies").remove();
-  showQuickReplies()
+  updateQuickReplies();
 });
+

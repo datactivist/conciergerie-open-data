@@ -1,6 +1,6 @@
 body {
   font-family: "Lato", sans-serif;
-  background: url("../img/body.png") no-repeat center center fixed;
+  background: url("../img/datasud.png") no-repeat center center fixed;
   background-size: cover;
 }
 
@@ -29,8 +29,8 @@ body {
 .chat_header_title {
   color: white;
   float: left;
-  margin-top: 3%;
-  margin-left: 35%;
+  margin-top: 1.5%;
+  margin-left: 42%;
 }
 
 .chats {
@@ -152,7 +152,7 @@ textarea-webkit-scrollbar {
   width: 20px;
   border-radius: 50%;
   display: inline-block;
-  float: right;
+  float: right; 
   margin-right: 30px;
   text-align: center;
   padding: 5px;
@@ -195,8 +195,20 @@ textarea-webkit-scrollbar {
 
 .dropdown-content li > a,
 .dropdown-content li > span {
-  color: #060dcfc7;
+  color: #000000c7;
 }
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 3px 3px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd}
+
 
 @keyframes animateElement {
   0% {
@@ -495,7 +507,7 @@ div.content_data::-webkit-scrollbar {
   border-radius: 10px;
 }
 
-@-webkit-keyframes fadeInLeft {
+@keyframes fadeInLeft {
   from {
     opacity: 0;
     -webkit-transform: translatex(-10px);
@@ -678,10 +690,11 @@ div.content_data::-webkit-scrollbar {
   word-wrap: break-word;
   border-radius: 20px;
   background: white;
+  list-style-type: none;
 }
 
 .collapsible-body {
-  padding: 15px;
+  padding: 10px;
 }
 
 .collapsible-header {
@@ -704,6 +717,19 @@ ul.collapsible > li:last-child .collapsible-body {
 
 .collapsible-header {
   padding: 10px;
+}
+
+
+
+/* CSS for checkboxlist */
+label {
+  color: darkblue;
+}
+
+.checkbox-text {
+
+  line-height:0.5;
+
 }
 
 /* css for botTyping */

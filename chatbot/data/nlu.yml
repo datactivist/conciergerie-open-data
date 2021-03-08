@@ -31,6 +31,9 @@ nlu:
     - je sais pas
     - j'sais pas
     - bof
+    - non merci
+    - Aucun ne m'intéresse
+    - aucun ne m'intéresse
 - intent: chitchat/greet
   examples: |
     - hey
@@ -109,9 +112,10 @@ nlu:
     - aide moi a trouver quelquechose
     - j'aimerai faire une recherche
     - aide moi a faire une recherche
+    - recherche
 - intent: inform
   examples: |
-    - noms de rues aix-en-provence  
+    - noms de rues aix-en-provence
     - qualité de l'air marseille
     - qualité de l'eau bordeaux
     - grande surface toulouse
@@ -131,7 +135,7 @@ nlu:
     - 0
     - 1 7
     - 1 3 2
-    - 4 3 
+    - 4 3
     - 5 9
     - 1 2
     - 1 9
