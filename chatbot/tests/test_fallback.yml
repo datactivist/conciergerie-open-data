@@ -2,7 +2,7 @@
 #### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
 
 stories:
-- story: indentity - skills
+- story: identity - skills
   steps:
   - user: |
       fzfzfezaza
