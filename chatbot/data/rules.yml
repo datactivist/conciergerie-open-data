@@ -44,6 +44,8 @@ rules:
   steps:
   - action: feedback_results_form
   - active_loop: null
+  - action: action_recap_feedback_to_user
   - action: action_send_results_feedback_to_database
   - action: action_reset_all_slots
   - action: utter_submit_feedback_form
+  
