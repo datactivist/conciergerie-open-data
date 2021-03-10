@@ -58,5 +58,30 @@ Below are the sample bot projects that were developed using Rasa and made to wor
 
 Check out the widget in action here [demo](https://www.youtube.com/watch?v=mnolLtOWykk)
 
+# Forked for conciergerie
 
+## CSS
 
+Widget CSS modified to make it larger
+
+## materialize library
+
+materialize library is modified using https://github.com/Dogfalo/materialize/issues/2582#issuecomment-649188333 to have styling on lists 
+
+## .collapsibles
+
+collapsible take one more parameter along with `title` and `description`: `url` (of the datasud)
+
+## .quickReplies
+
+.quickReplies are modified to have these comportement instead:
+- Can choose multiple chips
+- Choosing a chip will delete it from the list and add it to the user text area
+
+## showdown
+
+Adding the showdown library to convert marddown to HTML
+
+## resultFeedbackForm
+
+Added the classes and function to have a form as a list of checkbox so the user can check which results were useful to him

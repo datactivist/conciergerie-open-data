@@ -48,3 +48,4 @@ rules:
   - action: action_send_results_feedback_to_database
   - action: action_reset_all_slots
   - action: utter_submit_feedback_form
+  
