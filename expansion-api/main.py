@@ -1,13 +1,14 @@
 from __future__ import annotations
+import expansion
+import timeit
+import os
+import json
+import glob
+import numpy as np
+from pathlib import Path
 from fastapi import FastAPI, Query, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Tuple, Optional
-import expansion
-import timeit
-
-import os
-import json
-import numpy as np
 
 
 def preload_datasud_vectors(model, datasud_keywords):
@@ -62,13 +63,11 @@ with open("datasud_keywords.json", encoding="utf-16") as json_file:
 print("\nStarting Preloading of magnitude embeddings")
 start = timeit.default_timer()
 for embeddings_type in expansion.EmbeddingsType:
-    path = "embeddings/" + embeddings_type.value
-    for root, dirs, files in os.walk(path):
-        for filename in files:
-            if filename.endswith(".magnitude"):
-                preload_magnitude_embeddings(
-                    embeddings_type, filename, datasud_keywords
-                )
+    path = Path("./embeddings") / Path(embeddings_type.value)
+    for filename in list(path.glob("**/*.magnitude")):
+        preload_magnitude_embeddings(
+            embeddings_type.value, filename.name, datasud_keywords
+        )
 end = timeit.default_timer()
 print("Preloading Done:", end - start, "\n")
 
@@ -204,14 +203,11 @@ async def get_embeddings_names(embeddings_type: expansion.EmbeddingsType):
     List of embeddings variant available
     """
     if embeddings_type != expansion.EmbeddingsType.wordnet:
-        path = "embeddings/" + embeddings_type.value
+        path = Path("./embeddings") / Path(embeddings_type.value)
         results = []
-        for root, dirs, files in os.walk(path):
-            for filename in files:
-                results.append(filename)
-            for filename in dirs:
-                results.append(filename)
-            return results
+        for filename in list(path.glob("**/*.magnitude")):
+            results.append(filename.name)
+        return results
     else:
         return [
             "This API uses the library NLTK, which uses the Open Multilingual Wordnet, which uses the wolf-1.0b4 embeddings, therefore you don't have to specify an embeddings name."

@@ -7,7 +7,7 @@ pip : 20.2.4 ou moins
 
 __Installation Windows:__
 
-```
+```shell
 pip install --use-feature=2020-resolver rasa
 pip uninstall ujson
 conda install ujson==1.35
@@ -21,7 +21,7 @@ Rasa x très peu stable  sur windows
 
 __Installation Linux:__
 
-```
+```shell
 sudo apt-get install gcc
 pip install --use-feature=2020-resolver rasa
 pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
@@ -34,13 +34,13 @@ pip install lz4 xxhash annoy fasteners torch
 
 - Lancer le serveur qui va s'occuper des actions
 ```
-rasa run action
+rasa run action --cors="*"
 ```
 
 - Lancer le chatbot
 ```
 rasa x
-ou
+# ou
 rasa shell
 ```
 
@@ -50,11 +50,11 @@ Pour les convertir en fichier .magnitude:
 
 ```
 python -m pymagnitude.converter -i <PATH TO FILE TO BE CONVERTED> -o <OUTPUT PATH FOR MAGNITUDE FILE>
-ou
+# ou
 python -m pymagnitude.converter -i <PATH TO REPERTORY TO BE CONVERTER> -o <PATH TO THE OUTPUT REPERTORY>
 ```
 
-Une fois les fichiers .magnitude crées, le serveur peut être lancer avec la commande:
+Une fois les fichiers `.magnitude` crées, le serveur peut être lancer avec la commande:
 uvicorn main:app
 Lors du premier lancement, il va précharger les embeddings (~30sec par embedding), et va sauvegarder les représentation vectorielle des mots clés de datasud (~30sec par embedding)
 Pour cette dernière étape, il est possible qu'il faille pré-créer les différents répertoires où vont être sauvegardés les représentations (i.e. "datasud_keywords_vectors/word2vec/" etc...)
