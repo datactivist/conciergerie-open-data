@@ -7,23 +7,59 @@ pip : 20.2.4 ou moins
 
 __Installation Windows:__
 
-1. pip install --use-feature=2020-resolver rasa
-
-2. pip uninstall ujson
-
-3. conda install ujson==1.35
-
-4. pip install  --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
+```shell
+pip install --use-feature=2020-resolver rasa
+pip uninstall ujson
+conda install ujson==1.35
+pip install  --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
+```
 
 Rasa x très peu stable  sur windows
 
+
+--TODO API--
+
 __Installation Linux:__
 
-1. sudo apt-get install gcc
+```shell
+sudo apt-get install gcc
+pip install --use-feature=2020-resolver rasa
+pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
+pip install fastapi, uvicorn
+pip install nltk, pymagnitude
+pip install lz4 xxhash annoy fasteners torch
+```
 
-2. pip install --use-feature=2020-resolver rasa
+## Lancement chatbot
 
-3. pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
+- Lancer le serveur qui va s'occuper des actions
+```
+rasa run action --cors="*"
+```
+
+- Lancer le chatbot
+```
+rasa x
+# ou
+rasa shell
+```
+
+## Embeddings et API
+Les embeddings (principaux) utilisés sont disponibles dans les fichiers embeddings.md du projet
+Pour les convertir en fichier .magnitude:
+
+```
+python -m pymagnitude.converter -i <PATH TO FILE TO BE CONVERTED> -o <OUTPUT PATH FOR MAGNITUDE FILE>
+# ou
+python -m pymagnitude.converter -i <PATH TO REPERTORY TO BE CONVERTER> -o <PATH TO THE OUTPUT REPERTORY>
+```
+
+Une fois les fichiers `.magnitude` crées, le serveur peut être lancer avec la commande:
+uvicorn main:app
+Lors du premier lancement, il va précharger les embeddings (~30sec par embedding), et va sauvegarder les représentation vectorielle des mots clés de datasud (~30sec par embedding)
+Pour cette dernière étape, il est possible qu'il faille pré-créer les différents répertoires où vont être sauvegardés les représentations (i.e. "datasud_keywords_vectors/word2vec/" etc...)
+
+La documentation est disponible à cette adresse locale: http://127.0.0.1:8000/docs#/
 
 ## Répartition des fichiers
 
