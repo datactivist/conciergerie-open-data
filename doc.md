@@ -1,6 +1,6 @@
 # Documentation Rasa / Rasa X
 
-# Déploiment sans docker
+# Déploiement sans docker
 
 ## Téléchargement des dépendances
 
