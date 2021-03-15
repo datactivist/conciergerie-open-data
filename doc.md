@@ -8,7 +8,6 @@
 sudo apt-get install gcc
 pip install --use-feature=2020-resolver rasa
 pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
-pip install fastapi, uvicorn
 pip install nltk, pymagnitude
 pip install lz4 xxhash annoy fasteners torch
 ```
@@ -17,25 +16,31 @@ pip install lz4 xxhash annoy fasteners torch
 
 Depuis le répertoire `conciergerie-open-data/chatbot/`
 
-```rasa train```
+```
+rasa train
+```
 
 ## 1 - Lancement Rasa x
 Depuis le répertoire `conciergerie-open-data/chatbot/`
 
-```rasa x```
+```
+rasa x
+```
 
 ## 2 - Lancement Custom actions server
 Depuis le répertoire `conciergerie-open-data/chatbot/custom-actions/`
 
-```rasa run actions --cors="*"```
+```
+rasa run actions --cors="*"
+```
 
 ## 3 - Lancement expansion API
 https://github.com/moreymat/fastapi-query-expansion
 
 ## 4 - Utilisation
-Rasa-x accessible à l'adresse `localhost:5002`
+Rasa-x accessible à l'adresse http://localhost:5002
 
-La documentation de l'api est disponible à l'adresse `localhost:8000/docs`
+La documentation de l'api est disponible à l'adresse http://localhost:8000/docs
 
 Pour utiliser le widget, lancer le fichier html `conciergerie-open-data/widget/index.html`
 
@@ -45,7 +50,9 @@ Pour utiliser le widget, lancer le fichier html `conciergerie-open-data/widget/i
 
 Depuis le répertoire `conciergerie-open-data/chatbot/`
 
-```rasa train```
+```
+rasa train
+```
 
 ## 1 - Création docker image expansion API
 https://github.com/moreymat/fastapi-query-expansion
@@ -56,7 +63,9 @@ Dans le fichier `conciergerie-open-data/chatbot/custom-actions/actions.py`, chan
 
 Depuis le répertoire `conciergerie-open-data/chatbot/custom-actions/`: 
 
-```sudo docker build . -t rasa/rasa-actions-sdk:1.0.0```
+```
+sudo docker build . -t rasa/rasa-actions-sdk:1.0.0
+```
 
 ## 3 - Création docker image rasa x
 
@@ -78,11 +87,13 @@ Ajouter le fichier `docker-compose.override.yml` dans le répertoire `<root>/etc
 ## Lancement du docker
 Dans le répertoire `<root>/etc/rasa`:
 
-`sudo docker-compose up`
+```
+sudo docker-compose up
+```
 
 ## Utilisation
 
-Rasa-x est disponible à l'adresse `localhost:80`
+Rasa-x est disponible à l'adresse http://localhost:80
 
 # Répartition des fichiers
 
