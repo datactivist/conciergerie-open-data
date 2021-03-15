@@ -61,10 +61,10 @@ slots:
     auto_fill: false
     influence_conversation: false
 responses:
-  utter_chitchat: #Evite un warning
-  - text: ""
-  utter_faq: #Evite un warning
-  - text: ""
+  utter_chitchat:
+  - text: ''
+  utter_faq:
+  - text: ''
   utter_chitchat/greet:
   - text: Bonjour !
   utter_chitchat/ask_weather:

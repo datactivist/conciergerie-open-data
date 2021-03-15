@@ -1,27 +1,10 @@
 # Documentation Rasa / Rasa X
 
-## Installation
+# Déploiment sans docker
 
-__Dépendence:__
-pip : 20.2.4 ou moins
+## Téléchargement des dépendances
 
-__Installation Windows:__
-
-```shell
-pip install --use-feature=2020-resolver rasa
-pip uninstall ujson
-conda install ujson==1.35
-pip install  --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
-```
-
-Rasa x très peu stable  sur windows
-
-
---TODO API--
-
-__Installation Linux:__
-
-```shell
+```py
 sudo apt-get install gcc
 pip install --use-feature=2020-resolver rasa
 pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
@@ -30,38 +13,78 @@ pip install nltk, pymagnitude
 pip install lz4 xxhash annoy fasteners torch
 ```
 
-## Lancement chatbot
+## Training du chatbot
 
-- Lancer le serveur qui va s'occuper des actions
+Depuis le répertoire `conciergerie-open-data/chatbot/`
+
+```rasa train```
+
+## 1 - Lancement Rasa x
+Depuis le répertoire `conciergerie-open-data/chatbot/`
+
+```rasa x```
+
+## 2 - Lancement Custom actions server
+Depuis le répertoire `conciergerie-open-data/chatbot/custom-actions/`
+
+```rasa run actions --cors="*"```
+
+## 3 - Lancement expansion API
+https://github.com/moreymat/fastapi-query-expansion
+
+## 4 - Utilisation
+Rasa-x accessible à l'adresse `localhost:5002`
+
+La documentation de l'api est disponible à l'adresse `localhost:8000/docs`
+
+Pour utiliser le widget, lancer le fichier html `conciergerie-open-data/widget/index.html`
+
+# Déploiement avec Docker
+
+## Training du chatbot
+
+Depuis le répertoire `conciergerie-open-data/chatbot/`
+
+```rasa train```
+
+## 1 - Création docker image expansion API
+https://github.com/moreymat/fastapi-query-expansion
+
+## 2 - Création docker image custom actions
+
+Dans le fichier `conciergerie-open-data/chatbot/custom-actions/actions.py`, changer la valeur de `search_expand_url` en `http://query-exp:80/query_expand`
+
+Depuis le répertoire `conciergerie-open-data/chatbot/custom-actions/`: 
+
+```sudo docker build . -t rasa/rasa-actions-sdk:1.0.0```
+
+## 3 - Création docker image rasa x
+
+Depuis le répertoire `conciergerie-open-data/chatbot/`
+
+
+```sh
+curl -sSL -o install.sh https://storage.googleapis.com/rasa-x-releases/0.37.1/install.sh
+sudo bash ./install.sh
+cd <root>/etc/rasa/
 ```
-rasa run action --cors="*"
-```
 
-- Lancer le chatbot
-```
-rasa x
-# ou
-rasa shell
-```
+Dans le fichier `.env`, modifier ces deux attributs:
+- RASA_X_VERSION=0.37.0
+- RASA_VERSION=2.3.4
 
-## Embeddings et API
-Les embeddings (principaux) utilisés sont disponibles dans les fichiers embeddings.md du projet
-Pour les convertir en fichier .magnitude:
+Ajouter le fichier `docker-compose.override.yml` dans le répertoire `<root>/etc/rasa`
 
-```
-python -m pymagnitude.converter -i <PATH TO FILE TO BE CONVERTED> -o <OUTPUT PATH FOR MAGNITUDE FILE>
-# ou
-python -m pymagnitude.converter -i <PATH TO REPERTORY TO BE CONVERTER> -o <PATH TO THE OUTPUT REPERTORY>
-```
+## Lancement du docker
+Dans le répertoire `<root>/etc/rasa`:
 
-Une fois les fichiers `.magnitude` crées, le serveur peut être lancer avec la commande:
-uvicorn main:app
-Lors du premier lancement, il va précharger les embeddings (~30sec par embedding), et va sauvegarder les représentation vectorielle des mots clés de datasud (~30sec par embedding)
-Pour cette dernière étape, il est possible qu'il faille pré-créer les différents répertoires où vont être sauvegardés les représentations (i.e. "datasud_keywords_vectors/word2vec/" etc...)
+`sudo docker-compose up`
 
-La documentation est disponible à cette adresse locale: http://127.0.0.1:8000/docs#/
+## Utilisation
 
-## Répartition des fichiers
+Rasa-x est disponible à l'adresse `localhost:80`
+
+# Répartition des fichiers
 
 Squelette d'un chatbot (obtenu en faisant rasa init)
 

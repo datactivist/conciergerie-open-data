@@ -17,11 +17,11 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
 
-flag_activate_api_call = False
+flag_activate_api_call = True
 flag_activate_sql_query_commit = True
 
 
-def get_request_keywords_url(keywords):
+def get_request_keywords_url(keywords, keywords_feedback):
     """
     Return URL to request Datasud API
 
@@ -61,10 +61,15 @@ def get_request_keywords_url(keywords):
             special_character, "%" + encoding[2 : len(encoding) - 1]
         )
 
-    for word in keywords.split(" "):
-        url += word + "+"
+    operator = "||"
 
-    return url[0 : len(url) - 1]
+    for word in keywords.split(" "):
+        url += word + operator
+
+    for word in keywords_feedback.split(" "):
+        url += word + operator
+
+    return url[: len(url) - len(operator)]
 
 
 def keywords_expansion(keywords):
@@ -75,7 +80,7 @@ def keywords_expansion(keywords):
     Output: Proposed Keywords as string (separated by |)
     """
 
-    search_expand_url = "http://127.0.0.1:8000/query_expand"
+    search_expand_url = "http://localhost:8000/query_expand"
 
     data = {"keywords": keywords, "max_width": 5, "max_datasud_keywords": 5}
 
@@ -191,9 +196,10 @@ class SearchKeywordsInDatabase(Action):
     ) -> List[Dict[Text, Any]]:
 
         keywords = tracker.get_slot("keywords")
+        keywords_feedback = tracker.get_slot("keywords_feedback")
 
         if flag_activate_api_call:
-            request_url = get_request_keywords_url(keywords)
+            request_url = get_request_keywords_url(keywords, keywords_feedback)
             data = requests.post(request_url).json()
         else:
             with open("fake_api_results.json", encoding="utf-8") as f:
