@@ -174,7 +174,7 @@ class SearchKeywordsInDatabase(Action):
             request_url = get_request_keywords_url(keywords, keywords_feedback)
             data = requests.post(request_url).json()
         else:
-            with open("fake_api_results.json", encoding="utf-8") as f:
+            with open("../fake_api_results.json", encoding="utf-8") as f:
                 data = json.load(f)
 
         results = data["result"]["results"]
@@ -341,26 +341,25 @@ class RecapResultsFeedback(Action):
         else:
             results_feedback = []
 
+        print(results_feedback)
         recap_msg = ""
-        if results_title_data is not None:
-
-            recap_msg = "Merci beaucoup!<br>Voilà ce que vous avez choisi:<br>"
+        if results_title_data is not None and len(results_feedback) > 0:
 
             results_title_data = results_title_data.split("|")
 
             for i in range(len(results_title_data)):
 
-                if len(results_feedback) > 0:
-
-                    if "0" not in results_feedback:
-
-                        if str(i + 1) in results_feedback:
-                            recap_msg += " - " + results_title_data[i] + "<br>"
+                if str(i) in results_feedback:
+                    recap_msg += " - " + results_title_data[i] + "<br>"
 
         if len(recap_msg) == 0:
-            recap_msg = "Vous n'avez choisi aucun jeu de données."
+            final_msg = "Vous n'avez choisi aucun jeu de données."
+        else:
+            final_msg = (
+                "Merci beaucoup!<br>Voilà ce que vous avez choisi:<br>" + recap_msg
+            )
 
-        dispatcher.utter_message(text=recap_msg)
+        dispatcher.utter_message(text=final_msg)
 
 
 class SendResultsFeedback(Action):
