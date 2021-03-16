@@ -39,7 +39,6 @@ nlu:
     - hey
     - slt
     - salut
-    - bonjour
     - bien le bonjour
     - bjr
     - yo
@@ -113,6 +112,10 @@ nlu:
     - j'aimerai faire une recherche
     - aide moi a faire une recherche
     - recherche
+    - ok aide moi a faire une recherche
+    - j'aimerais faire une recherche
+    - J'aimerais faire une recheche dans la base de données
+    - je veux faire une recherche
 - intent: inform
   examples: |
     - noms de rues aix-en-provence
@@ -122,6 +125,9 @@ nlu:
     - magasins des bouches du rhones
     - population des bouches du rhones
     - magasins a lille
+    - éoliennes éoliens énergie éolienne mw
+    - éolien
+    - éoliennes
 - intent: feedback
   examples: |
     - 1

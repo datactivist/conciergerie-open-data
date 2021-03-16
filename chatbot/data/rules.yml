@@ -36,7 +36,11 @@ rules:
   - action: search_form
   - active_loop: null
   - action: utter_submit_search_form
-  - action: action_utter_confirm_search
+  - action: action_send_search_information_to_database
+  - action: action_send_keywords_feedback_to_database
+  - action: action_search_database
+  - action: action_send_results_feedback_to_database
+  - action: utter_feedback_proposition
 
 - rule: désactivation du formulaire de feedback results
   condition:

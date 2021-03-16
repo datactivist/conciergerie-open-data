@@ -77,24 +77,20 @@ responses:
   - text: Je suis un robot fonctionnant avec Rasa. J'ai été créé par Datactivist.
   utter_faq/ask_skills:
   - text: |
-      Je peux vous aider à faire une recherche dans la base de données.
+      Je peux vous aider à trouver des jeux de données. Souhaitez vous faire une recherche ?
   utter_ask_keywords:
   - text: Quels mots-clés souhaitez-vous utiliser pour votre recherche ?
   utter_submit_search_form:
   - text: C'est noté!
-  utter_send_search_form:
-  - text: Très bien, je lance la recherche!
-  utter_dont_send_search_form:
-  - text: D'accord, je ne lance pas la recherche.
   utter_feedback_proposition:
   - text: Seriez-vous d'accord de prendre quelques secondes de votre temps pour m'aider à m'améliorer ?
   utter_thanks_you:
   - text: Je vous remercie!
   utter_no_problem_anything_else:
-  - text: Pas de problème, est-ce que je peux encore vous aider ?
+  - text: Pas de problème, voulez-vous faire une autre recherche ?
+  utter_no_problem_bye:
+  - text: Pas de problème, bonne journée!
   utter_submit_feedback_form:
-  - text: Avez-vous besoin d'autre chose ?
-  utter_anything_else:
   - text: Avez-vous besoin d'autre chose ?
   utter_default:
   - text: Je suis désolé, je n'ai pas bien compris. Pouvez-vous reformuler ?
@@ -103,12 +99,12 @@ actions:
 - action_search_database
 - action_keywords_augmentation
 - action_ask_keywords_feedback
-- action_utter_confirm_search
 - action_send_keywords_feedback_to_database
 - action_send_search_information_to_database
 - action_ask_results_feedback
 - action_send_results_feedback_to_database
 - action_recap_feedback_to_user
+- action_greet_user
 forms:
   search_form:
     keywords:

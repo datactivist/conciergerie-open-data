@@ -782,10 +782,8 @@ function customActionTrigger(action_name) {
     Local: http://localhost:5005/webhooks
     Docker: http://localhost:80/webhooks TODO Fix it
     */
-    url: "http://localhost:5005/webhook/",
+    url: "http://localhost:5055/webhook/",
     type: "POST",
-    username: 'me',
-    password: 'conciergerie',
     contentType: "application/json",
     data: JSON.stringify({
       next_action: action_name,
@@ -820,8 +818,6 @@ function send(message) {
   $.ajax({
     url: rasa_server_url,
     type: "POST",
-    username: 'me',
-    password: 'conciergerie',
     contentType: "application/json",
     data: JSON.stringify({ message, sender: sender_id }),
     success(botResponse, status) {

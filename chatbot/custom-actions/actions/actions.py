@@ -17,7 +17,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
 
-flag_activate_api_call = True
+flag_activate_api_call = False
 flag_activate_sql_query_commit = True
 
 
@@ -66,8 +66,9 @@ def get_request_keywords_url(keywords, keywords_feedback):
     for word in keywords.split(" "):
         url += word + operator
 
-    for word in keywords_feedback.split(" "):
-        url += word + operator
+    if keywords_feedback != "Aucun ne m'intéresse":
+        for word in keywords_feedback.split(" "):
+            url += word + operator
 
     return url[: len(url) - len(operator)]
 
@@ -149,37 +150,6 @@ class AskForKeywordsFeedbackSlotAction(Action):
         )
 
         return [SlotSet("keywords_augmentation", keywords_expanded)]
-
-
-class UtterConfirmSearch(Action):
-    """
-    Ask the user to confirm the keywords he will use for the search
-    """
-
-    def name(self):
-        return "action_utter_confirm_search"
-
-    def run(
-        self,
-        dispatcher: CollectingDispatcher,
-        tracker: Tracker,
-        domain: Dict[Text, Any],
-    ) -> List[Dict[Text, Any]]:
-
-        keywords = tracker.get_slot("keywords").split(" ")
-        keywords_aug = tracker.get_slot("keywords_augmentation").split("|")
-        keywords_feedback = tracker.get_slot("keywords_feedback").split(" ")
-
-        message = "Souhaitez-vous bien faire une recherche avec ces mots-clés ?<br>"
-
-        for keyword in keywords:
-            message += keyword + " "
-
-        for keyword in keywords_feedback:
-            if keyword in keywords_aug:
-                message += keyword + " "
-
-        dispatcher.utter_message(text=message)
 
 
 class SearchKeywordsInDatabase(Action):
@@ -479,5 +449,5 @@ class ActionGreetUser(Action):
     ) -> List[Dict[Text, Any]]:
 
         dispatcher.utter_message(
-            text="Bonjour, je peux peut-être vous aider, demandez moi ce que je sais faire."
+            text="Bonjour, je suis là pour vous aider, cherchez vous un jeu de données ?"
         )
