@@ -134,5 +134,6 @@ models
 events.db
 events.db-shm
 events.db-wal
+rasa.db
 rasa.db-shm
 rasa.db-wal

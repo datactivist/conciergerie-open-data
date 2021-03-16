@@ -1,6 +1,8 @@
 import sqlite3
 from datetime import datetime
 
+database = "../rasa.db"
+
 # Parameter: Database pointer, sql command, and the data used for the command
 # Function: Run the sql command
 def run_sql_command(cursor, sql_command, data):
@@ -17,11 +19,7 @@ def run_sql_command(cursor, sql_command, data):
 
     except sqlite3.Error as error:
         print(
-            "\nError while running this command: \n",
-            sql_command,
-            "\n",
-            error,
-            "\n",
+            "\nError while running this command: \n", sql_command, "\n", error, "\n",
         )
         return None
 
@@ -30,7 +28,6 @@ def run_sql_command(cursor, sql_command, data):
 def add_new_search_query(
     conversation_id, keywords_user, flag_activate_sql_query_commit
 ):
-    database = "rasa.db"
 
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -65,8 +62,6 @@ def add_keyword_proposed(
     feedback,
     flag_activate_sql_query_commit,
 ):
-
-    database = "rasa.db"
 
     try:
 
@@ -129,8 +124,6 @@ def add_result(
     flag_activate_sql_query_commit,
 ):
 
-    database = "rasa.db"
-
     try:
 
         sqliteConnection = sqlite3.connect(database)
@@ -182,8 +175,6 @@ def add_result(
 
 # Return the search_id corresponding to these parameters
 def get_search_id(conversation_id, keywords_user):
-
-    database = "rasa.db"
 
     try:
 
