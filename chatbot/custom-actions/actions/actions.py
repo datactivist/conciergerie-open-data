@@ -80,6 +80,8 @@ def keywords_expansion(keywords):
     Output: Proposed Keywords as string (separated by |)
     """
 
+    # Local: "http://localhost:8000/query_expand"
+    # Docker: "http://query-exp:80/query_expand"
     search_expand_url = "http://localhost:8000/query_expand"
 
     data = {"keywords": keywords, "max_width": 5, "max_datasud_keywords": 5}

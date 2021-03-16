@@ -5,21 +5,14 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 
+/* 
+Local: http://localhost:5005/webhooks/rest/webhook
+Docker: http://localhost:80/webhooks/rest/webhook
+*/
 const rasa_server_url = "http://localhost:5005/webhooks/rest/webhook";
 const sender_id = uuidv4();
 
 let quickRepliesData;
-
-// Bot pop-up intro
-document.addEventListener("DOMContentLoaded", () => {
-  const elemsTap = document.querySelector(".tap-target");
-  // eslint-disable-next-line no-undef
-  const instancesTap = M.TapTarget.init(elemsTap, {});
-  instancesTap.open();
-  setTimeout(() => {
-    instancesTap.close();
-  }, 4000);
-});
 
 // initialization
 $(document).ready(() => {
@@ -785,8 +778,14 @@ function setBotResponse(response) {
 // eslint-disable-next-line no-unused-vars
 function customActionTrigger(action_name) {
   $.ajax({
-    url: "http://localhost:5055/webhook/",
+    /*
+    Local: http://localhost:5005/webhooks
+    Docker: http://localhost:80/webhooks TODO Fix it
+    */
+    url: "http://localhost:5005/webhook/",
     type: "POST",
+    username: 'me',
+    password: 'conciergerie',
     contentType: "application/json",
     data: JSON.stringify({
       next_action: action_name,
@@ -821,6 +820,8 @@ function send(message) {
   $.ajax({
     url: rasa_server_url,
     type: "POST",
+    username: 'me',
+    password: 'conciergerie',
     contentType: "application/json",
     data: JSON.stringify({ message, sender: sender_id }),
     success(botResponse, status) {

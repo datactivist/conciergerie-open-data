@@ -82,6 +82,12 @@ Dans le fichier `.env`, modifier ces deux attributs:
 - RASA_X_VERSION=0.37.0
 - RASA_VERSION=2.3.4
 
+dans le fichier `credentials.yml`, ajouter la ligne:
+
+```
+rest:
+```
+
 Ajouter le fichier `docker-compose.override.yml` dans le répertoire `<root>/etc/rasa`
 
 ## Lancement du docker
@@ -94,6 +100,15 @@ sudo docker-compose up
 ## Utilisation
 
 Rasa-x est disponible à l'adresse http://localhost:80
+
+Pour utiliser le widget, modifier la valeur de `rasa_server_url` dans `conciergerie-open-data/widget/static/script.js` en `http://localhost:80/webhooks/rest/webhook` 
+
+Si et seulement si vous travaillez sous localhost, lancer google chrome avec
+```
+google-chrome --disable-web-security --user-data-dir
+```
+
+puis lancer le fichier html `conciergerie-open-data/widget/index.html`
 
 # Répartition des fichiers
 
