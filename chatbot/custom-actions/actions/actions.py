@@ -17,7 +17,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
 
-flag_activate_api_call = False
+flag_activate_api_call = True
 flag_activate_sql_query_commit = True
 
 
@@ -61,16 +61,12 @@ def get_request_keywords_url(keywords, keywords_feedback):
             special_character, "%" + encoding[2 : len(encoding) - 1]
         )
 
-    operator = "||"
-
-    for word in keywords.split(" "):
-        url += word + operator
-
+    url += "||".join(keywords.split(" "))
     if keywords_feedback != "Aucun ne m'intéresse":
-        for word in keywords_feedback.split(" "):
-            url += word + operator
-
-    return url[: len(url) - len(operator)]
+        url += "||"
+        url += "||".join(keywords_feedback.split(" "))
+    print(url)
+    return url
 
 
 def keywords_expansion(keywords):
@@ -170,8 +166,8 @@ class SearchKeywordsInDatabase(Action):
         keywords = tracker.get_slot("keywords")
         keywords_feedback = tracker.get_slot("keywords_feedback")
 
+        request_url = get_request_keywords_url(keywords, keywords_feedback)
         if flag_activate_api_call:
-            request_url = get_request_keywords_url(keywords, keywords_feedback)
             data = requests.post(request_url).json()
         else:
             with open("../fake_api_results.json", encoding="utf-8") as f:
@@ -341,7 +337,6 @@ class RecapResultsFeedback(Action):
         else:
             results_feedback = []
 
-        print(results_feedback)
         recap_msg = ""
         if results_title_data is not None and len(results_feedback) > 0:
 

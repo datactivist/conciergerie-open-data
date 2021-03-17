@@ -72,7 +72,6 @@ function addMessageToUserInput(message) {
     $(".usrInput").val(text.concat(" ").concat(message));
   }
   else {
-    console.log("modifying")
     $(".usrInput").val(message);
   }
 }
@@ -995,7 +994,7 @@ function getResultFeedbackForm() {
     feedback += pair[1].name.substring(0, 1) + " "
   }
   if (feedback.length == 0) {
-    feedback = "0"
+    feedback = "999"
   }
   console.log("Sending feedback:", feedback)
   send(feedback)

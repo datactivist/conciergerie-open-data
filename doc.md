@@ -8,7 +8,7 @@
 sudo apt-get install gcc
 pip install --use-feature=2020-resolver rasa
 pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
-pip install nltk, pymagnitude
+pip install nltk pymagnitude
 pip install lz4 xxhash annoy fasteners torch
 ```
 
@@ -35,12 +35,12 @@ rasa run actions --cors="*"
 ```
 
 ## 3 - Lancement expansion API
-https://github.com/moreymat/fastapi-query-expansion
+<https://github.com/moreymat/fastapi-query-expansion>
 
 ## 4 - Utilisation
-Rasa-x accessible à l'adresse http://localhost:5002
+Rasa-x accessible à l'adresse <http://localhost:5002>
 
-La documentation de l'api est disponible à l'adresse http://localhost:8000/docs
+La documentation de l'api est disponible à l'adresse <http://localhost:8000/docs>
 
 Pour utiliser le widget, lancer le fichier html `conciergerie-open-data/widget/index.html`
 
@@ -55,11 +55,11 @@ rasa train
 ```
 
 ## 1 - Création docker image expansion API
-https://github.com/moreymat/fastapi-query-expansion
+<https://github.com/moreymat/fastapi-query-expansion>
 
 ## 2 - Création docker image custom actions
 
-Dans le fichier `conciergerie-open-data/chatbot/custom-actions/actions.py`, changer la valeur de `search_expand_url` en `http://query-exp:80/query_expand`
+Dans le fichier `conciergerie-open-data/chatbot/custom-actions/actions.py`, changer la valeur de `search_expand_url` en <http://query-exp:80/query_expand>
 
 Depuis le répertoire `conciergerie-open-data/chatbot/custom-actions/`: 
 
@@ -99,16 +99,16 @@ sudo docker-compose up
 
 ## Utilisation
 
-Rasa-x est disponible à l'adresse http://localhost:80
+Rasa-x est disponible à l'adresse <http://localhost:80>
 
-Pour utiliser le widget, modifier la valeur de `rasa_server_url` dans `conciergerie-open-data/widget/static/script.js` en `http://localhost:80/webhooks/rest/webhook` 
+Pour utiliser le widget, modifier la valeur de `rasa_server_url` dans `conciergerie-open-data/widget/static/script.js` en <http://localhost:80/webhooks/rest/webhook>
 
 Si et seulement si vous travaillez sous localhost, lancer google chrome avec
 ```
 google-chrome --disable-web-security --user-data-dir
 ```
 
-puis lancer le fichier html `conciergerie-open-data/widget/index.html`
+puis ouvrir dans le navigateur web le fichier `conciergerie-open-data/widget/index.html`
 
 # Répartition des fichiers
 
