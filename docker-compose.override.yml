@@ -1,9 +1,0 @@
-version: '3.4'
-
-services:
-  app:
-    image: "rasa/rasa-sdk-actions:1.0.0"
-    
-  query-exp:
-    restart: always
-    image: "fastapi-query-expansion:1.0.0"

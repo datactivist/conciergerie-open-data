@@ -6,129 +6,106 @@
 
 ```py
 sudo apt-get install gcc
-pip install --use-feature=2020-resolver rasa
-pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
+pip install --use-feature=2020-resolver rasa==2.3.4
+pip install --use-feature=2020-resolver rasa-x==0.37.1 --extra-index-url https://pypi.rasa.com/simple
 pip install nltk pymagnitude
 pip install lz4 xxhash annoy fasteners torch
 ```
 
 ## Training du chatbot
 
-Depuis le répertoire `conciergerie-open-data/chatbot/`
+Depuis le répertoire `conciergerie-open-data/`
 
 ```
 rasa train
 ```
 
-## 1 - Lancement Rasa x
-Depuis le répertoire `conciergerie-open-data/chatbot/`
+## 1 - Lancement expansion API
+<https://github.com/moreymat/fastapi-query-expansion>
+
+
+## 2 - Lancement Rasa x
+Depuis le répertoire `conciergerie-open-data/`
 
 ```
 rasa x
 ```
 
-## 2 - Lancement Custom actions server
-Depuis le répertoire `conciergerie-open-data/chatbot/custom-actions/`
+## 3 - Lancement Custom actions server
+Depuis le répertoire `conciergerie-open-data/custom-actions/`
 
 ```
 rasa run actions --cors="*"
 ```
-
-## 3 - Lancement expansion API
-<https://github.com/moreymat/fastapi-query-expansion>
 
 ## 4 - Utilisation
 Rasa-x accessible à l'adresse <http://localhost:5002>
 
 La documentation de l'api est disponible à l'adresse <http://localhost:8000/docs>
 
-Pour utiliser le widget, lancer le fichier html `conciergerie-open-data/widget/index.html`
+widget: <https://github.com/moreymat/Chatbot-Widget>
 
 # Déploiement avec Docker
 
-## Training du chatbot
-
-Depuis le répertoire `conciergerie-open-data/chatbot/`
-
-```
-rasa train
-```
+Requirements:
+    - python >= 3.X
+    - docker >= 20.X
 
 ## 1 - Création docker image expansion API
+
 <https://github.com/moreymat/fastapi-query-expansion>
 
-## 2 - Création docker image custom actions
 
-Dans le fichier `conciergerie-open-data/chatbot/custom-actions/actions.py`, changer la valeur de `search_expand_url` en <http://query-exp:80/query_expand>
+## 2 - Création fichier dockers
 
-Depuis le répertoire `conciergerie-open-data/chatbot/custom-actions/`: 
-
-```
-sudo docker build . -t rasa/rasa-actions-sdk:1.0.0
-```
-
-## 3 - Création docker image rasa x
-
-Depuis le répertoire `conciergerie-open-data/chatbot/`
-
-
-```sh
-curl -sSL -o install.sh https://storage.googleapis.com/rasa-x-releases/0.37.1/install.sh
-sudo bash ./install.sh
-cd <root>/etc/rasa/
-```
-
-Dans le fichier `.env`, modifier ces deux attributs:
-- RASA_X_VERSION=0.37.0
-- RASA_VERSION=2.3.4
-
-dans le fichier `credentials.yml`, ajouter la ligne:
+Depuis le répertoire `conciergerie-open-data/`
+Changer configuration dans `docker-config.config`
 
 ```
-rest:
+sudo bash ./start_service.sh [-a|-i|-d|-s|-h]
 ```
 
-Ajouter le fichier `docker-compose.override.yml` dans le répertoire `<root>/etc/rasa`
-
-## Lancement du docker
-Dans le répertoire `<root>/etc/rasa`:
+Once the docker is started, create an admin account:
 
 ```
-sudo docker-compose up
+sudo python3 rasa_x_commands.py create --update admin me <PASSWORD>
 ```
 
-## Utilisation
+## 3 - Integrated version
 
-Rasa-x est disponible à l'adresse <http://localhost:80>
+Rasa X is available at <http://localhost:80>
 
-Pour utiliser le widget, modifier la valeur de `rasa_server_url` dans `conciergerie-open-data/widget/static/script.js` en <http://localhost:80/webhooks/rest/webhook>
+Link training data with this method:
 
-Si et seulement si vous travaillez sous localhost, lancer google chrome avec
-```
-google-chrome --disable-web-security --user-data-dir
-```
+<https://rasa.com/docs/rasa-x/installation-and-setup/deploy#integrated-version-control>
 
-puis ouvrir dans le navigateur web le fichier `conciergerie-open-data/widget/index.html`
+Train a new model
+
+
+## Widget
+
+https://github.com/moreymat/Chatbot-Widget
+
 
 # Répartition des fichiers
 
 Squelette d'un chatbot (obtenu en faisant rasa init)
 
-1. Dossier action: Dossier contenant le fichier actions.py qui permet l'appel a des fonctions personnalisés.
+1. action: Dossier contenant le fichier actions.py qui permet l'appel a des fonctions personnalisés.
 
-2. Dossier data:
+2. data:
 
-    1. Fichier nlu.yml: Contient les données d'entraînements pour chaque intention et entité à détecter.
+    1. nlu.yml: Contient les données d'entraînements pour chaque intention et entité à détecter.
 
-    2. Fichier rules.yml: Une rule représente un cout dialogue entre l'utilisateur et le chatbot qui devrait toujours suivre le même chemin (ex: Si l'utilisateur dit "bonjour", il faut répondre "bonjour")
+    2. rules.yml: Une rule représente un cout dialogue entre l'utilisateur et le chatbot qui devrait toujours suivre le même chemin (ex: Si l'utilisateur dit "bonjour", il faut répondre "bonjour")
 
-    3. Fichier stories.yml: Une story représente un dialogue possible entre l'utilisateur et le chatbot. (ex: une demande de changement d'adresse mail)
+    3. stories.yml: Une story représente un dialogue possible entre l'utilisateur et le chatbot. (ex: une demande de changement d'adresse mail)
 
-3. Dossier models: Dossier contenant les différentes itérations du modèle.
+3. models: Dossier contenant les différentes itérations du modèle.
 
 4. tests: Dossier contenant les stories qui devraient être aquises par le modèle.
 
-5. Fichier config.yml: Contient la pipeline et les policies:
+5. config.yml: Contient la pipeline et les policies:
 
     1. Pipeline: Liste des différents composants NLU, un message de l'utilisateur sera traité par chaque composant. Un composant NLU est un objet qui va traité le message d'une certaine façon: extraction d'entité, prédiction d'intentions...
 
@@ -142,7 +119,7 @@ Squelette d'un chatbot (obtenu en faisant rasa init)
 
 ## Rasa
 
-Ligne de commande:
+Ligne de commande local:
 
 1. rasa init: Crée les dossiers et fichiers nécessaires pour un chatbot basique
 
