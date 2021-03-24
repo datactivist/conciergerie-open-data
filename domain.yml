@@ -111,7 +111,11 @@ forms:
     - intent: inform | nlu_fallback | affirm | deny | feedback | request_search
       type: from_text
     keywords_feedback:
-    - intent: inform | nlu_fallback | affirm | deny | feedback | request_search
+    - intent: deny
+      type: from_intent
+      value: ''
+    - intent: inform | nlu_fallback | affirm | feedback | request_search
+      not_intent: deny
       type: from_text
   feedback_results_form:
     results_feedback:

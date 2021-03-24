@@ -10,7 +10,6 @@ import json
 import requests
 import codecs
 from typing import Any, Text, Dict, List
-
 from actions import sql_query
 
 from rasa_sdk import Action, Tracker
@@ -62,10 +61,12 @@ def get_request_keywords_url(keywords, keywords_feedback):
         )
 
     url += "||".join(keywords.split(" "))
-    if keywords_feedback != "Aucun ne m'intéresse":
+
+    if keywords != "" and keywords_feedback != "":
         url += "||"
-        url += "||".join(keywords_feedback.split(" "))
-    print(url)
+
+    url += "||".join(keywords_feedback.split(" "))
+
     return url
 
 
@@ -79,7 +80,7 @@ def keywords_expansion(keywords):
 
     # Local: "localhost:8000"
     # Docker: "query-exp:80"
-    api_expansion_host_name = 'query-exp'
+    api_expansion_host_name = "localhost:8000"
     search_expand_url = "http://" + api_expansion_host_name + "/query_expand"
 
     data = {"keywords": keywords, "max_width": 5, "max_datasud_keywords": 5}
