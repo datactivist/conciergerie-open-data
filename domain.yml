@@ -30,7 +30,12 @@ slots:
     initial_value: null
     auto_fill: false
     influence_conversation: false
-  keywords_augmentation:
+  keywords_expanded:
+    type: rasa.shared.core.slots.TextSlot
+    initial_value: null
+    auto_fill: false
+    influence_conversation: false
+  keywords_proposed:
     type: rasa.shared.core.slots.TextSlot
     initial_value: null
     auto_fill: false
@@ -97,7 +102,6 @@ responses:
 actions:
 - action_reset_all_slots
 - action_search_database
-- action_keywords_augmentation
 - action_ask_keywords_feedback
 - action_send_keywords_feedback_to_database
 - action_send_search_information_to_database

@@ -52,9 +52,9 @@ done
 update_expansion_api_adress()
 {
     if [ $deployment_method == "docker_solo" ]; then
-        sed -i "s/api_expansion_host_name =.*/api_expansion_host_name = $api_expansion_host_name/" actions.py
+        sed -i "s/API_expansion_host_name =.*/API_expansion_host_name = $api_expansion_host_name/" api_call.py
     elif [ $deployment_method == "docker_with_expansion" ]; then
-        sed -i "s/api_expansion_host_name =.*/api_expansion_host_name = 'query-exp'/" actions.py
+        sed -i "s/API_expansion_host_name =.*/API_expansion_host_name = 'query-exp'/" api_call.py
     fi
 }
 

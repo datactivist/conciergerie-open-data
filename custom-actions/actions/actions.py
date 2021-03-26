@@ -10,13 +10,16 @@ import json
 import requests
 import codecs
 from typing import Any, Text, Dict, List
+from datetime import datetime
+
 from actions import sql_query
+from actions import api_call
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
 
-flag_activate_api_call = True
+flag_activate_api_call = False
 flag_activate_sql_query_commit = True
 
 
@@ -70,26 +73,15 @@ def get_request_keywords_url(keywords, keywords_feedback):
     return url
 
 
-def keywords_expansion(keywords):
+def get_keywords_expanded_list(keywords_expanded):
     """
-    Find new keywords that might interest the user by calling the expansion API
-
-    Input: Keywords as string (separated by spaces)
-    Output: Proposed Keywords as string (separated by |)
+    Input: Output of the expansion API
+    Output: A list of keywords to display to the user
     """
-
-    # Local: "localhost:8000"
-    # Docker: "query-exp:80"
-    api_expansion_host_name = "localhost:8000"
-    search_expand_url = "http://" + api_expansion_host_name + "/query_expand"
-
-    data = {"keywords": keywords, "max_width": 5, "max_datasud_keywords": 5}
-
-    results = requests.post(search_expand_url, json=data).json()
 
     exp_terms = set([])
 
-    for og_key in results:
+    for og_key in keywords_expanded:
 
         for dtsud_keyword in og_key["datasud_keywords"]:
             exp_terms.add(dtsud_keyword)
@@ -99,6 +91,59 @@ def keywords_expansion(keywords):
                 exp_terms.add(similar_sense[0]["sense"])
 
     return "|".join(exp_terms)
+
+
+def keyword_originating_from_og_key(keyword, og_key_tree):
+
+    """
+    Input:  keyword: A keyword proposed by the expansion API
+            og_key_tree: A tree resulting from a keyword entered by the user
+
+    Output: True if keyword was proposed because of its similarity with og_key_tree["original_keyword], False if not
+    """
+
+    for dtsud_keyword in og_key_tree["datasud_keywords"]:
+
+        if dtsud_keyword == keyword:
+
+            return True
+
+    for sense in og_key_tree["tree"]:
+
+        for similar_sense in sense["similar_senses"]:
+
+            if similar_sense[0]["sense"] == keyword:
+
+                return True
+
+    return False
+
+
+def process_keyword_feedback(keyword_proposed, keywords_expanded, keywords_feedback):
+
+    """
+    Input:  keyword_proposed: A keyword proposed to the user
+            keywords_expanded: Output of the API expansion (see API doc)
+            keywords_feedback: List of keywords chosen by the user
+
+    Output: original_keywords: list of keywords that resulted in the proposition of keyword by the API
+            feedback: wether or not keyword_proposed was chosen by the user
+    """
+
+    original_keywords = []
+
+    for og_key_tree in keywords_expanded:
+
+        if keyword_originating_from_og_key(keyword_proposed, og_key_tree):
+
+            original_keywords.append(og_key_tree["original_keyword"])
+
+    if keyword_proposed in keywords_feedback:
+        feedback = 1
+    else:
+        feedback = -1
+
+    return original_keywords, feedback
 
 
 class ResetKeywordsSlot(Action):
@@ -112,7 +157,7 @@ class ResetKeywordsSlot(Action):
     def run(self, dispatcher, tracker, domain):
         return [
             SlotSet("keywords", None),
-            SlotSet("keywords_augmentation", None),
+            SlotSet("keywords_expanded", None),
             SlotSet("keywords_feedback", None),
             SlotSet("results_title", None),
             SlotSet("results_url", None),
@@ -133,11 +178,15 @@ class AskForKeywordsFeedbackSlotAction(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
 
-        keywords_expanded = keywords_expansion(tracker.get_slot("keywords"))
+        keywords_expanded = api_call.get_keywords_expansion_query(
+            tracker.get_slot("keywords")
+        )
+
+        keywords_expanded_list = get_keywords_expanded_list(keywords_expanded)
 
         data = []
 
-        for i, keyword in enumerate(keywords_expanded.split("|")):
+        for i, keyword in enumerate(keywords_expanded_list.split("|")):
             data.append({"title": keyword, "payload": "k" + str(i)})
 
         message = {"payload": "quickReplies", "data": data}
@@ -147,7 +196,10 @@ class AskForKeywordsFeedbackSlotAction(Action):
             json_message=message,
         )
 
-        return [SlotSet("keywords_augmentation", keywords_expanded)]
+        return [
+            SlotSet("keywords_expanded", keywords_expanded),
+            SlotSet("keywords_proposed", keywords_expanded_list),
+        ]
 
 
 class SearchKeywordsInDatabase(Action):
@@ -237,14 +289,17 @@ class SendSearchInfo(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
-        sql_query.add_new_search_query(
-            tracker.sender_id,
-            tracker.get_slot("keywords").replace(" ", "|"),
-            flag_activate_sql_query_commit,
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        api_call.add_expansion_search_query(
+            tracker.sender_id, tracker.get_slot("keywords"), date
         )
+
+        # add reranking api call
 
 
 class SendKeywordsFeedback(Action):
+
     """
     Send keywords proposed to the user to the database
     """
@@ -259,31 +314,36 @@ class SendKeywordsFeedback(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
-        conversation_id = tracker.sender_id
-        keywords_user = tracker.get_slot("keywords").replace(" ", "|")
-
-        keywords_proposed = tracker.get_slot("keywords_augmentation")
+        keywords_expanded = tracker.get_slot("keywords_expanded")
+        keywords_proposed = tracker.get_slot("keywords_proposed")
         keywords_feedback = tracker.get_slot("keywords_feedback")
 
-        if keywords_proposed is not None:
+        feedbacks_list = []
+
+        if keywords_proposed is not None and keywords_feedback is not None:
 
             keywords_proposed = keywords_proposed.split("|")
             keywords_feedback = keywords_feedback.split(" ")
 
             for keyword in keywords_proposed:
 
-                if keyword in keywords_feedback:
-                    feedback = 1
-                else:
-                    feedback = -1
-
-                sql_query.add_keyword_proposed(
-                    conversation_id,
-                    keywords_user,
-                    keyword,
-                    feedback,
-                    flag_activate_sql_query_commit,
+                original_keywords, feedback = process_keyword_feedback(
+                    keyword, keywords_expanded, keywords_feedback
                 )
+
+                for og_keyword in original_keywords:
+
+                    feedbacks_list.append(
+                        {
+                            "original_keyword": og_keyword,
+                            "proposed_keyword": keyword,
+                            "feedback": feedback,
+                        }
+                    )
+
+            api_call.add_expansion_feedback_query(
+                tracker.sender_id, tracker.get_slot("keywords"), feedbacks_list
+            )
 
 
 class AskForResultsFeedbackSlotAction(Action):

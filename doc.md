@@ -62,7 +62,7 @@ Depuis le répertoire `conciergerie-open-data/`
 Changer configuration dans `docker-config.config`
 
 ```
-sudo bash ./start_service.sh [-a|-i|-d|-s|-h]
+sudo bash ./start_docker.sh [-a|-i|-d|-s|-h]
 ```
 
 Once the docker is started, create an admin account:
