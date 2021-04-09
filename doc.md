@@ -1,85 +1,111 @@
 # Documentation Rasa / Rasa X
 
-## Installation
+# Déploiement sans docker
 
-__Dépendence:__
-pip : 20.2.4 ou moins
+## Téléchargement des dépendances
 
-__Installation Windows:__
-
-```shell
-pip install --use-feature=2020-resolver rasa
-pip uninstall ujson
-conda install ujson==1.35
-pip install  --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
-```
-
-Rasa x très peu stable  sur windows
-
-
---TODO API--
-
-__Installation Linux:__
-
-```shell
+```py
 sudo apt-get install gcc
-pip install --use-feature=2020-resolver rasa
-pip install --use-feature=2020-resolver rasa-x --extra-index-url https://pypi.rasa.com/simple
-pip install fastapi, uvicorn
-pip install nltk, pymagnitude
+pip install --use-feature=2020-resolver rasa==2.3.4
+pip install --use-feature=2020-resolver rasa-x==0.37.1 --extra-index-url https://pypi.rasa.com/simple
+pip install nltk pymagnitude
 pip install lz4 xxhash annoy fasteners torch
 ```
 
-## Lancement chatbot
+## Training du chatbot
 
-- Lancer le serveur qui va s'occuper des actions
+Depuis le répertoire `conciergerie-open-data/`
+
 ```
-rasa run action --cors="*"
+rasa train
 ```
 
-- Lancer le chatbot
+## 1 - Lancement expansion API
+<https://github.com/moreymat/fastapi-query-expansion>
+
+
+## 2 - Lancement Rasa x
+Depuis le répertoire `conciergerie-open-data/`
+
 ```
 rasa x
-# ou
-rasa shell
 ```
 
-## Embeddings et API
-Les embeddings (principaux) utilisés sont disponibles dans les fichiers embeddings.md du projet
-Pour les convertir en fichier .magnitude:
+## 3 - Lancement Custom actions server
+Depuis le répertoire `conciergerie-open-data/custom-actions/`
 
 ```
-python -m pymagnitude.converter -i <PATH TO FILE TO BE CONVERTED> -o <OUTPUT PATH FOR MAGNITUDE FILE>
-# ou
-python -m pymagnitude.converter -i <PATH TO REPERTORY TO BE CONVERTER> -o <PATH TO THE OUTPUT REPERTORY>
+rasa run actions --cors="*"
 ```
 
-Une fois les fichiers `.magnitude` crées, le serveur peut être lancer avec la commande:
-uvicorn main:app
-Lors du premier lancement, il va précharger les embeddings (~30sec par embedding), et va sauvegarder les représentation vectorielle des mots clés de datasud (~30sec par embedding)
-Pour cette dernière étape, il est possible qu'il faille pré-créer les différents répertoires où vont être sauvegardés les représentations (i.e. "datasud_keywords_vectors/word2vec/" etc...)
+## 4 - Utilisation
+Rasa-x accessible à l'adresse <http://localhost:5002>
 
-La documentation est disponible à cette adresse locale: http://127.0.0.1:8000/docs#/
+La documentation de l'api est disponible à l'adresse <http://localhost:8000/docs>
 
-## Répartition des fichiers
+widget: <https://github.com/moreymat/Chatbot-Widget>
+
+# Déploiement avec Docker
+
+Requirements:
+    - python >= 3.X
+    - docker >= 20.X
+
+## 1 - Création docker image expansion API
+
+<https://github.com/moreymat/fastapi-query-expansion>
+
+
+## 2 - Création fichier dockers
+
+Depuis le répertoire `conciergerie-open-data/`
+Changer configuration dans `docker-config.config`
+
+```
+sudo bash ./start_docker.sh [-a|-i|-d|-s|-h]
+```
+
+Once the docker is started, create an admin account:
+
+```
+sudo python3 rasa_x_commands.py create --update admin me <PASSWORD>
+```
+
+## 3 - Integrated version
+
+Rasa X is available at <http://localhost:80>
+
+Link training data with this method:
+
+<https://rasa.com/docs/rasa-x/installation-and-setup/deploy#integrated-version-control>
+
+Train a new model
+
+
+## Widget
+
+<https://github.com/moreymat/Chatbot-Widget>
+
+
+# Répartition des fichiers
 
 Squelette d'un chatbot (obtenu en faisant rasa init)
 
-1. Dossier action: Dossier contenant le fichier actions.py qui permet l'appel a des fonctions personnalisés.
+1. action: Dossier contenant le fichier actions.py qui permet l'appel a des fonctions personnalisés.
 
-2. Dossier data:
+2. data:
 
-    1. Fichier nlu.yml: Contient les données d'entraînements pour chaque intention et entité à détecter.
+    1. nlu.yml: Contient les données d'entraînements pour chaque intention et entité à détecter.
 
-    2. Fichier rules.yml: Une rule représente un cout dialogue entre l'utilisateur et le chatbot qui devrait toujours suivre le même chemin (ex: Si l'utilisateur dit "bonjour", il faut répondre "bonjour")
+    2. rules.yml: Une rule représente un court dialogue entre l'utilisateur et le chatbot qui devrait toujours suivre le même chemin (ex: Si l'utilisateur dit "bonjour", il faut répondre "bonjour")
 
-    3. Fichier stories.yml: Une story représente un dialogue possible entre l'utilisateur et le chatbot. (ex: une demande de changement d'adresse mail)
+    3. stories.yml: Une story représente un dialogue possible entre l'utilisateur et le chatbot. (ex: une demande de changement d'adresse mail)
 
-3. Dossier models: Dossier contenant les différentes itérations du modèle.
+3. models: Dossier contenant les différentes itérations du modèle.
 
 4. tests: Dossier contenant les stories qui devraient être aquises par le modèle.
 
-5. Fichier config.yml: Contient la pipeline et les policies:
+5. config.yml: Contient la pipeline et les policies:
 
     1. Pipeline: Liste des différents composants NLU, un message de l'utilisateur sera traité par chaque composant. Un composant NLU est un objet qui va traité le message d'une certaine façon: extraction d'entité, prédiction d'intentions...
 
@@ -93,7 +119,7 @@ Squelette d'un chatbot (obtenu en faisant rasa init)
 
 ## Rasa
 
-Ligne de commande:
+Ligne de commande local:
 
 1. rasa init: Crée les dossiers et fichiers nécessaires pour un chatbot basique
 

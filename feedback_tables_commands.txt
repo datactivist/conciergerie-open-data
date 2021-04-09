@@ -1,0 +1,9 @@
+CREATE TABLE search_results (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,	
+    "search_id" INTEGER NOT NULL,
+    "result_url" VARCHAR(255) NOT NULL,
+	"result_title" VARCHAR(255) NOT NULL,
+    "feedback" INTEGER NOT NULL,
+    FOREIGN KEY ("search_id")
+        REFERENCES search ("id")
+    );

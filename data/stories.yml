@@ -1,0 +1,68 @@
+version: "2.0"
+stories:
+
+- story: search form follow-up - user want to give feedback
+  steps:
+  - action: action_send_results_feedback_to_database
+  - action: utter_feedback_proposition
+  - intent: affirm
+  - action: utter_thanks_you
+  - action: feedback_results_form
+  - active_loop: feedback_results_form
+
+
+- story: search form follow-up - user doesn't want to give feedback nor need anything else
+  steps:
+  - action: action_send_results_feedback_to_database
+  - action: utter_feedback_proposition
+  - intent: deny
+  - action: action_reset_all_slots
+  - action: utter_no_problem_anything_else
+  - intent: deny
+  - action: utter_goodbye
+
+- story: search form follow-up - user doesn't want to give feedback but needs more help
+  steps:
+  - action: action_send_results_feedback_to_database
+  - action: utter_feedback_proposition
+  - intent: deny
+  - action: action_reset_all_slots
+  - action: utter_no_problem_anything_else
+  - intent: affirm
+  - action: search_form
+  - active_loop: search_form
+
+- story: Feedback Form follow-up - need more help
+  steps:
+  - action: action_recap_feedback_to_user
+  - action: action_send_results_feedback_to_database
+  - action: utter_submit_feedback_form
+  - intent: affirm
+  - action: utter_faq/ask_skills
+
+- story: Feedback Form follow-up - doesn't need more help
+  steps:
+  - action: action_recap_feedback_to_user
+  - action: action_send_results_feedback_to_database
+  - action: utter_submit_feedback_form
+  - intent: deny
+  - action: utter_goodbye
+
+- story: Yes to greeting
+  steps:
+  - intent: affirm
+  - action: search_form
+  - active_loop: search_form
+
+- story: ask/skills answer yes
+  steps:
+  - action: utter_faq/ask_skills
+  - intent: affirm
+  - action: search_form
+  - active_loop: search_form
+
+- story: ask/skills answer no
+  steps:
+  - action: utter_faq/ask_skills
+  - intent: deny
+  - action: utter_goodbye
