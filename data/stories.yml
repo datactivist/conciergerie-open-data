@@ -11,7 +11,7 @@ stories:
   - active_loop: feedback_results_form
 
 
-- story: search form follow-up - user doens't want to give feedback nor need anything else
+- story: search form follow-up - user doesn't want to give feedback nor need anything else
   steps:
   - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition
@@ -21,7 +21,7 @@ stories:
   - intent: deny
   - action: utter_goodbye
 
-- story: search form follow-up - user doens't want to give feedback but need more help
+- story: search form follow-up - user doesn't want to give feedback but needs more help
   steps:
   - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition

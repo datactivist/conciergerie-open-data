@@ -84,7 +84,7 @@ Train a new model
 
 ## Widget
 
-https://github.com/moreymat/Chatbot-Widget
+<https://github.com/moreymat/Chatbot-Widget>
 
 
 # Répartition des fichiers
@@ -97,7 +97,7 @@ Squelette d'un chatbot (obtenu en faisant rasa init)
 
     1. nlu.yml: Contient les données d'entraînements pour chaque intention et entité à détecter.
 
-    2. rules.yml: Une rule représente un cout dialogue entre l'utilisateur et le chatbot qui devrait toujours suivre le même chemin (ex: Si l'utilisateur dit "bonjour", il faut répondre "bonjour")
+    2. rules.yml: Une rule représente un court dialogue entre l'utilisateur et le chatbot qui devrait toujours suivre le même chemin (ex: Si l'utilisateur dit "bonjour", il faut répondre "bonjour")
 
     3. stories.yml: Une story représente un dialogue possible entre l'utilisateur et le chatbot. (ex: une demande de changement d'adresse mail)
 

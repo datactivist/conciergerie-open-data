@@ -19,7 +19,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
 
-flag_activate_api_call = False
+flag_activate_api_call = True
 flag_activate_sql_query_commit = True
 
 
@@ -404,10 +404,9 @@ class RecapResultsFeedback(Action):
 
             results_title_data = results_title_data.split("|")
 
-            for i in range(len(results_title_data)):
-
+            for i, result_title_data in enumerate(results_title_data):
                 if str(i) in results_feedback:
-                    recap_msg += " - " + results_title_data[i] + "<br>"
+                    recap_msg += " - " + result_title_data + "<br>"
 
         if len(recap_msg) == 0:
             final_msg = "Vous n'avez choisi aucun jeu de données."
@@ -505,5 +504,5 @@ class ActionGreetUser(Action):
     ) -> List[Dict[Text, Any]]:
 
         dispatcher.utter_message(
-            text="Bonjour, je suis là pour vous aider, cherchez vous un jeu de données ?"
+            text="Bonjour, je suis là pour vous aider, cherchez-vous un jeu de données ?"
         )

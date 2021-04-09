@@ -82,7 +82,7 @@ responses:
   - text: Je suis un robot fonctionnant avec Rasa. J'ai été créé par Datactivist.
   utter_faq/ask_skills:
   - text: |
-      Je peux vous aider à trouver des jeux de données. Souhaitez vous faire une recherche ?
+      Je peux vous aider à trouver des jeux de données. Souhaitez-vous faire une recherche ?
   utter_ask_keywords:
   - text: Quels mots-clés souhaitez-vous utiliser pour votre recherche ?
   utter_submit_search_form:

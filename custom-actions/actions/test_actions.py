@@ -5,13 +5,13 @@ import pytest
 def test_get_request_keywords_url():
 
     assert (
-        actions.get_request_keywords_url("barrage éolienne", "hydrauélectrique")
-        == "https://trouver.datasud.fr/api/3/action/package_search?q=barrage||éolienne||hydrauélectrique"
+        actions.get_request_keywords_url("barrage éolienne", "hydroélectrique")
+        == "https://trouver.datasud.fr/api/3/action/package_search?q=barrage||éolienne||hydroélectrique"
     ), "Datasud Request URL failed"
 
     assert (
-        actions.get_request_keywords_url("", "hydrauélectrique électrique")
-        == "https://trouver.datasud.fr/api/3/action/package_search?q=hydrauélectrique||électrique"
+        actions.get_request_keywords_url("", "hydroélectrique électrique")
+        == "https://trouver.datasud.fr/api/3/action/package_search?q=hydroélectrique||électrique"
     ), "Datasud Request URL failed"
 
     assert (
