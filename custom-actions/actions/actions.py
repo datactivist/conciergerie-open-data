@@ -17,7 +17,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
 
-flag_activate_api_call = False
+flag_activate_api_call = True
 
 
 def get_request_keywords_url(keywords, keywords_feedback):
@@ -178,8 +178,6 @@ def process_results(results):
                 "groups": groups_list,
             }
         )
-
-        print(formatted_results)
 
     return formatted_results
 
