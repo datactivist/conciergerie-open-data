@@ -36,10 +36,9 @@ rules:
   - action: search_form
   - active_loop: null
   - action: utter_submit_search_form
-  - action: action_send_search_information_to_database
-  - action: action_send_keywords_feedback_to_database
+  - action: action_send_search_information_to_API
+  - action: action_send_keywords_feedback_to_expansion_API
   - action: action_search_database
-  - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition
 
 - rule: désactivation du formulaire de feedback results
@@ -49,7 +48,7 @@ rules:
   - action: feedback_results_form
   - active_loop: null
   - action: action_recap_feedback_to_user
-  - action: action_send_results_feedback_to_database
+  - action: action_send_results_feedback_to_reranking_API
   - action: action_reset_all_slots
   - action: utter_submit_feedback_form
   

@@ -18,4 +18,3 @@ def test_get_request_keywords_url():
         actions.get_request_keywords_url("barrage éolienne", "")
         == "https://trouver.datasud.fr/api/3/action/package_search?q=barrage||éolienne"
     ), "Datasud Request URL failed"
-

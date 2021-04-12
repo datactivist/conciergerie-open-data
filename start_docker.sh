@@ -53,8 +53,16 @@ update_expansion_api_adress()
 {
     if [ $deployment_method == "docker_solo" ]; then
         sed -i "s/API_expansion_host_name =.*/API_expansion_host_name = $api_expansion_host_name/" api_call.py
+        sed -i "s/API_expansion_port =.*/API_expansion_port = $api_expansion_port/" api_call.py
+
+        sed -i "s/API_reranking_host_name =.*/API_reranking_host_name = $api_reranking_host_name/" api_call.py
+        sed -i "s/API_reranking_port =.*/API_reranking_port = $api_reranking_port/" api_call.py
     elif [ $deployment_method == "docker_with_expansion" ]; then
         sed -i "s/API_expansion_host_name =.*/API_expansion_host_name = 'query-exp'/" api_call.py
+        sed -i "s/API_expansion_port =.*/API_expansion_port = $api_expansion_port/" api_call.py
+
+        sed -i "s/API_reranking_host_name =.*/API_reranking_host_name = $api_reranking_host_name/" api_call.py
+        sed -i "s/API_reranking_port =.*/API_reranking_port = $api_reranking_port/" api_call.py
     fi
 }
 
