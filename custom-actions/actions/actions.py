@@ -143,27 +143,43 @@ def process_results(results):
 
     """
     Input:  results: list of results
-    Output: List of results formatted
+    Output: List of results formatted to reranking API
     """
 
     formatted_results = []
 
     for result in results:
 
+        tags_list = []
+        for tag in result["tags"]:
+            tags_list.append(tag["display_name"])
+
+        groups_list = []
+        for group in result["groups"]:
+            groups_list.append(
+                {"name": group["display_name"], "description": group["description"]}
+            )
+
         formatted_results.append(
             {
                 "title": result["title"].replace('"', "'"),
                 "url": result["name"],
                 "description": result["notes"].replace('"', "'"),
-                "owner_org": "TODO",
-                "owner_org_description": "TODO",
-                "maintainer": "TODO",
-                "dataset_publication_date": "TODO",
-                "dataset_modification_date": "TODO",
-                "metadata_creation_date": "TODO",
-                "metadata_modification_date": "TODO",
+                "owner_org": result["author"],
+                "owner_org_description": result["organization"]["description"].replace(
+                    '"', "'"
+                ),
+                "maintainer": result["maintainer"],
+                "dataset_publication_date": result["dataset_publication_date"],
+                "dataset_modification_date": result["dataset_modification_date"],
+                "metadata_creation_date": result["metadata_created"],
+                "metadata_modification_date": result["metadata_modified"],
+                "tags": tags_list,
+                "groups": groups_list,
             }
         )
+
+        print(formatted_results)
 
     return formatted_results
 
