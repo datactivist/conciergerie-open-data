@@ -5,9 +5,10 @@
 # https://rasa.com/docs/rasa/custom-actions
 
 
+# TODO: gérer le cas ou il n'y a pas de résultats un peut mieux
+
 import json
 import requests
-import codecs
 from typing import Any, Text, Dict, List
 from datetime import datetime
 
@@ -16,58 +17,6 @@ from actions import api_call
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
-
-flag_activate_api_call = True
-
-
-def get_request_keywords_url(keywords, keywords_feedback):
-    """
-    Return URL to request Datasud API
-
-    Input: Keywords as string (separated by spaces)
-    Output: URL as string
-    """
-
-    url = "https://trouver.datasud.fr/api/3/action/package_search?q="
-    special_characters = [
-        "!",
-        '"',
-        "#",
-        "$",
-        "%",
-        "&",
-        "'",
-        "(",
-        ")",
-        "*",
-        "+",
-        ",",
-        "-",
-        ".",
-        "/",
-        ":",
-        ";",
-        "<",
-        "=",
-        ">",
-        "?",
-        "@",
-    ]
-
-    for special_character in special_characters:
-        encoding = str(codecs.encode(special_character.encode("utf-8"), "hex"))
-        keywords = keywords.replace(
-            special_character, "%" + encoding[2 : len(encoding) - 1]
-        )
-
-    url += "||".join(keywords.split(" "))
-
-    if keywords != "" and keywords_feedback != "":
-        url += "||"
-
-    url += "||".join(keywords_feedback.split(" "))
-
-    return url
 
 
 def get_keywords_expanded_list(keywords_expanded):
@@ -139,49 +88,6 @@ def process_keyword_feedback(keyword_proposed, keywords_expanded, keywords_feedb
     return original_keywords, feedback
 
 
-def process_results(results):
-
-    """
-    Input:  results: list of results
-    Output: List of results formatted to reranking API
-    """
-
-    formatted_results = []
-
-    for result in results:
-
-        tags_list = []
-        for tag in result["tags"]:
-            tags_list.append(tag["display_name"])
-
-        groups_list = []
-        for group in result["groups"]:
-            groups_list.append(
-                {"name": group["display_name"], "description": group["description"]}
-            )
-
-        formatted_results.append(
-            {
-                "title": result["title"].replace('"', "'"),
-                "url": result["name"],
-                "description": result["notes"].replace('"', "'"),
-                "owner_org": result["author"],
-                "owner_org_description": result["organization"]["description"].replace(
-                    '"', "'"
-                ),
-                "maintainer": result["maintainer"],
-                "dataset_publication_date": result["dataset_publication_date"],
-                "dataset_modification_date": result["dataset_modification_date"],
-                "metadata_creation_date": result["metadata_created"],
-                "metadata_modification_date": result["metadata_modified"],
-                "tags": tags_list,
-                "groups": groups_list,
-            }
-        )
-
-    return formatted_results
-
-
 class ResetKeywordsSlot(Action):
     """
     Reset all the slots of the rasa chatbot
@@ -218,10 +124,10 @@ class AskForKeywordsFeedbackSlotAction(Action):
 
         keywords_expanded_list = get_keywords_expanded_list(keywords_expanded)
 
-        data = []
-
-        for i, keyword in enumerate(keywords_expanded_list.split("|")):
-            data.append({"title": keyword, "payload": "k" + str(i)})
+        data = [
+            {"title": x["title"], "payload": "k" + str(i)}
+            for i, x in enumerate(results)
+        ]
 
         message = {"payload": "quickReplies", "data": data}
 
@@ -255,15 +161,7 @@ class SearchKeywordsInDatabase(Action):
         conversation_id = tracker.sender_id
         keywords_feedback = tracker.get_slot("keywords_feedback")
 
-        request_url = get_request_keywords_url(keywords, keywords_feedback)
-        if flag_activate_api_call:
-            data = requests.post(request_url).json()
-        else:
-            with open("../fake_api_results.json", encoding="utf-8") as f:
-                data = json.load(f)
-
-        results = data["result"]["results"]
-        results = process_results(results[0:5])
+        results = api_call.get_results_from_keywords(keywords, keywords_feedback)
 
         reranking_data = []
         reranking_data.append({"api_hostname": "datasud", "results_list": results})
@@ -419,9 +317,7 @@ class RecapResultsFeedback(Action):
         conversation_id = tracker.sender_id
 
         results = tracker.get_slot("results")
-        results_titles = []
-        for result in results:
-            results_titles.append(result["title"])
+        results_titles = [x["title"] for x in results]
 
         results_feedback = tracker.get_slot("results_feedback")
         if results_feedback is not None:

@@ -1,5 +1,6 @@
 import requests
 import json
+import codecs
 
 # API Expansion
 API_expansion_host_name = "127.0.0.1"
@@ -11,6 +12,12 @@ API_expansion_url = "http://" + API_expansion_host_name + ":" + API_expansion_po
 API_reranking_host_name = "127.0.0.1"
 API_reranking_port = "8002"
 API_reranking_url = "http://" + API_reranking_host_name + ":" + API_reranking_port + "/"
+
+# API Portail de données
+API_datasud_host_name = "https://trouver.datasud.fr/api/3/action/package_search?q="
+API_datasud_activated = True
+API_dreal_host_name = "https://sidonie-paca.fr/documents/search.json?q="
+API_dreal_activated = False
 
 
 def get_keywords_expansion_query(keywords, referentiel):
@@ -35,11 +42,19 @@ def add_expansion_search_query(conversation_id, user_search, date):
     Send a request to the expansion API to add a new search
     """
 
+    if API_datasud_activated:
+        portail = "datasud"
+    elif API_dreal_activated:
+        portail = "dreal"
+    else:
+        portail = "unknown"
+
     add_new_search_query_url = API_expansion_url + "add_search"
 
     body = {
         "conversation_id": conversation_id,
         "user_search": user_search,
+        "portail": portail,
         "date": date,
     }
 
@@ -108,11 +123,19 @@ def add_reranking_search_query(conversation_id, user_search, date):
     Send a request to the reranking API to add a new search
     """
 
+    if API_datasud_activated:
+        portail = "datasud"
+    elif API_dreal_activated:
+        portail = "dreal"
+    else:
+        portail = "unknown"
+
     add_new_search_query_url = API_reranking_url + "add_search"
 
     body = {
         "conversation_id": conversation_id,
         "user_search": user_search,
+        "portail": portail,
         "date": date,
     }
 
@@ -155,3 +178,148 @@ def add_reranking_feedback_query(
 
 
 # API Portail de données
+
+
+def get_results_from_keywords(keywords, keywords_feedback):
+
+    if API_datasud_activated:
+        request_url = get_request_keywords_url(
+            API_datasud_host_name, keywords, keywords_feedback
+        )
+        data = requests.post(request_url).json()
+        data = process_results_datasud(data, 5)
+
+    elif API_dreal_activated:
+        request_url = get_request_keywords_url(
+            API_dreal_host_name, keywords, keywords_feedback
+        )
+        data = requests.post(request_url).json()
+        data = process_results_dreal(data, 5)
+
+    else:
+        data = []
+
+    return data
+
+
+def get_request_keywords_url(url, keywords, keywords_feedback):
+    """
+    Return URL to request Datasud API
+
+    Input: Keywords as string (separated by spaces)
+    Output: URL as string
+    """
+
+    special_characters = [
+        "!",
+        '"',
+        "#",
+        "$",
+        "%",
+        "&",
+        "'",
+        "(",
+        ")",
+        "*",
+        "+",
+        ",",
+        "-",
+        ".",
+        "/",
+        ":",
+        ";",
+        "<",
+        "=",
+        ">",
+        "?",
+        "@",
+    ]
+
+    for special_character in special_characters:
+        encoding = str(codecs.encode(special_character.encode("utf-8"), "hex"))
+        keywords = keywords.replace(
+            special_character, "%" + encoding[2 : len(encoding) - 1]
+        )
+
+    url += "||".join(keywords.split(" "))
+
+    if keywords != "" and keywords_feedback != "":
+        url += "||"
+
+    url += "||".join(keywords_feedback.split(" "))
+
+    return url
+
+
+def process_results_datasud(results, nb_results):
+
+    """
+    Input:  results: results from datasud
+            nb_results: number of results to use
+    Output: List of results formatted to reranking API
+    """
+
+    formatted_results = []
+
+    results = results["result"]["results"][0:nb_results]
+
+    for result in results:
+
+        tags_list = [x["display_name"] for x in result["tags"]]
+        groups_list = [
+            {"name": x["display_name"], "description": x["description"]}
+            for x in result["groups"]
+        ]
+
+        formatted_results.append(
+            {
+                "title": result["title"].replace('"', "'"),
+                "url": result["name"],
+                "description": result["notes"].replace('"', "'"),
+                "owner_org": result["author"],
+                "owner_org_description": result["organization"]["description"].replace(
+                    '"', "'"
+                ),
+                "maintainer": result["maintainer"],
+                "dataset_publication_date": result["dataset_publication_date"],
+                "dataset_modification_date": result["dataset_modification_date"],
+                "metadata_creation_date": result["metadata_created"],
+                "metadata_modification_date": result["metadata_modified"],
+                "portail": "datasud",
+                "tags": tags_list,
+                "groups": groups_list,
+            }
+        )
+
+    return formatted_results
+
+
+def process_results_dreal(results, nb_results):
+
+    """
+    Input:  results: results from datasud
+            nb_results: number of results to use
+    Output: List of results formatted to reranking API
+    """
+
+    formatted_results = []
+
+    results = results["documents"][0:nb_results]
+
+    for result in results:
+
+        tags_list = [x["title"] for x in result["categorie"]]
+
+        formatted_results.append(
+            {
+                "title": result["title"].replace('"', "'"),
+                "url": result["uri"],
+                "description": result["description"].replace('"', "'"),
+                "portail": "dreal",
+                "dataset_publication_date": result["date"],
+                "metadata_creation_date": result["date"],
+                "tags": tags_list,
+            }
+        )
+
+    return formatted_results
