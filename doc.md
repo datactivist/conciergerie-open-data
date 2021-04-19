@@ -7,9 +7,18 @@
 ```py
 sudo apt-get install gcc
 pip install --use-feature=2020-resolver rasa==2.3.4
-pip install --use-feature=2020-resolver rasa-x==0.37.1 --extra-index-url https://pypi.rasa.com/simple
-pip install nltk pymagnitude
-pip install lz4 xxhash annoy fasteners torch
+pip install --use-feature=2020-resolver rasa-x==0.38.0 --extra-index-url https://pypi.rasa.com/simple
+```
+
+### Nouveau chatbot (botfront)
+
+```
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+git clone https://github.com/RasaHQ/rasa.git
+cd rasa
+poetry install
+
+pip install --use-feature=2020-resolver rasa-x==0.38.0 --extra-index-url https://pypi.rasa.com/simple
 ```
 
 ## Training du chatbot

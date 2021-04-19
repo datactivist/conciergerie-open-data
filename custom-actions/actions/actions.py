@@ -125,8 +125,8 @@ class AskForKeywordsFeedbackSlotAction(Action):
         keywords_expanded_list = get_keywords_expanded_list(keywords_expanded)
 
         data = [
-            {"title": x["title"], "payload": "k" + str(i)}
-            for i, x in enumerate(results)
+            {"title": x, "payload": "k" + str(i)}
+            for i, x in enumerate(keywords_expanded_list.split("|"))
         ]
 
         message = {"payload": "quickReplies", "data": data}
