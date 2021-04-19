@@ -3,7 +3,6 @@ stories:
 
 - story: search form follow-up - user want to give feedback
   steps:
-  - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition
   - intent: affirm
   - action: utter_thanks_you
@@ -13,7 +12,6 @@ stories:
 
 - story: search form follow-up - user doesn't want to give feedback nor need anything else
   steps:
-  - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition
   - intent: deny
   - action: action_reset_all_slots
@@ -23,7 +21,6 @@ stories:
 
 - story: search form follow-up - user doesn't want to give feedback but needs more help
   steps:
-  - action: action_send_results_feedback_to_database
   - action: utter_feedback_proposition
   - intent: deny
   - action: action_reset_all_slots
@@ -35,7 +32,7 @@ stories:
 - story: Feedback Form follow-up - need more help
   steps:
   - action: action_recap_feedback_to_user
-  - action: action_send_results_feedback_to_database
+  - action: action_send_results_feedback_to_reranking_API
   - action: utter_submit_feedback_form
   - intent: affirm
   - action: utter_faq/ask_skills
@@ -43,7 +40,7 @@ stories:
 - story: Feedback Form follow-up - doesn't need more help
   steps:
   - action: action_recap_feedback_to_user
-  - action: action_send_results_feedback_to_database
+  - action: action_send_results_feedback_to_reranking_API
   - action: utter_submit_feedback_form
   - intent: deny
   - action: utter_goodbye

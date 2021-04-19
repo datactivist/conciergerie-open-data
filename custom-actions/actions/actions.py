@@ -5,72 +5,18 @@
 # https://rasa.com/docs/rasa/custom-actions
 
 
-import sqlite3
+# TODO: gérer le cas ou il n'y a pas de résultats un peut mieux
+
 import json
 import requests
-import codecs
 from typing import Any, Text, Dict, List
 from datetime import datetime
 
-from actions import sql_query
 from actions import api_call
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType
-
-flag_activate_api_call = True
-flag_activate_sql_query_commit = True
-
-
-def get_request_keywords_url(keywords, keywords_feedback):
-    """
-    Return URL to request Datasud API
-
-    Input: Keywords as string (separated by spaces)
-    Output: URL as string
-    """
-
-    url = "https://trouver.datasud.fr/api/3/action/package_search?q="
-    special_characters = [
-        "!",
-        '"',
-        "#",
-        "$",
-        "%",
-        "&",
-        "'",
-        "(",
-        ")",
-        "*",
-        "+",
-        ",",
-        "-",
-        ".",
-        "/",
-        ":",
-        ";",
-        "<",
-        "=",
-        ">",
-        "?",
-        "@",
-    ]
-
-    for special_character in special_characters:
-        encoding = str(codecs.encode(special_character.encode("utf-8"), "hex"))
-        keywords = keywords.replace(
-            special_character, "%" + encoding[2 : len(encoding) - 1]
-        )
-
-    url += "||".join(keywords.split(" "))
-
-    if keywords != "" and keywords_feedback != "":
-        url += "||"
-
-    url += "||".join(keywords_feedback.split(" "))
-
-    return url
 
 
 def get_keywords_expanded_list(keywords_expanded):
@@ -82,9 +28,9 @@ def get_keywords_expanded_list(keywords_expanded):
     exp_terms = set([])
 
     for og_key in keywords_expanded:
-
-        for dtsud_keyword in og_key["datasud_keywords"]:
-            exp_terms.add(dtsud_keyword)
+        if og_key["referentiel"]["tags"] is not None:
+            for ref_tag in og_key["referentiel"]["tags"]:
+                exp_terms.add(ref_tag)
 
         for sense in og_key["tree"]:
             for similar_sense in sense["similar_senses"]:
@@ -102,18 +48,14 @@ def keyword_originating_from_og_key(keyword, og_key_tree):
     Output: True if keyword was proposed because of its similarity with og_key_tree["original_keyword], False if not
     """
 
-    for dtsud_keyword in og_key_tree["datasud_keywords"]:
-
-        if dtsud_keyword == keyword:
-
-            return True
+    if og_key_tree["referentiel"]["tags"] is not None:
+        for keyw in og_key_tree["referentiel"]["tags"]:
+            if keyw == keyword:
+                return True
 
     for sense in og_key_tree["tree"]:
-
         for similar_sense in sense["similar_senses"]:
-
             if similar_sense[0]["sense"] == keyword:
-
                 return True
 
     return False
@@ -159,9 +101,7 @@ class ResetKeywordsSlot(Action):
             SlotSet("keywords", None),
             SlotSet("keywords_expanded", None),
             SlotSet("keywords_feedback", None),
-            SlotSet("results_title", None),
-            SlotSet("results_url", None),
-            SlotSet("results_description", None),
+            SlotSet("results", None),
             SlotSet("results_feedback", None),
         ]
 
@@ -179,15 +119,15 @@ class AskForKeywordsFeedbackSlotAction(Action):
     ) -> List[EventType]:
 
         keywords_expanded = api_call.get_keywords_expansion_query(
-            tracker.get_slot("keywords")
+            tracker.get_slot("keywords"), {"name": "datasud"}
         )
 
         keywords_expanded_list = get_keywords_expanded_list(keywords_expanded)
 
-        data = []
-
-        for i, keyword in enumerate(keywords_expanded_list.split("|")):
-            data.append({"title": keyword, "payload": "k" + str(i)})
+        data = [
+            {"title": x, "payload": "k" + str(i)}
+            for i, x in enumerate(keywords_expanded_list.split("|"))
+        ]
 
         message = {"payload": "quickReplies", "data": data}
 
@@ -218,35 +158,30 @@ class SearchKeywordsInDatabase(Action):
     ) -> List[Dict[Text, Any]]:
 
         keywords = tracker.get_slot("keywords")
+        conversation_id = tracker.sender_id
         keywords_feedback = tracker.get_slot("keywords_feedback")
 
-        request_url = get_request_keywords_url(keywords, keywords_feedback)
-        if flag_activate_api_call:
-            data = requests.post(request_url).json()
-        else:
-            with open("../fake_api_results.json", encoding="utf-8") as f:
-                data = json.load(f)
+        results = api_call.get_results_from_keywords(keywords, keywords_feedback)
 
-        results = data["result"]["results"]
+        reranking_data = []
+        reranking_data.append({"api_hostname": "datasud", "results_list": results})
+
         catalog_url = "https://trouver.datasud.fr/dataset/"
-
         if len(results) > 0:
 
+            results = api_call.get_search_reranking_query(
+                conversation_id, keywords, reranking_data
+            )
+
             data = []
-            results_title_slot = ""
-            results_url_slot = ""
-            results_description_slot = ""
             for i, result in enumerate(results[0:5]):
                 data.append(
                     {
                         "title": str(i + 1) + " - " + result["title"],
-                        "url": catalog_url + result["name"],
-                        "description": result["notes"],
+                        "url": catalog_url + result["url"],
+                        "description": result["description"],
                     }
                 )
-                results_title_slot += result["title"] + "|"
-                results_url_slot += result["name"] + "|"
-                results_description_slot += result["notes"] + "|"
 
             message = {"payload": "collapsible", "data": data}
             dispatcher.utter_message(
@@ -254,23 +189,14 @@ class SearchKeywordsInDatabase(Action):
             )
 
             return [
-                SlotSet(
-                    "results_title", results_title_slot[: len(results_title_slot) - 1],
-                ),
-                SlotSet("results_url", results_url_slot[: len(results_url_slot) - 1]),
-                SlotSet(
-                    "results_description",
-                    results_description_slot[: len(results_description_slot) - 1],
-                ),
+                SlotSet("results", results),
             ]
         else:
             dispatcher.utter_message(
                 text="Je suis désolé, je n'ai trouvé aucun résultat pour votre recherche."
             )
             return [
-                SlotSet("results_title", None),
-                SlotSet("results_url", None),
-                SlotSet("results_description", None),
+                SlotSet("results", None),
             ]
 
 
@@ -280,7 +206,7 @@ class SendSearchInfo(Action):
     """
 
     def name(self):
-        return "action_send_search_information_to_database"
+        return "action_send_search_information_to_API"
 
     def run(
         self,
@@ -295,7 +221,9 @@ class SendSearchInfo(Action):
             tracker.sender_id, tracker.get_slot("keywords"), date
         )
 
-        # add reranking api call
+        api_call.add_reranking_search_query(
+            tracker.sender_id, tracker.get_slot("keywords"), date
+        )
 
 
 class SendKeywordsFeedback(Action):
@@ -305,7 +233,7 @@ class SendKeywordsFeedback(Action):
     """
 
     def name(self):
-        return "action_send_keywords_feedback_to_database"
+        return "action_send_keywords_feedback_to_expansion_API"
 
     def run(
         self,
@@ -358,13 +286,10 @@ class AskForResultsFeedbackSlotAction(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
 
-        results_title = tracker.get_slot("results_title")
-
+        results = tracker.get_slot("results")
         data = []
-
-        for i, title in enumerate(results_title.split("|")):
-            data.append({"title": title, "payload": "k" + str(i)})
-
+        for i, result in enumerate(results):
+            data.append({"title": result["title"], "payload": "k" + str(i)})
         message = {"payload": "resultfeedback", "data": data}
 
         dispatcher.utter_message(
@@ -391,22 +316,20 @@ class RecapResultsFeedback(Action):
 
         conversation_id = tracker.sender_id
 
-        results_title_data = tracker.get_slot("results_title")
-        results_feedback = tracker.get_slot("results_feedback")
+        results = tracker.get_slot("results")
+        results_titles = [x["title"] for x in results]
 
+        results_feedback = tracker.get_slot("results_feedback")
         if results_feedback is not None:
             results_feedback = results_feedback.split(" ")
         else:
             results_feedback = []
 
         recap_msg = ""
-        if results_title_data is not None and len(results_feedback) > 0:
-
-            results_title_data = results_title_data.split("|")
-
-            for i, result_title_data in enumerate(results_title_data):
+        if len(results_titles) > 0 and len(results_feedback) > 0:
+            for i, title in enumerate(results_titles):
                 if str(i) in results_feedback:
-                    recap_msg += " - " + result_title_data + "<br>"
+                    recap_msg += " - " + title + "<br>"
 
         if len(recap_msg) == 0:
             final_msg = "Vous n'avez choisi aucun jeu de données."
@@ -425,7 +348,7 @@ class SendResultsFeedback(Action):
     """
 
     def name(self):
-        return "action_send_results_feedback_to_database"
+        return "action_send_results_feedback_to_reranking_API"
 
     def run(
         self,
@@ -435,10 +358,9 @@ class SendResultsFeedback(Action):
     ) -> List[Dict[Text, Any]]:
 
         conversation_id = tracker.sender_id
-        keywords_user = tracker.get_slot("keywords").replace(" ", "|")
-
-        results_title_data = tracker.get_slot("results_title")
-        results_url_data = tracker.get_slot("results_url")
+        user_search = tracker.get_slot("keywords")
+        keywords_feedback = tracker.get_slot("keywords_feedback")
+        results = tracker.get_slot("results")
 
         results_feedback = tracker.get_slot("results_feedback")
         if results_feedback is not None:
@@ -446,46 +368,21 @@ class SendResultsFeedback(Action):
         else:
             results_feedback = []
 
-        if results_title_data is not None:
-            results_title_data = results_title_data.split("|")
-            results_url_data = results_url_data.split("|")
-            for i in range(len(results_title_data)):
-
-                if len(results_feedback) > 0:
-
-                    if "0" not in results_feedback:
-
-                        if str(i + 1) in results_feedback:
-                            feedback = 1
-                        else:
-                            feedback = -1
-
-                        sql_query.add_result(
-                            conversation_id,
-                            keywords_user,
-                            (results_title_data[i], results_url_data[i]),
-                            feedback,
-                            flag_activate_sql_query_commit,
-                        )
+        feedbacks_list = []
+        if results is not None and len(results) > 0:
+            if len(results_feedback) > 0:
+                for i, result in enumerate(results):
+                    if str(i) in results_feedback:
+                        feedbacks_list.append({"result": result, "feedback": 1})
                     else:
-                        sql_query.add_result(
-                            conversation_id,
-                            keywords_user,
-                            (results_title_data[i], results_url_data[i]),
-                            -1,
-                            flag_activate_sql_query_commit,
-                        )
-                else:
-                    sql_query.add_result(
-                        conversation_id,
-                        keywords_user,
-                        (results_title_data[i], results_url_data[i]),
-                        0,
-                        flag_activate_sql_query_commit,
-                    )
+                        feedbacks_list.append({"result": result, "feedback": -1})
+            else:
+                for i, result in enumerate(results):
+                    feedbacks_list.append({"result": result, "feedback": 0})
 
-
-# Actions triggered from rasa chatbot widget
+        api_call.add_reranking_feedback_query(
+            conversation_id, user_search, keywords_feedback, feedbacks_list
+        )
 
 
 class ActionGreetUser(Action):

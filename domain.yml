@@ -45,17 +45,7 @@ slots:
     initial_value: null
     auto_fill: false
     influence_conversation: false
-  results_title:
-    type: rasa.shared.core.slots.TextSlot
-    initial_value: null
-    auto_fill: false
-    influence_conversation: false
-  results_url:
-    type: rasa.shared.core.slots.TextSlot
-    initial_value: null
-    auto_fill: false
-    influence_conversation: false
-  results_description:
+  results:
     type: rasa.shared.core.slots.TextSlot
     initial_value: null
     auto_fill: false
@@ -103,10 +93,10 @@ actions:
 - action_reset_all_slots
 - action_search_database
 - action_ask_keywords_feedback
-- action_send_keywords_feedback_to_database
-- action_send_search_information_to_database
+- action_send_keywords_feedback_to_expansion_API
+- action_send_search_information_to_API
 - action_ask_results_feedback
-- action_send_results_feedback_to_database
+- action_send_results_feedback_to_reranking_API
 - action_recap_feedback_to_user
 - action_greet_user
 forms:
