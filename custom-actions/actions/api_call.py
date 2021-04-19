@@ -14,9 +14,9 @@ API_reranking_port = "8002"
 API_reranking_url = "http://" + API_reranking_host_name + ":" + API_reranking_port + "/"
 
 # API Portail de données
-API_datasud_host_name = "https://trouver.datasud.fr/api/3/action/package_search?q="
+API_datasud_host_name = "https://trouver.datasud.fr/api/3/action/package_search?"
 API_datasud_activated = True
-API_dreal_host_name = "https://sidonie-paca.fr/documents/search.json?q="
+API_dreal_host_name = "https://sidonie-paca.fr/documents/search.json?"
 API_dreal_activated = False
 
 
@@ -33,7 +33,10 @@ def get_keywords_expansion_query(keywords, referentiel):
 
     body = {"keywords": keywords, "max_width": 5, "referentiel": referentiel}
 
-    return requests.post(search_expand_url, json=body).json()
+    try:
+        return requests.post(search_expand_url, json=body).json()
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
 
 
 def add_expansion_search_query(conversation_id, user_search, date):
@@ -58,7 +61,10 @@ def add_expansion_search_query(conversation_id, user_search, date):
         "date": date,
     }
 
-    requests.post(add_new_search_query_url, json=body).json()
+    try:
+        requests.post(add_new_search_query_url, json=body).json()
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
 
 
 def add_expansion_feedback_query(conversation_id, user_search, feedbacks_list):
@@ -87,7 +93,10 @@ def add_expansion_feedback_query(conversation_id, user_search, feedbacks_list):
         "data": feedbacks_list,
     }
 
-    requests.post(add_new_feedback_query_url, json=body).json()
+    try:
+        requests.post(add_new_feedback_query_url, json=body).json()
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
 
 
 # API Reranking Requests
@@ -114,7 +123,10 @@ def get_search_reranking_query(conversation_id, user_search, data):
         "data": data,
     }
 
-    return requests.post(search_reranking_url, json=body).json()
+    try:
+        return requests.post(search_reranking_url, json=body).json()
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
 
 
 def add_reranking_search_query(conversation_id, user_search, date):
@@ -139,7 +151,10 @@ def add_reranking_search_query(conversation_id, user_search, date):
         "date": date,
     }
 
-    requests.post(add_new_search_query_url, json=body).json()
+    try:
+        requests.post(add_new_search_query_url, json=body).json()
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
 
 
 def add_reranking_feedback_query(
@@ -174,7 +189,10 @@ def add_reranking_feedback_query(
         "feedbacks_list": feedbacks_list,
     }
 
-    requests.post(add_new_feedback_query_url, json=body).json()
+    try:
+        requests.post(add_new_feedback_query_url, json=body).json()
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
 
 
 # API Portail de données
@@ -182,73 +200,26 @@ def add_reranking_feedback_query(
 
 def get_results_from_keywords(keywords, keywords_feedback):
 
+    query_params = {"q": "||".join(keywords.split(" ") + keywords_feedback.split(" "))}
+
     if API_datasud_activated:
-        request_url = get_request_keywords_url(
-            API_datasud_host_name, keywords, keywords_feedback
-        )
-        data = requests.post(request_url).json()
-        data = process_results_datasud(data, 5)
+        try:
+            data = requests.post(API_datasud_host_name, params=query_params).json()
+            data = process_results_datasud(data, 5)
+        except requests.exceptions.RequestException as e:
+            raise SystemExit(e)
 
     elif API_dreal_activated:
-        request_url = get_request_keywords_url(
-            API_dreal_host_name, keywords, keywords_feedback
-        )
-        data = requests.post(request_url).json()
-        data = process_results_dreal(data, 5)
+        try:
+            data = requests.post(API_dreal_host_name, params=query_params).json()
+            data = process_results_dreal(data, 5)
+        except requests.exceptions.RequestException as e:
+            raise SystemExit(e)
 
     else:
-        data = []
+        return []
 
     return data
-
-
-def get_request_keywords_url(url, keywords, keywords_feedback):
-    """
-    Return URL to request Datasud API
-
-    Input: Keywords as string (separated by spaces)
-    Output: URL as string
-    """
-
-    special_characters = [
-        "!",
-        '"',
-        "#",
-        "$",
-        "%",
-        "&",
-        "'",
-        "(",
-        ")",
-        "*",
-        "+",
-        ",",
-        "-",
-        ".",
-        "/",
-        ":",
-        ";",
-        "<",
-        "=",
-        ">",
-        "?",
-        "@",
-    ]
-
-    for special_character in special_characters:
-        encoding = str(codecs.encode(special_character.encode("utf-8"), "hex"))
-        keywords = keywords.replace(
-            special_character, "%" + encoding[2 : len(encoding) - 1]
-        )
-
-    url += "||".join(keywords.split(" "))
-
-    if keywords != "" and keywords_feedback != "":
-        url += "||"
-
-    url += "||".join(keywords_feedback.split(" "))
-
-    return url
 
 
 def process_results_datasud(results, nb_results):
