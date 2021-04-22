@@ -49,7 +49,7 @@ done
 
 
 
-update_expansion_api_adress()
+update_apis_adress()
 {
     if [ $deployment_method == "docker_solo" ]; then
         sed -i "s/API_expansion_host_name =.*/API_expansion_host_name = $api_expansion_host_name/" api_call.py
@@ -57,20 +57,20 @@ update_expansion_api_adress()
 
         sed -i "s/API_reranking_host_name =.*/API_reranking_host_name = $api_reranking_host_name/" api_call.py
         sed -i "s/API_reranking_port =.*/API_reranking_port = $api_reranking_port/" api_call.py
-    elif [ $deployment_method == "docker_with_expansion" ]; then
-        sed -i "s/API_expansion_host_name =.*/API_expansion_host_name = 'query-exp'/" api_call.py
-        sed -i "s/API_expansion_port =.*/API_expansion_port = $api_expansion_port/" api_call.py
+    elif [ $deployment_method == "docker_with_apis" ]; then
+        sed -i "s/API_expansion_host_name =.*/API_expansion_host_name = '$expansion_api_image_name'/" api_call.py
+        sed -i "s/API_expansion_port =.*/API_expansion_port = '80'/" api_call.py
 
-        sed -i "s/API_reranking_host_name =.*/API_reranking_host_name = $api_reranking_host_name/" api_call.py
-        sed -i "s/API_reranking_port =.*/API_reranking_port = $api_reranking_port/" api_call.py
+        sed -i "s/API_reranking_host_name =.*/API_reranking_host_name = '$reranking_api_image_name'/" api_call.py
+        sed -i "s/API_reranking_port =.*/API_reranking_port = '80'/" api_call.py
     fi
 }
 
-update_rest_webhook_adress()
+update_socket_webhook_adress()
 {
     if [ $deployment_method == "docker_solo" ]; then
         sed -i "s/const rasa_host_name =.*/const rasa_host_name = 'localhost:80'/" script.js
-    elif [ $deployment_method == "docker_with_expansion" ]; then
+    elif [ $deployment_method == "docker_with_apis" ]; then
         sed -i "s/const rasa_host_name =.*/const rasa_host_name = 'localhost:80'/" script.js
     fi
 }
@@ -80,7 +80,7 @@ create_custom_actions_image()
 
     if ! $flag_ignore_action; then
         cd actions/
-        update_expansion_api_adress
+        update_apis_adress
         cd ..
         echo "Creating a new custom actions docker image"
         sudo docker build . -t $custom_actions_image_name:$custom_actions_image_version
@@ -95,10 +95,6 @@ install_and_start_script()
 {
     if ! $flag_ignore_install
     then
-
-        cd ../widget/static/js
-        update_rest_webhook_adress
-        cd ../../../chatbot
 
         echo "Installing and starting install.sh script"
 
@@ -125,12 +121,17 @@ services:
     app:
         image: $custom_actions_image_name:$custom_actions_image_version""">docker-compose.override.yml
 
-    if [ $deployment_method == "docker_with_expansion" ]; then
+    if [ $deployment_method == "docker_with_apis" ]; then
         
         echo """
-        
-    query-exp:
-        image: $expansion_api_image_name:$expansion_api_image_version""">>docker-compose.override.yml
+    $expansion_api_image_name:
+        image: $expansion_api_image_name:$expansion_api_image_version
+
+    $reranking_api_image_name:
+        image: $reranking_api_image_name:$reranking_api_image_version
+    
+    $lexical_resources_api_image_name:
+        image: $lexical_resources_api_image_name:$lexical_resources_api_image_version""">>docker-compose.override.yml
 
     fi
 
@@ -139,14 +140,14 @@ services:
 }
 
 
-add_rest_api()
+add_socket_endpoint()
 {
-    # ----- Adding rest api to credentials.yml file -----
-    if ! grep -q "rest:" credentials.yml; then
-        echo "Adding REST api to credentials"
-        echo $'\nrest:'>>credentials.yml
+    # ----- Adding socket endpoint to credentials.yml file -----
+    if ! grep -q "socketio:" credentials.yml; then
+        echo "Adding Socket endpoint to credentials"
+        echo $'\nsocketio:\n  user_message_evt: user_uttered\n  bot_message_evt: bot_uttered\n  session_persistence: false\n'>>credentials.yml
     else
-        echo "REST API already added"
+        echo "Socket endpoint already added"
     fi
     echo ""
 }
@@ -183,7 +184,7 @@ process()
     echo "Deploying chatbot with '$deployment_method' mode"
     echo ""
     
-    cd chatbot/custom-actions
+    cd custom-actions
     create_custom_actions_image
 
     cd ..
@@ -197,7 +198,7 @@ process()
     cd etc/rasa
     add_docker_compose_overrider
 
-    add_rest_api
+    add_socket_endpoint
 
     processing_env
 
@@ -208,7 +209,7 @@ process()
 if [ $deployment_method == "docker_solo" ]; then
     process
 
-elif [ $deployment_method == "docker_with_expansion" ]; then
+elif [ $deployment_method == "docker_with_apis" ]; then
     process
 
 else
