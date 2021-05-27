@@ -2,7 +2,7 @@
 
 # Déploiement sans docker
 
-## Téléchargement des dépendances
+## Téléchargement des dépendances (ancien chatbot / ancien widget)
 
 ```py
 sudo apt-get install gcc
@@ -29,9 +29,10 @@ Depuis le répertoire `conciergerie-open-data/`
 rasa train
 ```
 
-## 1 - Lancement expansion API
+## 1 - Lancement APIs
+<https://github.com/moreymat/fastapi-lexical-resources>
 <https://github.com/moreymat/fastapi-query-expansion>
-
+<https://github.com/moreymat/fastapi-search-reranking>
 
 ## 2 - Lancement Rasa x
 Depuis le répertoire `conciergerie-open-data/`
@@ -50,31 +51,34 @@ rasa run actions --cors="*"
 ## 4 - Utilisation
 Rasa-x accessible à l'adresse <http://localhost:5002>
 
-La documentation de l'api est disponible à l'adresse <http://localhost:8000/docs>
+La documentation des apis est disponible aux adresses <http://localhost:8001/docs>, <http://localhost:8002/docs> et <http://localhost:8003/docs>
 
-widget: <https://github.com/moreymat/Chatbot-Widget>
+widget: <https://github.com/moreymat/Chatbot-Widget> (ancient widget)
 
 # Déploiement avec Docker
 
 Requirements:
     - python >= 3.X
     - docker >= 20.X
+    - pytest
 
 ## 1 - Création docker image expansion API
 
+<https://github.com/moreymat/fastapi-lexical-resources>
 <https://github.com/moreymat/fastapi-query-expansion>
+<https://github.com/moreymat/fastapi-search-reranking>
 
 
 ## 2 - Création fichier dockers
 
 Depuis le répertoire `conciergerie-open-data/`
-Changer configuration dans `docker-config.config`
+Changer configuration dans `docker-config.config` 
 
 ```
 sudo bash ./start_docker.sh [-a|-i|-d|-s|-h]
 ```
 
-Once the docker is started, create an admin account:
+Une fois le docker lancé, créez un compte admin depuis le répertoire `~/etc/rasa`:
 
 ```
 sudo python3 rasa_x_commands.py create --update admin me <PASSWORD>
@@ -84,11 +88,11 @@ sudo python3 rasa_x_commands.py create --update admin me <PASSWORD>
 
 Rasa X is available at <http://localhost:80>
 
-Link training data with this method:
+Liez vos données d'entraînement avec cette méthode:
 
 <https://rasa.com/docs/rasa-x/installation-and-setup/deploy#integrated-version-control>
 
-Train a new model
+Vous pouvez maintenant entraîner un nouveau modèle.
 
 
 ## Widget

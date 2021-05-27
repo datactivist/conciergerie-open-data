@@ -1,5 +1,5 @@
 # Extend the official Rasa SDK image
-FROM rasa/rasa-sdk:2.3.1
+FROM rasa/rasa-sdk:2.5.0
 
 # Copy any additional custom requirements, if necessary (uncomment next line)
 COPY actions/requirements-actions.txt ./

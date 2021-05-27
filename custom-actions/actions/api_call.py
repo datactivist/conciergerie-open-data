@@ -17,7 +17,7 @@ API_reranking_url = "http://" + API_reranking_host_name + ":" + API_reranking_po
 API_datasud_host_name = "https://trouver.datasud.fr/api/3/action/package_search?"
 API_datasud_activated = True
 API_dreal_host_name = "https://sidonie-paca.fr/documents/search.json?"
-API_dreal_activated = False
+API_dreal_activated = True
 
 
 def get_keywords_expansion_query(keywords, referentiel):
