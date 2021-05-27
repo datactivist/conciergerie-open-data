@@ -51,7 +51,7 @@ rasa run actions --cors="*"
 ## 4 - Utilisation
 Rasa-x accessible à l'adresse <http://localhost:5002>
 
-La documentation des apis sont disponibles aux adresses <http://localhost:8001/docs>, <http://localhost:8002/docs> et <http://localhost:8003/docs>
+La documentation des apis est disponible aux adresses <http://localhost:8001/docs>, <http://localhost:8002/docs> et <http://localhost:8003/docs>
 
 widget: <https://github.com/moreymat/Chatbot-Widget> (ancient widget)
 
@@ -88,11 +88,11 @@ sudo python3 rasa_x_commands.py create --update admin me <PASSWORD>
 
 Rasa X is available at <http://localhost:80>
 
-Lié vos données d'entraînement avec cette méthode:
+Liez vos données d'entraînement avec cette méthode:
 
 <https://rasa.com/docs/rasa-x/installation-and-setup/deploy#integrated-version-control>
 
-Vous pouvez maintenant entraînez un nouveau modèle.
+Vous pouvez maintenant entraîner un nouveau modèle.
 
 
 ## Widget

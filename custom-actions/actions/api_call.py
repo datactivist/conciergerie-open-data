@@ -3,19 +3,19 @@ import json
 import codecs
 
 # API Expansion
-API_expansion_host_name = '127.0.0.1'
-API_expansion_port = '8001'
+API_expansion_host_name = "127.0.0.1"
+API_expansion_port = "8001"
 API_expansion_url = "http://" + API_expansion_host_name + ":" + API_expansion_port + "/"
 
 
 # API Reranking
-API_reranking_host_name = '127.0.0.1'
-API_reranking_port = '8002'
+API_reranking_host_name = "127.0.0.1"
+API_reranking_port = "8002"
 API_reranking_url = "http://" + API_reranking_host_name + ":" + API_reranking_port + "/"
 
 # API Portail de données
 API_datasud_host_name = "https://trouver.datasud.fr/api/3/action/package_search?"
-API_datasud_activated = False
+API_datasud_activated = True
 API_dreal_host_name = "https://sidonie-paca.fr/documents/search.json?"
 API_dreal_activated = True
 

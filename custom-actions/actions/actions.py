@@ -124,17 +124,20 @@ class AskForKeywordsFeedbackSlotAction(Action):
 
         keywords_expanded_list = get_keywords_expanded_list(keywords_expanded)
 
-        data = [
-            {"title": x, "payload": "k" + str(i)}
+        keywords = [
+            {"content_type": "text", "title": x, "payload": "k" + str(i)}
             for i, x in enumerate(keywords_expanded_list.split("|"))
         ]
 
-        message = {"payload": "quickReplies", "data": data}
+        # Le custom payload est détecté comme un texte, donc j'ajoute un type qui permet facilement de détecter que c'est un un custom payload au niveau du widget
+        payload = {
+            "type": "custom_payload_keywords",
+            "text": "Essayons d'améliorer votre recherche. Sélectionnez les mots-clés qui vous semble intéressant.",
+            "nb_max_keywords": 8,
+            "keywords": keywords,
+        }
 
-        dispatcher.utter_message(
-            text="Essayons d'améliorer votre recherche, pouvez-vous sélectionner les mots-clés qui vous semblent pertinents ?",
-            json_message=message,
-        )
+        dispatcher.utter_message(json.dumps(payload))
 
         return [
             SlotSet("keywords_expanded", keywords_expanded),
@@ -173,20 +176,25 @@ class SearchKeywordsInDatabase(Action):
                 conversation_id, keywords, reranking_data
             )
 
-            data = []
+            results_payload = []
             for i, result in enumerate(results[0:5]):
-                data.append(
+                results_payload.append(
                     {
-                        "title": str(i + 1) + " - " + result["title"],
+                        "title": result["title"],
+                        "author": result["owner_org"],
                         "url": catalog_url + result["url"],
                         "description": result["description"],
                     }
                 )
 
-            message = {"payload": "collapsible", "data": data}
-            dispatcher.utter_message(
-                text="Voici les résultats que j'ai pu trouver:", json_message=message,
-            )
+            payload = {
+                "type": "custom_payload_results_display",
+                "text": "Voici les résultats que j'ai pu trouver:",
+                "nb_max_results": 5,
+                "results": results_payload,
+            }
+
+            dispatcher.utter_message(json.dumps(payload))
 
             return [
                 SlotSet("results", results),
@@ -287,15 +295,26 @@ class AskForResultsFeedbackSlotAction(Action):
     ) -> List[EventType]:
 
         results = tracker.get_slot("results")
-        data = []
-        for i, result in enumerate(results):
-            data.append({"title": result["title"], "payload": "k" + str(i)})
-        message = {"payload": "resultfeedback", "data": data}
 
-        dispatcher.utter_message(
-            text="Pouvez-vous cocher les jeu de données qui vous ont été pertinents ?",
-            json_message=message,
-        )
+        feedback_payload = []
+        catalog_url = "https://trouver.datasud.fr/dataset/"
+        for i, result in enumerate(results[0:5]):
+            feedback_payload.append(
+                {
+                    "title": result["title"],
+                    "author": result["owner_org"],
+                    "url": catalog_url + result["url"],
+                    "description": result["description"],
+                }
+            )
+
+        payload = {
+            "type": "custom_payload_feedbacks_display",
+            "nb_max_feedbacks": 5,
+            "feedbacks": feedback_payload,
+        }
+
+        dispatcher.utter_message(json.dumps(payload))
 
 
 class RecapResultsFeedback(Action):
@@ -314,31 +333,7 @@ class RecapResultsFeedback(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
-        conversation_id = tracker.sender_id
-
-        results = tracker.get_slot("results")
-        results_titles = [x["title"] for x in results]
-
-        results_feedback = tracker.get_slot("results_feedback")
-        if results_feedback is not None:
-            results_feedback = results_feedback.split(" ")
-        else:
-            results_feedback = []
-
-        recap_msg = ""
-        if len(results_titles) > 0 and len(results_feedback) > 0:
-            for i, title in enumerate(results_titles):
-                if str(i) in results_feedback:
-                    recap_msg += " - " + title + "<br>"
-
-        if len(recap_msg) == 0:
-            final_msg = "Vous n'avez choisi aucun jeu de données."
-        else:
-            final_msg = (
-                "Merci beaucoup!<br>Voilà ce que vous avez choisi:<br>" + recap_msg
-            )
-
-        dispatcher.utter_message(text=final_msg)
+        dispatcher.utter_message(text="Merci beaucoup pour votre retour!")
 
 
 class SendResultsFeedback(Action):
@@ -382,24 +377,4 @@ class SendResultsFeedback(Action):
 
         api_call.add_reranking_feedback_query(
             conversation_id, user_search, keywords_feedback, feedbacks_list
-        )
-
-
-class ActionGreetUser(Action):
-    """
-    Greet the user at the start of a conversation
-    """
-
-    def name(self):
-        return "action_greet_user"
-
-    def run(
-        self,
-        dispatcher: CollectingDispatcher,
-        tracker: Tracker,
-        domain: Dict[Text, Any],
-    ) -> List[Dict[Text, Any]]:
-
-        dispatcher.utter_message(
-            text="Bonjour, je suis là pour vous aider, cherchez-vous un jeu de données ?"
         )

@@ -2,6 +2,11 @@ version: "2.0"
 
 rules:
 
+- rule: initial message affirm
+  steps:
+  - intent: get_started
+  - action: utter_initial_message
+
 - rule: Répondre au revoir a chaque fois que l'utilisateur dit au revoir
   steps:
   - intent: goodbye
@@ -51,4 +56,3 @@ rules:
   - action: action_send_results_feedback_to_reranking_API
   - action: action_reset_all_slots
   - action: utter_submit_feedback_form
-  
