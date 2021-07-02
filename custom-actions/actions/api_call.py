@@ -57,7 +57,7 @@ def add_expansion_search_query(conversation_id, user_search, date):
     body = {
         "conversation_id": conversation_id,
         "user_search": user_search,
-        "portail": portail,
+        "portal": portail,
         "date": date,
     }
 
@@ -85,11 +85,19 @@ def add_expansion_feedback_query(conversation_id, user_search, feedbacks_list):
             }
     """
 
+    if API_datasud_activated:
+        portail = "datasud"
+    elif API_dreal_activated:
+        portail = "dreal"
+    else:
+        portail = "unknown"
+
     add_new_feedback_query_url = API_expansion_url + "add_feedback"
 
     body = {
         "conversation_id": conversation_id,
         "user_search": user_search,
+        "portal": portail,
         "data": feedbacks_list,
     }
 
@@ -114,6 +122,13 @@ def get_search_reranking_query(conversation_id, user_search, data):
 
     Output: See API documentation at <reranking API host name>/docs
     """
+
+    if API_datasud_activated:
+        portail = "datasud"
+    elif API_dreal_activated:
+        portail = "dreal"
+    else:
+        portail = "unknown"
 
     search_reranking_url = API_reranking_url + "search_reranking"
 
@@ -147,7 +162,7 @@ def add_reranking_search_query(conversation_id, user_search, date):
     body = {
         "conversation_id": conversation_id,
         "user_search": user_search,
-        "portail": portail,
+        "portal": portail,
         "date": date,
     }
 
@@ -247,6 +262,7 @@ def process_results_datasud(results, nb_results):
                 "title": result["title"].replace('"', "'"),
                 "url": result["name"],
                 "description": result["notes"].replace('"', "'"),
+                "portal": "datasud",
                 "owner_org": result["author"],
                 "owner_org_description": result["organization"]["description"].replace(
                     '"', "'"
@@ -256,7 +272,6 @@ def process_results_datasud(results, nb_results):
                 "dataset_modification_date": result["dataset_modification_date"],
                 "metadata_creation_date": result["metadata_created"],
                 "metadata_modification_date": result["metadata_modified"],
-                "portail": "datasud",
                 "tags": tags_list,
                 "groups": groups_list,
             }
@@ -286,7 +301,7 @@ def process_results_dreal(results, nb_results):
                 "title": result["title"].replace('"', "'"),
                 "url": result["uri"],
                 "description": result["description"].replace('"', "'"),
-                "portail": "dreal",
+                "portal": "dreal",
                 "dataset_publication_date": result["date"],
                 "metadata_creation_date": result["date"],
                 "tags": tags_list,
