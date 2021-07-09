@@ -208,8 +208,6 @@ def get_results_from_keywords(keywords, keywords_feedback):
 
     query_params = {"q": "&&".join(keywords.split(" ") + keywords_feedback.split(" "))}
 
-    print(query_params)
-
     if API_datasud_activated:
         try:
             data = requests.post(API_datasud_host_name, params=query_params).json()
