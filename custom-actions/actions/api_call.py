@@ -1,6 +1,4 @@
 import requests
-import json
-import codecs
 
 # API Expansion
 API_expansion_host_name = "127.0.0.1"
@@ -123,13 +121,6 @@ def get_search_reranking_query(conversation_id, user_search, data):
     Output: See API documentation at <reranking API host name>/docs
     """
 
-    if API_datasud_activated:
-        portail = "datasud"
-    elif API_dreal_activated:
-        portail = "dreal"
-    else:
-        portail = "unknown"
-
     search_reranking_url = API_reranking_url + "search_reranking"
 
     body = {
@@ -215,7 +206,9 @@ def add_reranking_feedback_query(
 
 def get_results_from_keywords(keywords, keywords_feedback):
 
-    query_params = {"q": "||".join(keywords.split(" ") + keywords_feedback.split(" "))}
+    query_params = {"q": "&&".join(keywords.split(" ") + keywords_feedback.split(" "))}
+
+    print(query_params)
 
     if API_datasud_activated:
         try:

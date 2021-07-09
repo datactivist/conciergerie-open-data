@@ -6,7 +6,7 @@
 
 ```py
 sudo apt-get install gcc
-pip install --use-feature=2020-resolver rasa==2.3.4
+pip install --use-feature=2020-resolver rasa==2.5.0
 pip install --use-feature=2020-resolver rasa-x==0.38.0 --extra-index-url https://pypi.rasa.com/simple
 ```
 
@@ -84,7 +84,11 @@ Une fois le docker lancé, créez un compte admin depuis le répertoire `~/etc/r
 sudo python3 rasa_x_commands.py create --update admin me <PASSWORD>
 ```
 
-## 3 - Integrated version
+## 3 - Configuration nginx
+
+Vous pouvez modifiez la configuration nginx.
+
+## 4 - Integrated version
 
 Rasa X is available at <http://localhost:80>
 

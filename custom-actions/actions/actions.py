@@ -5,8 +5,6 @@
 # https://rasa.com/docs/rasa/custom-actions
 
 
-# TODO: gérer le cas ou il n'y a pas de résultats un peut mieux
-
 import json
 import requests
 from typing import Any, Text, Dict, List
@@ -16,7 +14,7 @@ from actions import api_call
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import SlotSet, EventType
+from rasa_sdk.events import SlotSet, EventType, FollowupAction
 
 
 def get_keywords_expanded_list(keywords_expanded):
@@ -124,25 +122,34 @@ class AskForKeywordsFeedbackSlotAction(Action):
 
         keywords_expanded_list = get_keywords_expanded_list(keywords_expanded)
 
-        keywords = [
-            {"content_type": "text", "title": x, "payload": "k" + str(i)}
-            for i, x in enumerate(keywords_expanded_list.split("|"))
-        ]
+        if len(keywords_expanded_list) > 0:
+            keywords = [
+                {"content_type": "text", "title": x, "payload": "k" + str(i)}
+                for i, x in enumerate(keywords_expanded_list.split("|"))
+            ]
 
-        # Le custom payload est détecté comme un texte, donc j'ajoute un type qui permet facilement de détecter que c'est un un custom payload au niveau du widget
-        payload = {
-            "type": "custom_payload_keywords",
-            "text": "Essayons d'améliorer votre recherche. Sélectionnez les mots-clés qui vous semble intéressant.",
-            "nb_max_keywords": 8,
-            "keywords": keywords,
-        }
+            # Le custom payload est détecté comme un texte, donc j'ajoute un type qui permet facilement de détecter que c'est un un custom payload au niveau du widget
+            payload = {
+                "type": "custom_payload_keywords",
+                "text": "Essayons d'améliorer votre recherche. Sélectionnez les mots-clés qui vous semble intéressant.",
+                "nb_max_keywords": 8,
+                "keywords": keywords,
+            }
 
-        dispatcher.utter_message(json.dumps(payload))
+            dispatcher.utter_message(json.dumps(payload))
 
-        return [
-            SlotSet("keywords_expanded", keywords_expanded),
-            SlotSet("keywords_proposed", keywords_expanded_list),
-        ]
+            return [
+                SlotSet("keywords_expanded", keywords_expanded),
+                SlotSet("keywords_proposed", keywords_expanded_list),
+            ]
+
+        else:
+            return [
+                SlotSet("keywords_expanded", ""),
+                SlotSet("keywords_proposed", ""),
+                SlotSet("keywords_feedback", ""),
+                SlotSet("requested_slot", None),
+            ]
 
 
 class SearchKeywordsInDatabase(Action):
@@ -203,6 +210,7 @@ class SearchKeywordsInDatabase(Action):
             dispatcher.utter_message(
                 text="Je suis désolé, je n'ai trouvé aucun résultat pour votre recherche."
             )
+
             return [
                 SlotSet("results", None),
             ]
@@ -280,6 +288,31 @@ class SendKeywordsFeedback(Action):
             api_call.add_expansion_feedback_query(
                 tracker.sender_id, tracker.get_slot("keywords"), feedbacks_list
             )
+
+
+class FeedbackProposition(Action):
+    """
+    If we found results, ask the user if he wants to give feedback
+    """
+
+    def name(self):
+        return "action_feedback_proposition"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+
+        results = tracker.get_slot("results")
+        if results != None and len(results) > 0:
+            dispatcher.utter_message(
+                text="Seriez-vous d'accord de prendre quelques secondes de votre temps pour m'aider à m'améliorer ?"
+            )
+        else:
+            # return {"event": "followup", "name": "action_recap_feedback_to_user"}
+            return [FollowupAction("utter_submit_feedback_form")]
 
 
 class AskForResultsFeedbackSlotAction(Action):

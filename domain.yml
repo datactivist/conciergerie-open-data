@@ -86,8 +86,6 @@ responses:
   - text: Quels mots-clés souhaitez-vous utiliser pour votre recherche ?
   utter_submit_search_form:
   - text: C'est noté!
-  utter_feedback_proposition:
-  - text: Seriez-vous d'accord de prendre quelques secondes de votre temps pour m'aider à m'améliorer ?
   utter_thanks_you:
   - text: Je vous remercie!
   utter_no_problem_anything_else:
@@ -95,7 +93,7 @@ responses:
   utter_no_problem_bye:
   - text: Pas de problème, bonne journée!
   utter_submit_feedback_form:
-  - text: Avez-vous besoin d'autre chose ?
+  - text: Souhaitez-vous faire une autre recherche ?
   utter_default:
   - text: Je suis désolé, je n'ai pas bien compris. Pouvez-vous reformuler ?
 actions:
@@ -104,6 +102,7 @@ actions:
 - action_ask_keywords_feedback
 - action_send_keywords_feedback_to_expansion_API
 - action_send_search_information_to_API
+- action_feedback_proposition
 - action_ask_results_feedback
 - action_send_results_feedback_to_reranking_API
 - action_recap_feedback_to_user
