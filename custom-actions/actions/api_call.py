@@ -1,4 +1,5 @@
 import requests
+import re
 
 # API Expansion
 API_expansion_host_name = "127.0.0.1"
@@ -16,6 +17,8 @@ API_datasud_host_name = "https://trouver.datasud.fr/api/3/action/package_search?
 API_datasud_activated = True
 API_dreal_host_name = "https://sidonie-paca.fr/documents/search.json?"
 API_dreal_activated = True
+
+keywords_delimitor = " |,|;|_|\|"
 
 
 def get_keywords_expansion_query(keywords, referentiel):
@@ -206,7 +209,12 @@ def add_reranking_feedback_query(
 
 def get_results_from_keywords(keywords, keywords_feedback):
 
-    query_params = {"q": "&&".join(keywords.split(" ") + keywords_feedback.split(" "))}
+    query_params = {
+        "q": "&&".join(
+            re.split(keywords_delimitor, keywords)
+            + re.split(keywords_delimitor, keywords_feedback)
+        )
+    }
 
     if API_datasud_activated:
         try:

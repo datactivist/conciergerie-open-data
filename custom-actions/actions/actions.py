@@ -6,7 +6,7 @@
 
 
 import json
-import requests
+import re
 from typing import Any, Text, Dict, List
 from datetime import datetime
 
@@ -15,6 +15,8 @@ from actions import api_call
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType, FollowupAction
+
+keywords_delimitor = " |,|;|_|\|"
 
 
 def get_keywords_expanded_list(keywords_expanded, user_search):
@@ -26,15 +28,17 @@ def get_keywords_expanded_list(keywords_expanded, user_search):
 
     exp_terms = set([])
 
+    user_search_list = re.split(keywords_delimitor, user_search)
+
     for og_key in keywords_expanded:
         if og_key["referentiel"]["tags"] is not None:
             for ref_tag in og_key["referentiel"]["tags"]:
-                if ref_tag not in user_search.split(" "):
+                if ref_tag not in user_search_list:
                     exp_terms.add(ref_tag.lower())
 
         for sense in og_key["tree"]:
             for similar_sense in sense["similar_senses"]:
-                if ref_tag not in user_search.split(" "):
+                if ref_tag not in user_search_list:
                     exp_terms.add(similar_sense[0]["sense"].lower())
 
     return "|".join(exp_terms)
@@ -132,7 +136,9 @@ class AskForKeywordsFeedbackSlotAction(Action):
         if len(keywords_expanded_list) > 0:
             keywords = [
                 {"content_type": "text", "title": x, "payload": "k" + str(i)}
-                for i, x in enumerate(keywords_expanded_list.split("|"))
+                for i, x in enumerate(
+                    re.split(keywords_delimitor, keywords_expanded_list)
+                )
             ]
 
             # Le custom payload est détecté comme un texte, donc j'ajoute un type qui permet facilement de détecter que c'est un un custom payload au niveau du widget
@@ -273,8 +279,8 @@ class SendKeywordsFeedback(Action):
 
         if keywords_proposed is not None and keywords_feedback is not None:
 
-            keywords_proposed = keywords_proposed.split("|")
-            keywords_feedback = keywords_feedback.split(" ")
+            keywords_proposed = re.split(keywords_delimitor, keywords_proposed)
+            keywords_feedback = re.split(keywords_delimitor, keywords_feedback)
 
             for keyword in keywords_proposed:
 
