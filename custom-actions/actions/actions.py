@@ -17,9 +17,10 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType, FollowupAction
 
 
-def get_keywords_expanded_list(keywords_expanded):
+def get_keywords_expanded_list(keywords_expanded, user_search):
     """
-    Input: Output of the expansion API
+    Input: keywords_expanded: Output of the expansion API
+           user_search: search entered by the user
     Output: A list of keywords to display to the user
     """
 
@@ -28,11 +29,13 @@ def get_keywords_expanded_list(keywords_expanded):
     for og_key in keywords_expanded:
         if og_key["referentiel"]["tags"] is not None:
             for ref_tag in og_key["referentiel"]["tags"]:
-                exp_terms.add(ref_tag)
+                if ref_tag not in user_search.split(" "):
+                    exp_terms.add(ref_tag.lower())
 
         for sense in og_key["tree"]:
             for similar_sense in sense["similar_senses"]:
-                exp_terms.add(similar_sense[0]["sense"])
+                if ref_tag not in user_search.split(" "):
+                    exp_terms.add(similar_sense[0]["sense"].lower())
 
     return "|".join(exp_terms)
 
@@ -116,11 +119,15 @@ class AskForKeywordsFeedbackSlotAction(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
 
+        user_search = tracker.get_slot("keywords")
+
         keywords_expanded = api_call.get_keywords_expansion_query(
-            tracker.get_slot("keywords"), {"name": "datasud"}
+            user_search, {"name": "datasud"}
         )
 
-        keywords_expanded_list = get_keywords_expanded_list(keywords_expanded)
+        keywords_expanded_list = get_keywords_expanded_list(
+            keywords_expanded, user_search
+        )
 
         if len(keywords_expanded_list) > 0:
             keywords = [
@@ -131,7 +138,7 @@ class AskForKeywordsFeedbackSlotAction(Action):
             # Le custom payload est détecté comme un texte, donc j'ajoute un type qui permet facilement de détecter que c'est un un custom payload au niveau du widget
             payload = {
                 "type": "custom_payload_keywords",
-                "text": "Essayons d'améliorer votre recherche. Sélectionnez les mots-clés qui vous semble intéressant.",
+                "text": "Essayons d'améliorer votre recherche. Sélectionnez les mots-clés qui vous semblent intéressants.",
                 "nb_max_keywords": 8,
                 "keywords": keywords,
             }
@@ -194,9 +201,9 @@ class SearchKeywordsInDatabase(Action):
                     }
                 )
 
+            dispatcher.utter_message(text="Voici les résultats que j'ai pu trouver:")
             payload = {
                 "type": "custom_payload_results_display",
-                "text": "Voici les résultats que j'ai pu trouver:",
                 "nb_max_results": 5,
                 "results": results_payload,
             }
@@ -341,6 +348,9 @@ class AskForResultsFeedbackSlotAction(Action):
                 }
             )
 
+        dispatcher.utter_message(
+            text="Veuillez cocher les résultats qui vous ont étés utiles:"
+        )
         payload = {
             "type": "custom_payload_feedbacks_display",
             "nb_max_feedbacks": 5,
