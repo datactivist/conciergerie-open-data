@@ -207,26 +207,47 @@ def add_reranking_feedback_query(
 # API Portail de données
 
 
-def get_results_from_keywords(keywords, keywords_feedback):
+def get_results_from_keywords(keywords, keywords_feedback, nb_results):
 
-    query_params = {
-        "q": "&&".join(
-            re.split(keywords_delimitor, keywords)
-            + re.split(keywords_delimitor, keywords_feedback)
-        )
-    }
+    """
+    Try different type of requests operator until we have enough results. Order: + -> ||
+    Input:  keywords: keywords entered by the user
+            keywords_feedback: keywords selected from the expansion
+    Output: List of formatted results
+    """
+
+    query_params_plus = "q=" + "+".join(
+        re.split(keywords_delimitor, keywords)
+        + re.split(keywords_delimitor, keywords_feedback)
+    )
+
+    query_params_or = "q=" + "||".join(
+        re.split(keywords_delimitor, keywords)
+        + re.split(keywords_delimitor, keywords_feedback)
+    )
 
     if API_datasud_activated:
         try:
-            data = requests.post(API_datasud_host_name, params=query_params).json()
-            data = process_results_datasud(data, 5)
+
+            data = requests.post(API_datasud_host_name + query_params_plus).json()
+
+            if len(data["result"]["results"]) < nb_results:
+                data2 = requests.post(API_datasud_host_name + query_params_or).json()
+                for result in data2["result"]["results"]:
+                    if result["name"] not in [
+                        result_cmp["name"] for result_cmp in data["result"]["results"]
+                    ]:
+                        data["result"]["results"].append(result)
+
+            data = process_results_datasud(data, nb_results)
+
         except requests.exceptions.RequestException as e:
             raise SystemExit(e)
 
     elif API_dreal_activated:
         try:
-            data = requests.post(API_dreal_host_name, params=query_params).json()
-            data = process_results_dreal(data, 5)
+            data = requests.post(API_dreal_host_name, params=query_params_plus).json()
+            data = process_results_dreal(data, nb_results)
         except requests.exceptions.RequestException as e:
             raise SystemExit(e)
 

@@ -184,7 +184,7 @@ class SearchKeywordsInDatabase(Action):
         conversation_id = tracker.sender_id
         keywords_feedback = tracker.get_slot("keywords_feedback")
 
-        results = api_call.get_results_from_keywords(keywords, keywords_feedback)
+        results = api_call.get_results_from_keywords(keywords, keywords_feedback, 5)
 
         reranking_data = []
         reranking_data.append({"api_hostname": "datasud", "results_list": results})
