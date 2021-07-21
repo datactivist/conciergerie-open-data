@@ -63,8 +63,6 @@ slots:
     auto_fill: true
     influence_conversation: false
 responses:
-  utter_initial_message:
-  - text: Bonjour, je suis là pour vous aider, cherchez-vous un jeu de données ?
   utter_chitchat:
   - text: ''
   utter_faq:
@@ -79,21 +77,82 @@ responses:
   - text: Au revoir!
   utter_faq/ask_identity:
   - text: Je suis un robot fonctionnant avec Rasa. J'ai été créé par Datactivist.
+  utter_initial_message:
+  - buttons:
+    - payload: /request_search
+      title: Recherche de données
+    - payload: j'aimerais en savoir plus sur datasud
+      title: En savoir plus sur Datasud
+    - payload: quels sont les conditions d'utilisations ?
+      title: Conditions d'utilisation
+    - payload: /goodbye
+      title: Je n'ai besoin de rien
+    text: Bonjour, comment puis-je vous aider ?
+  utter_faq/ask_datasud:
+  - buttons:
+    - payload: /request_search
+      title: Recherche de données
+    - payload: j'aimerais en savoir plus sur datasud
+      title: En savoir plus sur Datasud
+    - payload: quels sont les conditions d'utilisations ?
+      title: Conditions d'utilisation
+    - payload: /goodbye
+      title: Je n'ai besoin de rien
+    text: |-
+      DataSud est la plateforme mutualisée de données ouvertes, géographiques et intelligentes de la Région Sud Provence-Alpes-Côte d’Azur et de ses partenaires.
+      Pour en savoir plus: https://www.datasud.fr/presentation-du-projet-datasud/
+
+      Avez vous besoin d'autre chose ?
+  utter_faq/ask_cu:
+  - buttons:
+    - payload: /request_search
+      title: Recherche de données
+    - payload: j'aimerais en savoir plus sur datasud
+      title: En savoir plus sur Datasud
+    - payload: quels sont les conditions d'utilisations ?
+      title: Conditions d'utilisation
+    - payload: /goodbye
+      title: Je n'ai besoin de rien
+    text: |-
+      Voici les conditions d’utilisation de la plateforme Datasud: https://www.datasud.fr/conditions-dutilisation/ 
+
+      Avez vous besoin d'autre chose ?
   utter_faq/ask_skills:
-  - text: |
-      Je peux vous aider à trouver des jeux de données. Souhaitez-vous faire une recherche ?
+  - buttons:
+    - payload: /request_search
+      title: Recherche de données
+    - payload: j'aimerais en savoir plus sur datasud
+      title: En savoir plus sur Datasud
+    - payload: quels sont les conditions d'utilisations ?
+      title: Conditions d'utilisation
+    - payload: /goodbye
+      title: Je n'ai besoin de rien
+    text: 'Voila en quoi je peux vous aider:'
   utter_ask_keywords:
   - text: Quels mots-clés souhaitez-vous utiliser pour votre recherche ?
   utter_submit_search_form:
   - text: C'est noté!
   utter_thanks_you:
   - text: Je vous remercie!
-  utter_no_problem_anything_else:
-  - text: Pas de problème, voulez-vous faire une autre recherche ?
-  utter_no_problem_bye:
-  - text: Pas de problème, bonne journée!
-  utter_submit_feedback_form:
-  - text: Souhaitez-vous faire une autre recherche ?
+  utter_no_problem:
+  - text: Pas de problème!
+  utter_data_not_found:
+  - text: |-
+      Si vous n'avez pas pu trouver ce dont vous avez besoin, je vous invite a réessayer en passant par la barre de recherche par défaut.
+      Si cela ne fonctionne pas non plus, vous pouvez nous faire une demande de jeu de données via ce formulaire: https://www.datasud.fr/demande-de-donnees/
+  utter_contact_datasud:
+  - text: "Enfin, si vous avez eu un quelconque problème lors de l'utilisation de notre plateforme, nous vous invitons à nous contacter ici: https://www.datasud.fr/contactez-nous/"
+  utter_anything_else:
+  - buttons:
+    - payload: /request_search
+      title: Recherche de données
+    - payload: j'aimerais en savoir plus sur datasud
+      title: En savoir plus sur Datasud
+    - payload: quels sont les conditions d'utilisations ?
+      title: Conditions d'utilisation
+    - payload: /goodbye
+      title: Je n'ai besoin de rien
+    text: Avez vous besoin d'autre chose ?
   utter_default:
   - text: Je suis désolé, je n'ai pas bien compris. Pouvez-vous reformuler ?
 actions:

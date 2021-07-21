@@ -98,6 +98,12 @@ nlu:
     - tu c fair quoi ?
     - tu peux faire quoi ?
     - tu sers a quoi ?
+- intent: faq/ask_datasud
+  examples: |
+    - j'aimerais en savoir plus sur datasud
+- intent: faq/ask_cu
+  examples: |
+    - quels sont les conditions d'utilisations ?
 - intent: faq/ask_identity
   examples: |
     - Tu t'appels comment ?

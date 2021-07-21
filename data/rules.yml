@@ -2,7 +2,7 @@ version: "2.0"
 
 rules:
 
-- rule: initial message affirm
+- rule: initial message start
   steps:
   - intent: get_started
   - action: utter_initial_message
@@ -48,6 +48,15 @@ rules:
   - action: action_search_database
   - action: action_feedback_proposition
 
+- rule: refus du formulaire de feedback results
+  steps:
+  - action: action_feedback_proposition
+  - intent: deny
+  - action: action_reset_all_slots
+  - action: utter_no_problem
+  - action: utter_data_not_found
+  - action: utter_contact_datasud
+  - action: utter_anything_else
 
 - rule: activation du formulaire de feedback results
   steps:
@@ -56,27 +65,6 @@ rules:
   - action: utter_thanks_you
   - action: feedback_results_form
   - active_loop: feedback_results_form
-
-- rule: refus du formulaire de feedback results
-  steps:
-  - action: action_feedback_proposition
-  - intent: deny
-  - action: action_reset_all_slots
-  - action: utter_no_problem_anything_else
-
-- rule: -refus feedback- > besoin d'autre chose
-  steps:
-  - action: utter_no_problem_anything_else
-  - intent: affirm
-  - action: action_reset_all_slots
-  - action: search_form
-  - active_loop: search_form
-
-- rule: -refus feedback- > pas besoin d'autre chose
-  steps:
-  - action: utter_no_problem_anything_else
-  - intent: deny
-  - action: utter_goodbye
 
 - rule: désactivation du formulaire de feedback results
   condition:
@@ -89,18 +77,6 @@ rules:
   - action: action_recap_feedback_to_user
   - action: action_send_results_feedback_to_reranking_API
   - action: action_reset_all_slots
-  - action: utter_submit_feedback_form
-
-- rule: -accepte feedback- > besoin d'autre chose
-  steps:
-  - action: utter_submit_feedback_form
-  - intent: affirm
-  - action: action_reset_all_slots
-  - action: search_form
-  - active_loop: search_form
-
-- rule: -accepte feedback- > pas besoin d'autre chose
-  steps:
-  - action: utter_submit_feedback_form
-  - intent: deny
-  - action: utter_goodbye
+  - action: utter_data_not_found
+  - action: utter_contact_datasud
+  - action: utter_anything_else

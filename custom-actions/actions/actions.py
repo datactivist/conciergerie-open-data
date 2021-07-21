@@ -144,7 +144,7 @@ class AskForKeywordsFeedbackSlotAction(Action):
             # Le custom payload est détecté comme un texte, donc j'ajoute un type qui permet facilement de détecter que c'est un un custom payload au niveau du widget
             payload = {
                 "type": "custom_payload_keywords",
-                "text": "Essayons d'améliorer votre recherche. Sélectionnez les mots-clés qui vous semblent intéressants.",
+                "text": "Essayons d'améliorer votre recherche. Cliquez sur les mots-clés qui vous semblent intéressants pour les ajouter à votre message.",
                 "nb_max_keywords": 8,
                 "keywords": keywords,
             }
