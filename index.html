@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Databot - Testing ground</title>
+</head>
+
+<body style="background-image: url(https://i.ibb.co/Bq3WQhB/datasudscreen.png);">
+
+  <script>!(function () {
+      let e = document.createElement("script"),
+        t = document.head || document.getElementsByTagName("head")[0];
+      (e.src =
+        "http://localhost"),
+
+        (e.async = !0),
+        (e.onload = () => {
+          window.WebChat.default(
+            {
+              socketUrl: "http://localhost",
+              initPayload: "/get_started",
+              customData: { language: "fr" },
+              withRules: true,
+              showRestartButton: true,
+              showFullScreenButton: true,
+              params: {
+                storage: 'session'
+              },
+
+            },
+            null
+          );
+        }),
+        t.insertBefore(e, t.firstChild);
+    })();
+  </script>
+
+</body>
+
+</html>
