@@ -156,13 +156,9 @@ class AskForKeywordsFeedbackSlotAction(Action):
             user_search, {"name": "datasud"}
         )
 
-        print(keywords_expanded)
-
         keywords_expanded_list = get_keywords_expanded_list(
             keywords_expanded, user_search
         )
-
-        print("show user:", keywords_expanded_list)
 
         if len(keywords_expanded_list) > 0:
             keywords = [
