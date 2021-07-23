@@ -24,23 +24,50 @@ def get_keywords_expanded_list(keywords_expanded, user_search):
     Input: keywords_expanded: Output of the expansion API
            user_search: search entered by the user
     Output: A list of keywords to display to the user
+
+    Order example: [barrage éolien]
+     - take the first keyword for barrage from the referentiel
+     - take the first keyword for barrage from the embeddings
+     - take the first keyword for éolien from the referentiel
+     - take the first keyword for éolien from the embeddings
+     - take the second keyword for barrage from the referentiel
+     [...]
     """
 
-    exp_terms = set([])
-
     user_search_list = re.split(keywords_delimitor, user_search)
+    for i in range(len(user_search_list)):
+        user_search_list[i] = user_search_list[i].lower()
+    exp_terms = []
+    done = False
+    index = 0
 
-    for og_key in keywords_expanded:
-        if og_key["referentiel"]["tags"] is not None:
-            for ref_tag in og_key["referentiel"]["tags"]:
-                if ref_tag not in user_search_list:
-                    exp_terms.add(ref_tag.lower())
+    while not done and index < 25:
+        done = True
+        for og_key in keywords_expanded:  # loop on original keywords
+            # Take the n°index of the referentiel
+            og_word = og_key["referentiel"]["tags"]
+            if og_word is not None and len(og_word) > index:  # if it exist
+                done = False
+                for ref_tag_word in re.split(keywords_delimitor, og_word[index]):
+                    if (
+                        ref_tag_word.lower() not in user_search_list
+                        and ref_tag_word.lower() not in exp_terms
+                    ):
+                        exp_terms.append(ref_tag_word.lower())
 
-        for sense in og_key["tree"]:
-            for similar_sense in sense["similar_senses"]:
-                if ref_tag not in user_search_list:
-                    exp_terms.add(similar_sense[0]["sense"].lower())
-
+            # Take the n°index of the embeddings
+            og_word = og_key["tree"][0]["similar_senses"]
+            if og_word is not None and len(og_word) > index:  # if it exist
+                done = False
+                for ref_tag_word in re.split(
+                    keywords_delimitor, og_word[index][0]["sense"]
+                ):
+                    if (
+                        ref_tag_word.lower() not in user_search_list
+                        and ref_tag_word.lower() not in exp_terms
+                    ):
+                        exp_terms.append(ref_tag_word.lower())
+        index += 1
     return "|".join(exp_terms)
 
 
@@ -129,9 +156,13 @@ class AskForKeywordsFeedbackSlotAction(Action):
             user_search, {"name": "datasud"}
         )
 
+        print(keywords_expanded)
+
         keywords_expanded_list = get_keywords_expanded_list(
             keywords_expanded, user_search
         )
+
+        print("show user:", keywords_expanded_list)
 
         if len(keywords_expanded_list) > 0:
             keywords = [
@@ -383,6 +414,110 @@ class RecapResultsFeedback(Action):
     ) -> List[Dict[Text, Any]]:
 
         dispatcher.utter_message(text="Merci beaucoup pour votre retour!")
+
+
+class InitialMessage(Action):
+    """
+    First message sent to user by chatbot
+    """
+
+    def name(self):
+        return "action_initial_message"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+
+        propositions = [
+            {"payload": "/request_search", "title": "Je recherche des données"},
+            {
+                "payload": "/ask_datasud",
+                "title": "J'aimerais en savoir plus sur Datasud",
+            },
+            {
+                "payload": "/ask_cu",
+                "title": "Je voudrais connaître les conditions d'utilisation",
+            },
+            {"payload": "/goodbye", "title": "Je n'ai besoin de rien"},
+        ]
+
+        dispatcher.utter_message(
+            text="Bonjour, comment puis-je vous aider ?", buttons=propositions
+        )
+
+
+class SetDatasudFlag(Action):
+    """
+    Set has_asked_datasud_flag to True
+    """
+
+    def name(self):
+        return "action_set_datasud_flag"
+
+    def run(self, dispatcher, tracker, domain):
+        return [
+            SlotSet("has_asked_datasud_flag", True),
+        ]
+
+
+class SetCUFlag(Action):
+    """
+    Set has_asked_cu_flag to True
+    """
+
+    def name(self):
+        return "action_set_cu_flag"
+
+    def run(self, dispatcher, tracker, domain):
+        return [
+            SlotSet("has_asked_cu_flag", True),
+        ]
+
+
+class AnythingElse(Action):
+    """
+    Message sent to user to ask if he needs anything else
+    """
+
+    def name(self):
+        return "action_anything_else"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+
+        has_asked_datasud_flag = tracker.get_slot("has_asked_datasud_flag")
+        has_asked_cu_flag = tracker.get_slot("has_asked_cu_flag")
+
+        propositions = []
+        propositions.append(
+            {"payload": "/request_search", "title": "Je recherche des données"}
+        )
+        if not has_asked_datasud_flag:
+            propositions.append(
+                {
+                    "payload": "/ask_datasud",
+                    "title": "J'aimerais en savoir plus sur Datasud",
+                }
+            )
+        if not has_asked_cu_flag:
+            propositions.append(
+                {
+                    "payload": "/ask_cu",
+                    "title": "Je voudrais connaître les conditions d'utilisation",
+                }
+            )
+        propositions.append({"payload": "/goodbye", "title": "Je n'ai besoin de rien"})
+
+        dispatcher.utter_message(
+            text="Avez-vous besoin d'autre chose ?", buttons=propositions
+        )
 
 
 class SendResultsFeedback(Action):

@@ -5,7 +5,7 @@ rules:
 - rule: initial message start
   steps:
   - intent: get_started
-  - action: utter_initial_message
+  - action: action_initial_message
 
 - rule: Répondre au revoir a chaque fois que l'utilisateur dit au revoir
   steps:
@@ -16,6 +16,21 @@ rules:
   steps:
   - intent: faq
   - action: utter_faq
+  - action: action_anything_else
+
+- rule: answer datasud information request
+  steps:
+  - intent: ask_datasud
+  - action: utter_datasud
+  - action: action_set_datasud_flag
+  - action: action_anything_else
+
+- rule: answer cu information request
+  steps:
+  - intent: ask_cu
+  - action: utter_cu
+  - action: action_set_cu_flag
+  - action: action_anything_else
 
 - rule: Répondre aux discussions de tous les jours
   steps:
@@ -56,7 +71,7 @@ rules:
   - action: utter_no_problem
   - action: utter_data_not_found
   - action: utter_contact_datasud
-  - action: utter_anything_else
+  - action: action_anything_else
 
 - rule: activation du formulaire de feedback results
   steps:
@@ -79,4 +94,4 @@ rules:
   - action: action_reset_all_slots
   - action: utter_data_not_found
   - action: utter_contact_datasud
-  - action: utter_anything_else
+  - action: action_anything_else

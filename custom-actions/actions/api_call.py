@@ -32,7 +32,7 @@ def get_keywords_expansion_query(keywords, referentiel):
 
     search_expand_url = API_expansion_url + "query_expand"
 
-    body = {"keywords": keywords, "max_width": 5, "referentiel": referentiel}
+    body = {"keywords": keywords, "max_width": 8, "referentiel": referentiel}
 
     try:
         return requests.post(search_expand_url, json=body).json()

@@ -98,12 +98,6 @@ nlu:
     - tu c fair quoi ?
     - tu peux faire quoi ?
     - tu sers a quoi ?
-- intent: faq/ask_datasud
-  examples: |
-    - j'aimerais en savoir plus sur datasud
-- intent: faq/ask_cu
-  examples: |
-    - quels sont les conditions d'utilisations ?
 - intent: faq/ask_identity
   examples: |
     - Tu t'appels comment ?
@@ -125,6 +119,14 @@ nlu:
     - tu viens d'ou ?
     - t'es humain ?
     - t'es uqi ?
+- intent: ask_datasud
+  examples: |
+    - j'aimerais en savoir plus sur datasud
+    - datasud c'est quoi ?
+- intent: ask_cu
+  examples: |
+    - quels sont les conditions d'utilisations ?
+    - condition d'utilisation
 - intent: nlu_fallback
   examples: |
     - fjaifeza

@@ -15,6 +15,10 @@ intents:
     use_entities: true
 - faq:
     use_entities: true
+- ask_datasud:
+    use_entities: true
+- ask_cu:
+    use_entities: true
 - nlu_fallback:
     use_entities: true
 - request_search:
@@ -62,6 +66,16 @@ slots:
     initial_value: null
     auto_fill: true
     influence_conversation: false
+  has_asked_datasud_flag:
+    type: rasa.shared.core.slots.BooleanSlot
+    initial_value: false
+    auto_fill: true
+    influence_conversation: false
+  has_asked_cu_flag:
+    type: rasa.shared.core.slots.BooleanSlot
+    initial_value: false
+    auto_fill: true
+    influence_conversation: false
 responses:
   utter_chitchat:
   - text: ''
@@ -76,55 +90,15 @@ responses:
   utter_goodbye:
   - text: Au revoir!
   utter_faq/ask_identity:
-  - text: Je suis un robot fonctionnant avec Rasa. J'ai été créé par Datactivist.
-  utter_initial_message:
-  - buttons:
-    - payload: /request_search
-      title: Je recherche des données
-    - payload: j'aimerais en savoir plus sur datasud
-      title: J'aimerais en savoir plus sur Datasud
-    - payload: quels sont les conditions d'utilisations ?
-      title: Je voudrais connaître les conditions d'utilisation
-    - payload: /goodbye
-      title: Je n'ai besoin de rien
-    text: Bonjour, comment puis-je vous aider ?
-  utter_faq/ask_datasud:
-  - buttons:
-    - payload: /request_search
-      title: Je recherche des données
-    - payload: j'aimerais en savoir plus sur datasud
-      title: J'aimerais en savoir plus sur Datasud
-    - payload: quels sont les conditions d'utilisations ?
-      title: Je voudrais connaître les conditions d'utilisation
-    - payload: /goodbye
-    text: |-
+  - text: Je suis un chatbot fonctionnant avec Rasa. J'ai été créé par Datactivist pour la plateforme Datasud.
+  utter_faq/ask_skills:
+  - text: Je suis là pour vous aider à trouver des jeux de données. Mon objectif est d'améliorer votre recherche en vous proposant des termes pouvant être pertinent, à partir de votre recherche de base.
+  utter_datasud:
+  - text: |-
       DataSud est la plateforme mutualisée de données ouvertes, géographiques et intelligentes de la Région Sud Provence-Alpes-Côte d’Azur et de ses partenaires.
       Pour en savoir plus: https://www.datasud.fr/presentation-du-projet-datasud/
-
-      Avez-vous besoin d'autre chose ?
-  utter_faq/ask_cu:
-  - buttons:
-    - payload: /request_search
-      title: Je recherche des données
-    - payload: j'aimerais en savoir plus sur datasud
-      title: J'aimerais en savoir plus sur Datasud
-    - payload: quels sont les conditions d'utilisations ?
-      title: Je voudrais connaître les conditions d'utilisation
-    - payload: /goodbye
-    text: |-
-      Voici les conditions d’utilisation de la plateforme Datasud: https://www.datasud.fr/conditions-dutilisation/ 
-
-      Avez-vous besoin d'autre chose ?
-  utter_faq/ask_skills:
-  - buttons:
-    - payload: /request_search
-      title: Je recherche des données
-    - payload: j'aimerais en savoir plus sur datasud
-      title: J'aimerais en savoir plus sur Datasud
-    - payload: quels sont les conditions d'utilisations ?
-      title: Je voudrais connaître les conditions d'utilisation
-    - payload: /goodbye
-    text: 'Voila en quoi je peux vous aider:'
+  utter_cu:
+  - text: 'Voici les conditions d’utilisation de la plateforme Datasud: https://www.datasud.fr/conditions-dutilisation/'
   utter_ask_keywords:
   - text: Quels mots-clés souhaitez-vous utiliser pour votre recherche ?
   utter_submit_search_form:
@@ -140,19 +114,10 @@ responses:
       Si vous ne trouvez toujours pas les données que vous recherchez, vous pouvez nous faire une demande de jeu de données via ce formulaire: https://www.datasud.fr/demande-de-donnees/
   utter_contact_datasud:
   - text: "Enfin, si vous avez rencontrer un problème lors de l'utilisation de notre plateforme, vous pouvez nous contacter via ce formulaire: https://www.datasud.fr/contactez-nous/"
-  utter_anything_else:
-  - buttons:
-    - payload: /request_search
-      title: Je recherche des données
-    - payload: j'aimerais en savoir plus sur datasud
-      title: J'aimerais en savoir plus sur Datasud
-    - payload: quels sont les conditions d'utilisations ?
-      title: Je voudrais connaître les conditions d'utilisation
-    - payload: /goodbye
-    text: Avez-vous besoin d'autre chose ?
   utter_default:
   - text: Je suis désolé, je n'ai pas bien compris. Pouvez-vous reformuler ?
 actions:
+- action_initial_message
 - action_reset_all_slots
 - action_search_database
 - action_ask_keywords_feedback
@@ -162,6 +127,9 @@ actions:
 - action_ask_results_feedback
 - action_send_results_feedback_to_reranking_API
 - action_recap_feedback_to_user
+- action_set_datasud_flag
+- action_set_cu_flag
+- action_anything_else
 forms:
   search_form:
     keywords:
