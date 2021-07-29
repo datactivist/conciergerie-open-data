@@ -135,6 +135,7 @@ class ResetKeywordsSlot(Action):
             SlotSet("keywords_feedback", None),
             SlotSet("results", None),
             SlotSet("results_feedback", None),
+            SlotSet("search_target_feedback", None),
         ]
 
 

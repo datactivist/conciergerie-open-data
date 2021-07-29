@@ -221,6 +221,8 @@ def get_results_from_keywords(keywords, keywords_feedback, nb_results):
         + re.split(keywords_delimitor, keywords_feedback)
     )
 
+    query_params_base = "q=" + "+".join(re.split(keywords_delimitor, keywords))
+
     query_params_or = "q=" + "||".join(
         re.split(keywords_delimitor, keywords)
         + re.split(keywords_delimitor, keywords_feedback)
@@ -232,12 +234,25 @@ def get_results_from_keywords(keywords, keywords_feedback, nb_results):
             data = requests.post(API_datasud_host_name + query_params_plus).json()
 
             if len(data["result"]["results"]) < nb_results:
-                data2 = requests.post(API_datasud_host_name + query_params_or).json()
-                for result in data2["result"]["results"]:
+                data_temp = requests.post(
+                    API_datasud_host_name + query_params_base
+                ).json()
+                for result in data_temp["result"]["results"]:
                     if result["name"] not in [
                         result_cmp["name"] for result_cmp in data["result"]["results"]
                     ]:
                         data["result"]["results"].append(result)
+
+                if len(data["result"]["results"]) < nb_results:
+                    data_temp = requests.post(
+                        API_datasud_host_name + query_params_or
+                    ).json()
+                    for result in data_temp["result"]["results"]:
+                        if result["name"] not in [
+                            result_cmp["name"]
+                            for result_cmp in data["result"]["results"]
+                        ]:
+                            data["result"]["results"].append(result)
 
             data = process_results_datasud(data, nb_results)
 

@@ -61,6 +61,11 @@ slots:
     initial_value: null
     auto_fill: false
     influence_conversation: false
+  search_target_feedback:
+    type: rasa.shared.core.slots.TextSlot
+    initial_value: null
+    auto_fill: false
+    influence_conversation: false
   requested_slot:
     type: rasa.shared.core.slots.UnfeaturizedSlot
     initial_value: null
@@ -101,6 +106,8 @@ responses:
   - text: 'Voici les conditions d’utilisation de la plateforme Datasud: https://www.datasud.fr/conditions-dutilisation/'
   utter_ask_keywords:
   - text: Quels mots-clés souhaitez-vous utiliser pour votre recherche ?
+  utter_ask_search_target_feedback:
+  - text: Pourriez vous décrire en une phrase rapide les données que vous recherchiez ?
   utter_submit_search_form:
   - text: C'est noté!
   utter_thanks_you:
@@ -115,7 +122,7 @@ responses:
   utter_contact_datasud:
   - text: "Enfin, si vous avez rencontrer un problème lors de l'utilisation de notre plateforme, vous pouvez nous contacter via ce formulaire: https://www.datasud.fr/contactez-nous/"
   utter_default:
-  - text: Je suis désolé, je n'ai pas bien compris. Pouvez-vous reformuler ?
+  - text: Je suis désolé, je n'ai pas bien compris votre message.
 actions:
 - action_initial_message
 - action_reset_all_slots
@@ -141,5 +148,7 @@ forms:
     - type: from_text
   feedback_results_form:
     results_feedback:
+    - type: from_text
+    search_target_feedback:
     - type: from_text
 e2e_actions: []
