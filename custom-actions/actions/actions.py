@@ -7,6 +7,7 @@
 
 import json
 import re
+import numpy as np
 from typing import Any, Text, Dict, List
 from datetime import datetime
 
@@ -17,6 +18,68 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, EventType, FollowupAction
 
 keywords_delimitor = " |,|;|_|\|"
+
+
+def levenshtein_distance(string1, string2):
+    """compute the levenshtein distance between two words"""
+
+    distances = np.zeros((len(string1) + 1, len(string2) + 1))
+
+    for s1 in range(len(string1) + 1):
+        distances[s1][0] = s1
+
+    for s2 in range(len(string2) + 1):
+        distances[0][s2] = s2
+
+    a = 0
+    b = 0
+    c = 0
+
+    for s1 in range(1, len(string1) + 1):
+        for s2 in range(1, len(string2) + 1):
+            if string1[s1 - 1] == string2[s2 - 1]:
+                distances[s1][s2] = distances[s1 - 1][s2 - 1]
+            else:
+                a = distances[s1][s2 - 1]
+                b = distances[s1 - 1][s2]
+                c = distances[s1 - 1][s2 - 1]
+
+                if a <= b and a <= c:
+                    distances[s1][s2] = a + 1
+                elif b <= a and b <= c:
+                    distances[s1][s2] = b + 1
+                else:
+                    distances[s1][s2] = c + 1
+
+    return distances[len(string1)][len(string2)]
+
+
+def is_keyword_already_in_search(
+    keyword, user_search_list, exp_terms, minimal_distance=1
+):
+    """
+    Input:  keyword: string
+            user_search_list: list of string
+            exp_terms: list of string
+            minimal_distance: int (default to 1)
+
+    Return True if there is a word in user_search_list or exp_terms that has a levenshtein distance of less or equal than minimal_distance with keyword
+    Return False if not
+    """
+    flag_already_suggested = False
+    # Check the current word isn't already proposed (or a very similar word)
+    for suggested_keyword in exp_terms:
+        if levenshtein_distance(keyword.lower(), suggested_keyword) <= minimal_distance:
+            flag_already_suggested = True
+
+    # Check the current word isn't already entered by the user (or a very similar word)
+    for user_keyword in user_search_list:
+        if (
+            levenshtein_distance(keyword.lower(), user_keyword.lower())
+            <= minimal_distance
+        ):
+            flag_already_suggested = True
+    return flag_already_suggested
 
 
 def get_keywords_expanded_list(keywords_expanded, user_search):
@@ -32,6 +95,8 @@ def get_keywords_expanded_list(keywords_expanded, user_search):
      - take the first keyword for éolien from the embeddings
      - take the second keyword for barrage from the referentiel
      [...]
+
+    Ignore words that have a levenshtein distance of less than 1 to another word already in the list: mainly to prevent plural version
     """
 
     user_search_list = re.split(keywords_delimitor, user_search)
@@ -44,14 +109,14 @@ def get_keywords_expanded_list(keywords_expanded, user_search):
     while not done and index < 25:
         done = True
         for og_key in keywords_expanded:  # loop on original keywords
+
             # Take the n°index of the referentiel
             og_word = og_key["referentiel"]["tags"]
             if og_word is not None and len(og_word) > index:  # if it exist
                 done = False
                 for ref_tag_word in re.split(keywords_delimitor, og_word[index]):
-                    if (
-                        ref_tag_word.lower() not in user_search_list
-                        and ref_tag_word.lower() not in exp_terms
+                    if not is_keyword_already_in_search(
+                        ref_tag_word, user_search_list, exp_terms, 1
                     ):
                         exp_terms.append(ref_tag_word.lower())
 
@@ -62,11 +127,11 @@ def get_keywords_expanded_list(keywords_expanded, user_search):
                 for ref_tag_word in re.split(
                     keywords_delimitor, og_word[index][0]["sense"]
                 ):
-                    if (
-                        ref_tag_word.lower() not in user_search_list
-                        and ref_tag_word.lower() not in exp_terms
+                    if not is_keyword_already_in_search(
+                        ref_tag_word, user_search_list, exp_terms, 1
                     ):
                         exp_terms.append(ref_tag_word.lower())
+
         index += 1
     return "|".join(exp_terms)
 
