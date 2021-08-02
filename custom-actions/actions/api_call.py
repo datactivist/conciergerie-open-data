@@ -167,7 +167,7 @@ def add_reranking_search_query(conversation_id, user_search, date):
 
 
 def add_reranking_feedback_query(
-    conversation_id, user_search, keywords_feedback, feedbacks_list
+    conversation_id, user_search, search_target_feedback, feedbacks_list
 ):
 
     """
@@ -175,6 +175,7 @@ def add_reranking_feedback_query(
 
     Input:  conversation_id: id of the rasa conversation
             user_search: keywords entered by user
+            search_target: The description of the target entered by the user
             feedbacks_list: list of feedbacks
             feedback: dictionnary containing the result and its metadata, and the feedback
 
@@ -195,6 +196,7 @@ def add_reranking_feedback_query(
     body = {
         "conversation_id": conversation_id,
         "user_search": user_search,
+        "search_target": search_target_feedback,
         "feedbacks_list": feedbacks_list,
     }
 

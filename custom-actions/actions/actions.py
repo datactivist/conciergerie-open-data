@@ -535,8 +535,8 @@ class SendResultsFeedback(Action):
 
         conversation_id = tracker.sender_id
         user_search = tracker.get_slot("keywords")
-        keywords_feedback = tracker.get_slot("keywords_feedback")
         results = tracker.get_slot("results")
+        search_target_feedback = tracker.get_slot("search_target_feedback")
 
         results_feedback = tracker.get_slot("results_feedback")
         if results_feedback is not None:
@@ -557,5 +557,6 @@ class SendResultsFeedback(Action):
                     feedbacks_list.append({"result": result, "feedback": 0})
 
         api_call.add_reranking_feedback_query(
-            conversation_id, user_search, keywords_feedback, feedbacks_list
+            conversation_id, user_search, search_target_feedback, feedbacks_list,
         )
+
