@@ -237,7 +237,7 @@ class AskForKeywordsFeedbackSlotAction(Action):
             # Le custom payload est détecté comme un texte, donc j'ajoute un type qui permet facilement de détecter que c'est un un custom payload au niveau du widget
             payload = {
                 "type": "custom_payload_keywords",
-                "text": "Essayons d'améliorer votre recherche. Cliquez sur les mots-clés qui vous semblent intéressants pour les ajouter à votre message.",
+                "text": "Voici quelques mots-clés supplémentaires. Cliquez sur ceux qui vous semblent pertinents pour approfondir votre recherche.",
                 "nb_max_keywords": 8,
                 "keywords": keywords,
             }
@@ -300,7 +300,7 @@ class SearchKeywordsInDatabase(Action):
                     }
                 )
 
-            dispatcher.utter_message(text="Voici les résultats que j'ai pu trouver:")
+            dispatcher.utter_message(text="Voici les résultats que j'ai pu trouver :")
             payload = {
                 "type": "custom_payload_results_display",
                 "nb_max_results": 5,
@@ -448,7 +448,7 @@ class AskForResultsFeedbackSlotAction(Action):
             )
 
         dispatcher.utter_message(
-            text="Veuillez cocher les résultats qui vous ont étés utiles:"
+            text="Veuillez cocher les résultats qui vous ont étés utiles :"
         )
         payload = {
             "type": "custom_payload_feedbacks_display",
@@ -475,7 +475,7 @@ class RecapResultsFeedback(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
-        dispatcher.utter_message(text="Merci beaucoup pour votre retour!")
+        dispatcher.utter_message(text="Merci beaucoup pour votre retour !")
 
 
 class InitialMessage(Action):
@@ -494,16 +494,16 @@ class InitialMessage(Action):
     ) -> List[Dict[Text, Any]]:
 
         propositions = [
-            {"payload": "/request_search", "title": "Je recherche des données"},
+            {"payload": "/request_search", "title": "Je recherche des données."},
             {
                 "payload": "/ask_datasud",
-                "title": "J'aimerais en savoir plus sur Datasud",
+                "title": "J'aimerais en savoir plus sur Datasud.",
             },
             {
                 "payload": "/ask_cu",
-                "title": "Je voudrais connaître les conditions d'utilisation",
+                "title": "Je voudrais connaître les conditions d'utilisation.",
             },
-            {"payload": "/goodbye", "title": "Je n'ai besoin de rien"},
+            {"payload": "/goodbye", "title": "Je n'ai besoin de rien."},
         ]
 
         dispatcher.utter_message(
@@ -559,23 +559,23 @@ class AnythingElse(Action):
 
         propositions = []
         propositions.append(
-            {"payload": "/request_search", "title": "Je recherche des données"}
+            {"payload": "/request_search", "title": "Je recherche des données."}
         )
         if not has_asked_datasud_flag:
             propositions.append(
                 {
                     "payload": "/ask_datasud",
-                    "title": "J'aimerais en savoir plus sur Datasud",
+                    "title": "J'aimerais en savoir plus sur Datasud.",
                 }
             )
         if not has_asked_cu_flag:
             propositions.append(
                 {
                     "payload": "/ask_cu",
-                    "title": "Je voudrais connaître les conditions d'utilisation",
+                    "title": "Je voudrais connaître les conditions d'utilisation.",
                 }
             )
-        propositions.append({"payload": "/goodbye", "title": "Je n'ai besoin de rien"})
+        propositions.append({"payload": "/goodbye", "title": "Je n'ai besoin de rien."})
 
         dispatcher.utter_message(
             text="Avez-vous besoin d'autre chose ?", buttons=propositions

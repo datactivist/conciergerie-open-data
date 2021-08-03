@@ -91,36 +91,36 @@ responses:
   utter_chitchat/ask_weather:
   - text: Désolé, je ne suis pas capable de connaître le temps qu'il fait.
   utter_chitchat/ask_mood:
-  - text: Je suis en pleine forme! Merci de demander :)
+  - text: Je suis en pleine forme ! Merci de demander :)
   utter_goodbye:
-  - text: Au revoir!
+  - text: Au revoir !
   utter_faq/ask_identity:
   - text: Je suis un chatbot fonctionnant avec Rasa. J'ai été créé par Datactivist pour la plateforme Datasud.
   utter_faq/ask_skills:
-  - text: Je suis là pour vous aider à trouver des jeux de données. Mon objectif est d'améliorer votre recherche en vous proposant des termes pouvant être pertinent, à partir de votre recherche de base.
+  - text: Je suis là pour vous aider à trouver des jeux de données. Mon objectif est d'approfondir votre recherche en vous proposant des termes pouvant être pertinents à partir de votre recherche de base.
   utter_datasud:
   - text: |-
       DataSud est la plateforme mutualisée de données ouvertes, géographiques et intelligentes de la Région Sud Provence-Alpes-Côte d’Azur et de ses partenaires.
-      Pour en savoir plus: https://www.datasud.fr/presentation-du-projet-datasud/
+      Pour en savoir plus : https://www.datasud.fr/presentation-du-projet-datasud/
   utter_cu:
-  - text: 'Voici les conditions d’utilisation de la plateforme Datasud: https://www.datasud.fr/conditions-dutilisation/'
+  - text: 'Voici les conditions d’utilisation de la plateforme Datasud : https://www.datasud.fr/conditions-dutilisation/'
   utter_ask_keywords:
-  - text: Quels mots-clés souhaitez-vous utiliser pour votre recherche ?
+  - text: Pour lancer votre recherche, tapez un ou plusieurs mots-clés associés à la thématique des données que vous souhaitez trouver.
   utter_ask_search_target_feedback:
-  - text: Pourriez vous décrire en une phrase rapide les données que vous recherchiez ?
+  - text: Pourriez-vous décrire en une phrase rapide les données que vous recherchiez ?
   utter_submit_search_form:
-  - text: C'est noté!
+  - text: C'est noté !
   utter_thanks_you:
   - text: Je vous remercie!
   utter_no_problem:
-  - text: Pas de problème!
+  - text: Pas de problème !
   utter_data_not_found:
   - text: |-
-      Si vous n'êtes pas satisfait des résultats, vous pouvez réssayer votre recherche en utilisant l'interface classique de datasud.
+      Si vous n'êtes pas satisfait des résultats, vous pouvez reprendre votre recherche en utilisant l'interface classique de Datasud.
 
-      Si vous ne trouvez toujours pas les données que vous recherchez, vous pouvez nous faire une demande de jeu de données via ce formulaire: https://www.datasud.fr/demande-de-donnees/
+      Si vous ne trouvez toujours pas les données que vous recherchez, vous pouvez nous faire une demande de jeu de données via ce formulaire : https://www.datasud.fr/demande-de-donnees/
   utter_contact_datasud:
-  - text: "Enfin, si vous avez rencontrer un problème lors de l'utilisation de notre plateforme, vous pouvez nous contacter via ce formulaire: https://www.datasud.fr/contactez-nous/"
+  - text: "Enfin, si vous avez rencontré un problème lors de l'utilisation de notre plateforme, vous pouvez nous contacter via ce formulaire : https://www.datasud.fr/contactez-nous/"
   utter_default:
   - text: Je suis désolé, je n'ai pas bien compris votre message.
 actions:
