@@ -1,6 +1,4 @@
-# Documentation Rasa / Rasa X
-
-# Déploiement avec Docker
+# Déploiement conciergerie avec Docker
 
 Requirements:
     - python >= 3.X
@@ -48,7 +46,7 @@ Vous pouvez maintenant entraîner un nouveau modèle.
 
 <https://github.com/moreymat/Chatbot-Widget>
 
-# Déploiement sans docker
+# Déploiement conciergerie sans docker
 
 ## Téléchargement des dépendances (ancien chatbot / ancien widget)
 
@@ -104,6 +102,8 @@ Rasa-x accessible à l'adresse <http://localhost:5002>
 La documentation des APIs est disponible aux adresses <http://localhost:8001/docs>, <http://localhost:8002/docs> et <http://localhost:8003/docs> une fois les APIs lancées.
 
 widget: <https://github.com/moreymat/Chatbot-Widget> (ancient widget)
+
+# Documentation Rasa / Rasa X
 
 # Répartition des fichiers
 
