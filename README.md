@@ -1,9 +1,8 @@
 # Déploiement conciergerie avec Docker
 
 Requirements:
-    - python >= 3.X
-    - docker >= 20.X
-    - pytest
+- python >= 3.X
+- docker >= 20.X
 
 ## 1 - Création docker image expansion API
 
@@ -16,8 +15,7 @@ Requirements:
 
 ## 2 - Création fichier dockers
 
-Depuis le répertoire `conciergerie-open-data/`
-Changer configuration dans `docker-config.config` 
+Depuis le répertoire `conciergerie-open-data/`, changer la configuration dans `docker-config.config`, puis lancer le script:
 
 ```
 sudo bash ./start_docker.sh [-a|-i|-d|-s|-h]
@@ -32,6 +30,32 @@ sudo python3 rasa_x_commands.py create --update admin me <PASSWORD>
 ## 3 - Configuration nginx
 
 Vous pouvez modifiez la configuration nginx via les fichiers `docker-compose.override.yml`, `docker-compose.yml` dans `/etc/rasa`, et en ajoutant votre version de `rasax.nginx` (version par défaut présente dans ce dépôt).
+
+### Ajout de nouveaux services
+Dans un fichier `docker-compose.override.yml`:
+```yml
+services:    
+    app:
+        image: rasa/rasa-actions-sdk:1.0.0
+
+    fastapi-query-expansion:
+        image: fastapi-query-expansion:1.0.0
+
+    fastapi-search-reranking:
+        image: fastapi-search-reranking:1.0.0
+    
+    fastapi-lexical-resources:
+        image: fastapi-lexical-resources:1.0.0
+```
+
+### Changer la configuration nginx
+
+Faire les modificiations nécessaires dans le fichier `rasax.nginx` par défaut de l'image docker du service nginx. Puis ajouter ces lignes à `docker-compose.override.yml`:
+```yml
+nginx:
+    volumes:
+        - ./rasax.nginx:/opt/bitnami/nginx/conf/conf.d/rasax.nginx:ro
+```
 
 ## 4 - Integrated version
 
