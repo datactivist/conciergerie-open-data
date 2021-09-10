@@ -1,4 +1,4 @@
 requests==2.25.1
-rasa_sdk==2.5.0
+rasa_sdk==2.8.1
 numpy
 pytest

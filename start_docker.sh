@@ -99,7 +99,7 @@ install_and_start_script()
         echo "Installing and starting install.sh script"
 
         if ! test -f "install.sh"; then
-            curl -sSL -o install.sh https://storage.googleapis.com/rasa-x-releases/0.37.1/install.sh
+            curl -sSL -o install.sh https://storage.googleapis.com/rasa-x-releases/0.42.2/install.sh
         else
             echo "install.sh script is already downloaded"
         fi
