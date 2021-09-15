@@ -237,7 +237,7 @@ class AskForKeywordsFeedbackSlotAction(Action):
             # Le custom payload est détecté comme un texte, donc j'ajoute un type qui permet facilement de détecter que c'est un un custom payload au niveau du widget
             payload = {
                 "type": "custom_payload_keywords",
-                "text": "Voici quelques mots-clés supplémentaires. Cliquez sur ceux qui vous semblent pertinents pour approfondir votre recherche.",
+                "text": "Voici quelques mots-clés supplémentaires. Cliquez sur ceux qui vous semblent pertinents, puis appuyez sur entrée, pour approfondir votre recherche.",
                 "nb_max_keywords": 8,
                 "keywords": keywords,
             }
@@ -624,4 +624,34 @@ class SendResultsFeedback(Action):
         api_call.add_reranking_feedback_query(
             conversation_id, user_search, search_target_feedback, feedbacks_list,
         )
+
+
+class ProposeAlternativeSearch(Action):
+    """
+    Let the user know what he can do if he didn't what he needed via the chatbot.
+    """
+
+    def name(self):
+        return "action_data_not_found"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+
+        user_search = tracker.get_slot("keywords")
+
+        print(keywords_delimitor, user_search)
+
+        classic_search_link = "https://trouver.datasud.fr/dataset?q=" + "&&".join(
+            re.split(keywords_delimitor, user_search)
+        )
+
+        dispatcher.utter_message(
+            response="utter_data_not_found", classic_search_link=classic_search_link
+        )
+
+        dispatcher.utter_message(response="utter_contact_datasud")
 

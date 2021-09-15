@@ -116,7 +116,7 @@ responses:
   - text: Pas de problème !
   utter_data_not_found:
   - text: |-
-      Si vous n'êtes pas satisfait des résultats, vous pouvez reprendre votre recherche en utilisant l'interface classique de Datasud.
+      Si vous n'êtes pas satisfait des résultats, vous pouvez reprendre votre recherche en utilisant l'interface classique de Datasud: {classic_search_link}.
 
       Si vous ne trouvez toujours pas les données que vous recherchez, vous pouvez nous faire une demande de jeu de données via ce formulaire : https://www.datasud.fr/demande-de-donnees/
   utter_contact_datasud:
@@ -137,6 +137,7 @@ actions:
 - action_set_datasud_flag
 - action_set_cu_flag
 - action_anything_else
+- action_data_not_found
 forms:
   search_form:
     keywords:

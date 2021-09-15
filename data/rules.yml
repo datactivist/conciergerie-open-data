@@ -68,10 +68,9 @@ rules:
   steps:
   - action: action_feedback_proposition
   - intent: deny
-  - action: action_reset_all_slots
   - action: utter_no_problem
-  - action: utter_data_not_found
-  - action: utter_contact_datasud
+  - action: action_data_not_found
+  - action: action_reset_all_slots
   - action: action_anything_else
 
 - rule: activation du formulaire de feedback results
@@ -92,7 +91,6 @@ rules:
     - requested_slot: null
   - action: action_recap_feedback_to_user
   - action: action_send_results_feedback_to_reranking_API
+  - action: action_data_not_found
   - action: action_reset_all_slots
-  - action: utter_data_not_found
-  - action: utter_contact_datasud
   - action: action_anything_else
