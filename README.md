@@ -6,11 +6,11 @@ Requirements:
 
 ## 1 - Création docker image expansion API
 
-<https://github.com/moreymat/fastapi-lexical-resources>
+<https://github.com/datactivist/fastapi-lexical-resources>
 
-<https://github.com/moreymat/fastapi-query-expansion>
+<https://github.com/datactivist/fastapi-query-expansion>
 
-<https://github.com/moreymat/fastapi-search-reranking>
+<https://github.com/datactivist/fastapi-search-reranking>
 
 
 ## 2 - Création fichier dockers
@@ -68,7 +68,7 @@ Vous pouvez maintenant entraîner un nouveau modèle.
 
 ## Widget
 
-<https://github.com/moreymat/Chatbot-Widget>
+<https://github.com/datactivist/rasa-webchat>
 
 # Déploiement conciergerie sans docker
 
@@ -100,11 +100,11 @@ rasa train
 ```
 
 ## 1 - Lancement APIs
-<https://github.com/moreymat/fastapi-lexical-resources>
+<https://github.com/datactivist/fastapi-lexical-resources>
 
-<https://github.com/moreymat/fastapi-query-expansion>
+<https://github.com/datactivist/fastapi-query-expansion>
 
-<https://github.com/moreymat/fastapi-search-reranking>
+<https://github.com/datactivist/fastapi-search-reranking>
 
 ## 2 - Lancement Rasa x
 Depuis le répertoire `conciergerie-open-data/`
@@ -125,7 +125,7 @@ Rasa-x accessible à l'adresse <http://localhost:5002>
 
 La documentation des APIs est disponible aux adresses <http://localhost:8001/docs>, <http://localhost:8002/docs> et <http://localhost:8003/docs> une fois les APIs lancées.
 
-widget: <https://github.com/moreymat/Chatbot-Widget> (ancient widget)
+widget: <https://github.com/datactivist/rasa-webchat>
 
 # Documentation Rasa / Rasa X
 
