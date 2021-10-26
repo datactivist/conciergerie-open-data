@@ -219,7 +219,7 @@ class AskForKeywordsFeedbackSlotAction(Action):
         user_search = tracker.get_slot("keywords")
 
         keywords_expanded = api_call.get_keywords_expansion_query(
-            user_search, {"name": "datasud"}
+            user_search, [{"name": "datasud", "type": "tags"}]
         )
 
         keywords_expanded_list = get_keywords_expanded_list(
@@ -411,10 +411,16 @@ class FeedbackProposition(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
+        yesnoButtons = [
+            {"payload": "/affirm", "title": "Oui !"},
+            {"payload": "/deny", "title": "Non merci",},
+        ]
+
         results = tracker.get_slot("results")
         if results != None and len(results) > 0:
             dispatcher.utter_message(
-                text="Seriez-vous d'accord de prendre quelques secondes de votre temps pour m'aider à m'améliorer ?"
+                text="Seriez-vous d'accord de prendre quelques secondes de votre temps pour m'aider à m'améliorer ?",
+                buttons=yesnoButtons,
             )
         else:
             # return {"event": "followup", "name": "action_recap_feedback_to_user"}

@@ -14,9 +14,7 @@ API_reranking_url = "http://" + API_reranking_host_name + ":" + API_reranking_po
 
 # API Portail de données
 API_datasud_host_name = "https://trouver.datasud.fr/api/3/action/package_search?"
-API_datasud_activated = True
-API_dreal_host_name = "https://sidonie-paca.fr/documents/search.json?"
-API_dreal_activated = True
+portail = "datasud"
 
 keywords_delimitor = " |,|;|_|\|"
 
@@ -34,6 +32,8 @@ def get_keywords_expansion_query(keywords, referentiel):
 
     body = {"keywords": keywords, "max_width": 8, "referentiel": referentiel}
 
+    print(body)
+
     try:
         return requests.post(search_expand_url, json=body).json()
     except requests.exceptions.RequestException as e:
@@ -45,13 +45,6 @@ def add_expansion_search_query(conversation_id, user_search, date):
     """
     Send a request to the expansion API to add a new search
     """
-
-    if API_datasud_activated:
-        portail = "datasud"
-    elif API_dreal_activated:
-        portail = "dreal"
-    else:
-        portail = "unknown"
 
     add_new_search_query_url = API_expansion_url + "add_search"
 
@@ -85,13 +78,6 @@ def add_expansion_feedback_query(conversation_id, user_search, feedbacks_list):
                 "feedback": -1
             }
     """
-
-    if API_datasud_activated:
-        portail = "datasud"
-    elif API_dreal_activated:
-        portail = "dreal"
-    else:
-        portail = "unknown"
 
     add_new_feedback_query_url = API_expansion_url + "add_feedback"
 
@@ -143,13 +129,6 @@ def add_reranking_search_query(conversation_id, user_search, date):
     """
     Send a request to the reranking API to add a new search
     """
-
-    if API_datasud_activated:
-        portail = "datasud"
-    elif API_dreal_activated:
-        portail = "dreal"
-    else:
-        portail = "unknown"
 
     add_new_search_query_url = API_reranking_url + "add_search"
 
@@ -230,14 +209,21 @@ def get_results_from_keywords(keywords, keywords_feedback, nb_results):
         + re.split(keywords_delimitor, keywords_feedback)
     )
 
-    if API_datasud_activated:
-        try:
+    try:
 
-            data = requests.post(API_datasud_host_name + query_params_plus).json()
+        data = requests.post(API_datasud_host_name + query_params_plus).json()
+
+        if len(data["result"]["results"]) < nb_results:
+            data_temp = requests.post(API_datasud_host_name + query_params_base).json()
+            for result in data_temp["result"]["results"]:
+                if result["name"] not in [
+                    result_cmp["name"] for result_cmp in data["result"]["results"]
+                ]:
+                    data["result"]["results"].append(result)
 
             if len(data["result"]["results"]) < nb_results:
                 data_temp = requests.post(
-                    API_datasud_host_name + query_params_base
+                    API_datasud_host_name + query_params_or
                 ).json()
                 for result in data_temp["result"]["results"]:
                     if result["name"] not in [
@@ -245,33 +231,10 @@ def get_results_from_keywords(keywords, keywords_feedback, nb_results):
                     ]:
                         data["result"]["results"].append(result)
 
-                if len(data["result"]["results"]) < nb_results:
-                    data_temp = requests.post(
-                        API_datasud_host_name + query_params_or
-                    ).json()
-                    for result in data_temp["result"]["results"]:
-                        if result["name"] not in [
-                            result_cmp["name"]
-                            for result_cmp in data["result"]["results"]
-                        ]:
-                            data["result"]["results"].append(result)
+        return process_results_datasud(data, nb_results)
 
-            data = process_results_datasud(data, nb_results)
-
-        except requests.exceptions.RequestException as e:
-            raise SystemExit(e)
-
-    elif API_dreal_activated:
-        try:
-            data = requests.post(API_dreal_host_name, params=query_params_plus).json()
-            data = process_results_dreal(data, nb_results)
-        except requests.exceptions.RequestException as e:
-            raise SystemExit(e)
-
-    else:
-        return []
-
-    return data
+    except requests.exceptions.RequestException as e:
+        raise SystemExit(e)
 
 
 def process_results_datasud(results, nb_results):
@@ -300,7 +263,7 @@ def process_results_datasud(results, nb_results):
                 "url": result["name"],
                 "description": result["notes"].replace('"', "'"),
                 "portal": "datasud",
-                "owner_org": result["author"],
+                "owner_org": result["organization"]["title"],
                 "owner_org_description": result["organization"]["description"].replace(
                     '"', "'"
                 ),
@@ -311,37 +274,6 @@ def process_results_datasud(results, nb_results):
                 "metadata_modification_date": result["metadata_modified"],
                 "tags": tags_list,
                 "groups": groups_list,
-            }
-        )
-
-    return formatted_results
-
-
-def process_results_dreal(results, nb_results):
-
-    """
-    Input:  results: results from datasud
-            nb_results: number of results to use
-    Output: List of results formatted to reranking API
-    """
-
-    formatted_results = []
-
-    results = results["documents"][0:nb_results]
-
-    for result in results:
-
-        tags_list = [x["title"] for x in result["categorie"]]
-
-        formatted_results.append(
-            {
-                "title": result["title"].replace('"', "'"),
-                "url": result["uri"],
-                "description": result["description"].replace('"', "'"),
-                "portal": "dreal",
-                "dataset_publication_date": result["date"],
-                "metadata_creation_date": result["date"],
-                "tags": tags_list,
             }
         )
 
