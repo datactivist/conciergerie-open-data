@@ -209,12 +209,16 @@ def get_results_from_keywords(keywords, keywords_feedback, nb_results):
         + re.split(keywords_delimitor, keywords_feedback)
     )
 
+    sorting = "&sort=score+desc,metadata_modified+desc"
+
     try:
 
-        data = requests.post(API_datasud_host_name + query_params_plus).json()
+        data = requests.post(API_datasud_host_name + query_params_plus + sorting).json()
 
         if len(data["result"]["results"]) < nb_results:
-            data_temp = requests.post(API_datasud_host_name + query_params_base).json()
+            data_temp = requests.post(
+                API_datasud_host_name + query_params_base + sorting
+            ).json()
             for result in data_temp["result"]["results"]:
                 if result["name"] not in [
                     result_cmp["name"] for result_cmp in data["result"]["results"]
@@ -223,7 +227,7 @@ def get_results_from_keywords(keywords, keywords_feedback, nb_results):
 
             if len(data["result"]["results"]) < nb_results:
                 data_temp = requests.post(
-                    API_datasud_host_name + query_params_or
+                    API_datasud_host_name + query_params_or + sorting
                 ).json()
                 for result in data_temp["result"]["results"]:
                     if result["name"] not in [
