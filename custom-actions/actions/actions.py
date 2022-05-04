@@ -513,7 +513,8 @@ class InitialMessage(Action):
         ]
 
         dispatcher.utter_message(
-            text="Bonjour, comment puis-je vous aider ?", buttons=propositions
+            text="Bonjour, je suis un bot conversationnel, comment puis-je vous aider ?",
+            buttons=propositions,
         )
 
 
