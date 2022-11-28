@@ -1,0 +1,24 @@
+version: '3.4'
+services:    
+    app:
+        restart: always
+        image: rasa/rasa-actions-sdk:1.0.0
+
+    fastapi-query-expansion:
+        restart: always
+        image: fastapi-query-expansion:1.0.0
+
+    fastapi-search-reranking:
+        restart: always
+        image: fastapi-search-reranking:1.0.0
+    
+    fastapi-lexical-resources:
+        restart: always
+        image: fastapi-lexical-resources:1.0.1
+
+    # restarter service that restart all the services every X seconds
+    # restarter:
+    #     image: docker
+    #     volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+    #     command: ["/bin/sh", "-c", "while true; do sleep 86400; docker restart rasa_fastapi-lexical-resources_1; docker restart rasa_fastapi-search-reranking_1; docker restart rasa_fastapi-query-expansion_1; docker restart rasa_rasa-x_1; docker restart rasa_db-migration_1; docker restart rasa_rasa-production_1; docker restart rasa_rasa-worker_1; docker restart rasa_app_1; docker restart rasa_db_1; docker restart rasa_rabbit_1; docker restart rasa_duckling_1; docker restart rasa_nginx_1; docker restart rasa_redis_1; done"]
+    #     restart: unless-stopped
